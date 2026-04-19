@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/client/',   // ✅ MOVE IT HERE (TOP LEVEL)
   server: {
     port: 5173,
-    base: '/client/',
     proxy: {
       '/api': { target: 'http://localhost:5001', changeOrigin: true }
     }
