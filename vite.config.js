@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/client/',   // ✅ MOVE IT HERE (TOP LEVEL)
+  base: '/',   // ✅ MOVE IT HERE (TOP LEVEL)
   server: {
     port: 5173,
     proxy: {
