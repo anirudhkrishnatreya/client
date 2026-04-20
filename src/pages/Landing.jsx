@@ -67,9 +67,9 @@ export default function Landing() {
           </div>
 
           <div className="mt-4 md:mt-6">
-            {/* <button onClick={() => nav('/admin/login')} className="bg-transparent border-none text-black/40 text-xs cursor-pointer hover:underline font-['DM_Sans',sans-serif]">
+            <button onClick={() => nav('/admin/login')} className="bg-transparent border-none text-black/40 text-xs cursor-pointer hover:underline font-['DM_Sans',sans-serif]">
                 Admin Portal →
-            </button> */}
+            </button>
           </div>
         </div>
       </main>

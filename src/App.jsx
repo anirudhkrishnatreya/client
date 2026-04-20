@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AssessmentProvider } from './context/AssessmentContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -75,9 +75,9 @@ export default function App() {
   return (
     <AuthProvider>
       <AssessmentProvider>
-        <BrowserRouter>
+        <HashRouter>
           <AppRoutes />
-        </BrowserRouter>
+        </HashRouter>
       </AssessmentProvider>
     </AuthProvider>
   );

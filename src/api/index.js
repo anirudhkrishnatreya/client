@@ -20,7 +20,9 @@ api.interceptors.response.use(
     if (err.response?.status === 401 && err.response?.data?.code === 'TOKEN_EXPIRED') {
       localStorage.removeItem('im_user_token');
       localStorage.removeItem('im_user');
-      window.location.href = '/login';
+      const redirectUrl = new URL(window.location.href);
+      redirectUrl.hash = '/login';
+      window.location.replace(redirectUrl.toString());
     }
     return Promise.reject(err);
   }
