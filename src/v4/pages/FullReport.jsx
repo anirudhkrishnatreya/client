@@ -80,7 +80,7 @@ function FieldCard({ f }) {
           <p style={{ margin: '8px 0' }}>{p.summary}</p>
           <div className="v4-cols"><List title="Ways to study" items={p.studyPaths} /><List title="Entrance exams" items={p.exams} /></div>
           <List title="Jobs people do" items={p.roles} />
-          <p className="v4-muted" style={{ fontSize: 12, marginTop: 6 }}>Sources: {p.sources.join('; ')}. {p.lastReviewedAt ? `Checked ${p.lastReviewedAt}.` : 'Not yet checked by a reviewer: please confirm the details before you decide.'}</p>
+          <p className="v4-muted" style={{ fontSize: 12, marginTop: 6 }}>Sources: {p.sources.join('; ')}. {p.lastReviewedAt ? `Checked internally ${p.lastReviewedAt}.` : 'Not yet checked by a reviewer: please confirm the details before you decide.'}</p>
         </>
       )}
       {f.gaps && f.gaps.length > 0 && (
