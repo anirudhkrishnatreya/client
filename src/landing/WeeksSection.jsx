@@ -46,7 +46,7 @@ export function applyWeek(el, w) {
     const d = Math.abs(w - k);
     el.style.setProperty(`--to${k}`, String(clamp(1 - d * 2.6)));
     el.style.setProperty(`--ty${k}`, `${((k - w) * 46).toFixed(1)}px`);
-    el.style.setProperty(`--co${k}`, String(Math.max(0.01, clamp(1.0 - d * 1.7))));
+    el.style.setProperty(`--co${k}`, String(Math.max(0.004, clamp(1.0 - d * 1.7))));
   });
 }
 
@@ -120,7 +120,7 @@ function useWarmImages() {
  * Drives a scene from the page scroll. The scroll position only sets a target; the picture glides to it
  * (exponential easing, about a tenth of a second), so a notched mouse wheel or a trackpad flick never makes the orbit jump.
  */
-function useScroll(sectionRef, sceneRef, enabled) {
+function useScroll(sectionRef, sceneRef, enabled, offset = 0) {
   useWarmImages();
   useEffect(() => {
     if (!enabled) return undefined;
@@ -135,14 +135,14 @@ function useScroll(sectionRef, sceneRef, enabled) {
     };
     const read = () => {
       const s = sectionRef.current; if (!s) return;
-      const r = s.getBoundingClientRect(), span = r.height - window.innerHeight;
-      st.target = weekAt(span > 0 ? clamp(-r.top / span) : 0);
+      const r = s.getBoundingClientRect(), span = r.height - (window.innerHeight - offset);
+      st.target = weekAt(span > 0 ? clamp((offset - r.top) / span) : 0);
       if (!st.primed) { st.primed = true; st.cur = st.target; if (sceneRef.current) applyWeek(sceneRef.current, st.cur); return; }
       if (!st.raf) { st.last = performance.now(); st.raf = requestAnimationFrame(frame); }
     };
     read(); window.addEventListener('scroll', read, { passive: true }); window.addEventListener('resize', read);
     return () => { window.removeEventListener('scroll', read); window.removeEventListener('resize', read); if (st.raf) cancelAnimationFrame(st.raf); };
-  }, [sectionRef, sceneRef, enabled]);
+  }, [sectionRef, sceneRef, enabled, offset]);
 }
 
 function staticVars(k) {
@@ -152,11 +152,11 @@ function staticVars(k) {
 }
 
 /** Desktop: the 1280 x 714 design, scaled to fit, pinned while the orbit turns. */
-function Desktop({ reduced }) {
+function Desktop({ reduced, offset }) {
   const sec = useRef(null), scene = useRef(null);
   const { w: vw, h: vh } = useViewport();
-  const s = Math.min(vw / W, vh / H);
-  useScroll(sec, scene, !reduced);
+  const s = Math.min(vw / W, (vh - offset) / H);
+  useScroll(sec, scene, !reduced, offset);
   const stage = k => (
     <div className="lp-fitbox" style={{ width: W * s, height: H * s }}>
       <div className="lp-stage lp-wstage" ref={k === undefined ? scene : undefined} style={{ transform: `scale(${s})`, ...(k === undefined ? {} : staticVars(k)) }}>
@@ -167,18 +167,18 @@ function Desktop({ reduced }) {
     </div>
   );
   if (reduced) return <section className="lp-weeks static" id="how-it-works" aria-label="Your first three weeks">{WEEKS.map((_, k) => <div key={k} className="lp-pin static">{stage(k)}</div>)}</section>;
-  return <section className="lp-weeks" id="how-it-works" ref={sec} style={{ height: '380vh' }} aria-label="Your first three weeks"><div className="lp-pin">{stage()}</div></section>;
+  return <section className="lp-weeks" id="how-it-works" ref={sec} style={{ height: '380vh' }} aria-label="Your first three weeks"><div className="lp-pin" style={{ top: offset, height: `calc(100vh - ${offset}px)` }}>{stage()}</div></section>;
 }
 
 /** Phone and tablet: text on top, the orbit (cropped to its right-hand side) underneath, still pinned and still turning. */
-function Mobile({ reduced }) {
+function Mobile({ reduced, offset }) {
   const sec = useRef(null), scene = useRef(null);
   const { w: vw, h: vh } = useViewport();
-  const avail = Math.max(280, vh - 330);
+  const avail = Math.max(280, vh - 330 - offset);
   const width = Math.min(vw, 560);
   const s = Math.min(width / 580, avail / H);
   const seen = width / s;                                  // how much of the design's width is shown
-  useScroll(sec, scene, !reduced);
+  useScroll(sec, scene, !reduced, offset);
   const body = k => (
     <div className="lp-mwrap" ref={k === undefined ? scene : undefined} style={k === undefined ? undefined : staticVars(k)}>
       <div className="lp-mtext">
@@ -196,11 +196,11 @@ function Mobile({ reduced }) {
     </div>
   );
   if (reduced) return <section className="lp-weeks static m" id="how-it-works" aria-label="Your first three weeks">{WEEKS.map((_, k) => <div key={k} className="lp-pin static">{body(k)}</div>)}</section>;
-  return <section className="lp-weeks m" id="how-it-works" ref={sec} style={{ height: '360vh' }} aria-label="Your first three weeks"><div className="lp-pin">{body()}</div></section>;
+  return <section className="lp-weeks m" id="how-it-works" ref={sec} style={{ height: '360vh' }} aria-label="Your first three weeks"><div className="lp-pin" style={{ top: offset, height: `calc(100vh - ${offset}px)` }}>{body()}</div></section>;
 }
 
-export default function WeeksSection() {
+export default function WeeksSection({ offset = 0 }) {
   const wide = useMedia('(min-width: 1024px)', true);
   const reduced = useMedia('(prefers-reduced-motion: reduce)', false);
-  return wide ? <Desktop reduced={reduced} /> : <Mobile reduced={reduced} />;
+  return wide ? <Desktop reduced={reduced} offset={offset} /> : <Mobile reduced={reduced} offset={offset} />;
 }

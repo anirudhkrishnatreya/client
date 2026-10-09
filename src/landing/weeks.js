@@ -29,25 +29,25 @@ export const LINE_ICONS = {
 };
 
 export const WEEKS = [
-  { n: 1, title: 'AI-Powered Career Fit', items: [
+  { n: 1, title: 'Know Your Career Fit', items: [
     { img: iconSurvey, title: 'Survey & Profile.', text: 'Tell us about you: background, strengths, goals.' },
-    { img: iconGauge, title: 'Instant Assessment', text: 'Our AI model analyzes your profile against all career personas.' },
-    { img: iconReport, title: 'Your Career Fit Report', text: 'Get your custom top-2 recommended paths, key strengths, and a high-level skills roadmap.' }
+    { img: iconGauge, title: 'Instant Assessment', text: 'Your answers are scored against career profiles, and you see your results straight away.' },
+    { img: iconReport, title: 'Your Career Fit Report', text: 'Get your top recommended paths, your key strengths, and a skills roadmap to start from.' }
   ],
   emojis: ['😃', '🥰', '😻', '🤖', '💪', '🚀', '🥳'],
   art: { cardA: card1, captionA: 'Tell us about you: background, strengths, goals.', cardB: card2, captionB: 'Tell us about you: background, strengths, goals.', blob: blob1, blobSize: [174, 174], round: hero6 } },
   { n: 2, title: 'Meet Your Mentor', items: [
-    { icon: 'match', title: 'Mentor Match.', text: 'We pair you with a mentor who fits your goals and the way you learn.' },
+    { icon: 'match', title: 'Mentor Match.', text: 'Matched on your goals and profile, with a person checking the fit.' },
     { icon: 'session', title: 'Your First Session', text: 'Talk through your report together and set clear goals for the weeks ahead.' },
     { icon: 'plan', title: 'Your Action Plan', text: 'Leave with a simple, week-by-week plan you can start on right away.' }
   ],
   emojis: ['🤝', '🎯', '💬', '🙌', '⭐', '📅', '🧭'],
   art: { cardA: hero3, captionA: 'Matched with a mentor who gets your goals.', cardB: hero1, captionB: 'Your first session, booked and ready.', blob: hero4, blobSize: [190, 141], round: hero7 } },
-  { n: 3, title: 'Learn, Track & Grow', items: [
-    { icon: 'week', title: 'Your Weekly Plan.', text: 'Know what to study each day, and exactly which source to study it from.' },
-    { icon: 'check', title: 'Check-ins & Feedback', text: 'Short assessments, marked fast, with tips on what to practise next.' },
-    { icon: 'growth', title: 'Progress You Can See', text: 'You and your parents follow your growth through weekly reports and mentor notes.' }
+  { n: 3, title: 'Build the Habit', items: [
+    { icon: 'week', title: 'Weekly Sessions.', text: 'Meet your mentor every week and leave with clear action items.' },
+    { icon: 'check', title: 'Insights That Help', text: 'Short summaries of your progress and what to focus on next, reviewed by your mentor.' },
+    { icon: 'growth', title: 'Progress You Can See', text: 'You and your parents follow your growth through reports and mentor notes.' }
   ],
   emojis: ['📈', '🏆', '📚', '🔥', '✅', '🎓', '🌟'],
-  art: { cardA: hero5, captionA: 'A weekly plan made just for you.', cardB: hero3, captionB: 'Every check-in shapes your next week.', blob: hero2, blobSize: [158, 174], round: hero1 } }
+  art: { cardA: hero5, captionA: 'Clear action items after every session.', cardB: hero3, captionB: 'Progress that shows up week by week.', blob: hero2, blobSize: [158, 174], round: hero1 } }
 ];
