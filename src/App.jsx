@@ -12,6 +12,8 @@ import AdminLogin    from './pages/AdminLogin';
 import AdminDash     from './pages/AdminDash';
 import AdminUser     from './pages/AdminUser';
 import { V4_ENABLED }  from './v4/config';
+import { PLATFORM_ENABLED } from './platform/config';
+import PlatformApp from './platform/PlatformApp';
 import V4Register      from './v4/pages/V4Register';
 import V4Dashboard     from './v4/pages/V4Dashboard';
 import V4Assessment    from './v4/pages/V4Assessment';
@@ -78,6 +80,8 @@ function AppRoutes() {
       <Route path="/results/:assessmentId" element={<RequireUser><Results /></RequireUser>} />
 
       {/* v4 assessment: only present when the build sets VITE_V4=on */}
+      {PLATFORM_ENABLED && <Route path="/platform/*" element={<PlatformApp />} />}
+
       {V4_ENABLED && (
         <>
           <Route path="/v4/register"           element={<GuestOnlyV4><V4Register /></GuestOnlyV4>} />

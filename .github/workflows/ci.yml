@@ -18,3 +18,4 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: VITE_V4=on npm run build        # the v4 build must compile too
+      - run: VITE_PLATFORM=on npm run build   # the dashboards must compile too
