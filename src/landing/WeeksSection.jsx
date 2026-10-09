@@ -46,7 +46,7 @@ export function applyWeek(el, w) {
     const d = Math.abs(w - k);
     el.style.setProperty(`--to${k}`, String(clamp(1 - d * 2.6)));
     el.style.setProperty(`--ty${k}`, `${((k - w) * 46).toFixed(1)}px`);
-    el.style.setProperty(`--co${k}`, String(clamp(1.0 - d * 1.7)));
+    el.style.setProperty(`--co${k}`, String(Math.max(0.01, clamp(1.0 - d * 1.7))));
   });
 }
 
@@ -106,21 +106,42 @@ function WeekTextAbs({ week, k }) {
   );
 }
 
-/** Drives a scene from the page scroll. Reduced motion: no pinning (see WeeksSection). */
+/** Keeps every picture decoded before it is needed, so nothing hitches the first time a week comes into view. */
+function useWarmImages() {
+  useEffect(() => {
+    const srcs = new Set();
+    WEEKS.forEach(w => { const a = w.art; [a.cardA, a.cardB, a.blob, a.round].forEach(x => srcs.add(x)); });
+    RINGS.forEach(r => srcs.add(r[0]));
+    srcs.forEach(src => { const im = new Image(); im.src = src; if (im.decode) im.decode().catch(() => {}); });
+  }, []);
+}
+
+/**
+ * Drives a scene from the page scroll. The scroll position only sets a target; the picture glides to it
+ * (exponential easing, about a tenth of a second), so a notched mouse wheel or a trackpad flick never makes the orbit jump.
+ */
 function useScroll(sectionRef, sceneRef, enabled) {
+  useWarmImages();
   useEffect(() => {
     if (!enabled) return undefined;
-    let raf = 0;
-    const tick = () => {
-      raf = 0;
-      const s = sectionRef.current, el = sceneRef.current; if (!s || !el) return;
-      const r = s.getBoundingClientRect();
-      const span = r.height - window.innerHeight;
-      applyWeek(el, weekAt(span > 0 ? clamp(-r.top / span) : 0));
+    const st = { target: 0, cur: 0, raf: 0, last: 0, primed: false };
+    const frame = now => {
+      const el = sceneRef.current; if (!el) { st.raf = 0; return; }
+      const dt = Math.min(64, now - st.last); st.last = now;
+      st.cur += (st.target - st.cur) * (1 - Math.exp(-dt / 95));
+      if (Math.abs(st.target - st.cur) < 0.0006) st.cur = st.target;
+      applyWeek(el, st.cur);
+      st.raf = st.cur === st.target ? 0 : requestAnimationFrame(frame);
     };
-    const on = () => { if (!raf) raf = requestAnimationFrame(tick); };
-    on(); window.addEventListener('scroll', on, { passive: true }); window.addEventListener('resize', on);
-    return () => { window.removeEventListener('scroll', on); window.removeEventListener('resize', on); if (raf) cancelAnimationFrame(raf); };
+    const read = () => {
+      const s = sectionRef.current; if (!s) return;
+      const r = s.getBoundingClientRect(), span = r.height - window.innerHeight;
+      st.target = weekAt(span > 0 ? clamp(-r.top / span) : 0);
+      if (!st.primed) { st.primed = true; st.cur = st.target; if (sceneRef.current) applyWeek(sceneRef.current, st.cur); return; }
+      if (!st.raf) { st.last = performance.now(); st.raf = requestAnimationFrame(frame); }
+    };
+    read(); window.addEventListener('scroll', read, { passive: true }); window.addEventListener('resize', read);
+    return () => { window.removeEventListener('scroll', read); window.removeEventListener('resize', read); if (st.raf) cancelAnimationFrame(st.raf); };
   }, [sectionRef, sceneRef, enabled]);
 }
 

@@ -61,7 +61,7 @@ describe('orbit maths', () => {
     const el = document.createElement('div');
     applyWeek(el, 1);
     expect(el.style.getPropertyValue('--g')).toBe(String(DELTA));
-    expect(el.style.getPropertyValue('--to1')).toBe('1'); expect(el.style.getPropertyValue('--to0')).toBe('0'); expect(el.style.getPropertyValue('--co2')).toBe('0');
+    expect(el.style.getPropertyValue('--to1')).toBe('1'); expect(el.style.getPropertyValue('--to0')).toBe('0'); expect(Number(el.style.getPropertyValue('--co2'))).toBeLessThanOrEqual(0.01);   // kept just visible so it is already painted when it turns in
     applyWeek(el, 0.5);
     expect(Number(el.style.getPropertyValue('--to0'))).toBeLessThan(0.1);          // texts do not overlap mid-turn
   });

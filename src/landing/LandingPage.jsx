@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { useMedia, useWidth } from './useFit';
 import WeeksSection from './WeeksSection';
+import { GetStarted, Practice } from './LowerSections';
 import '@fontsource/syne/700.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/dm-sans/400.css';
@@ -103,6 +104,8 @@ export default function LandingPage() {
     <div className="lp" id="top">
       {wide ? <HeroDesktop /> : <HeroMobile />}
       <WeeksSection />
+      <GetStarted />
+      <Practice />
     </div>
   );
 }
