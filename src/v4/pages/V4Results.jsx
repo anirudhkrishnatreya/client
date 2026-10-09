@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { v2 as defaultApi, errorCode } from '../api';
 import Frame from './Frame';
 
-const DIMENSIONS = [['interest', 'Interests'], ['personality', 'Personality'], ['aptitude', 'Abilities'], ['ei', 'Emotional intelligence'], ['values', 'What matters to you at work']];
+const DIMENSIONS = [['interest', 'Interests'], ['personality', 'Personality'], ['aptitude', 'Abilities'], ['ei', 'Emotional intelligence'], ['values', 'What matters at work']];
 const HOLLAND = { R: 'Realistic', I: 'Investigative', A: 'Artistic', S: 'Social', E: 'Enterprising', C: 'Conventional' };
 const POLE = { data: 'Data', ideas: 'Ideas', people: 'People', things: 'Things' };
 const BAND = { developing: 'Developing', moderate: 'Moderate', strong: 'Strong' };
@@ -21,23 +21,33 @@ export default function V4Results({ api = defaultApi }) {
   if (state === 'missing') return <Frame title="Results not found"><p>We could not find those results.</p><Link className="v4-btn" to="/v4">Back to your page</Link></Frame>;
   if (state === 'error') return <Frame><div className="v4-alert error" role="alert">We could not load your results.</div></Frame>;
 
-  const r = report;
-  const invalid = r.validity.flag === 'invalid';
-  const scaleLabel = sid => r.scales[sid] ? r.scales[sid].label : sid;
   return (
     <Frame title="Your results">
-      {r.norm.provisional && <div className="v4-alert info" role="note">These scores are <strong>provisional</strong>. We are still collecting the information needed to compare you accurately with other students of your age.</div>}
-      {invalid && <div className="v4-alert error" role="alert">The pattern of answers suggests this attempt may not show your real strengths, so we have not suggested careers. Retaking the test when you are rested is recommended.</div>}
+      <ReportView r={report} />
+      <p style={{ marginTop: 16 }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
+    </Frame>
+  );
+}
+
+/** The report body. Shared by the student's page and by a counsellor's view of a student who agreed to share, so both always match. */
+export function ReportView({ r, viewer = 'student' }) {
+  const t = viewer === 'counsellor';        // a counsellor reads the same report, in the third person
+  const invalid = r.validity.flag === 'invalid';
+  const scaleLabel = sid => (r.scales[sid] ? r.scales[sid].label : sid);
+  return (
+    <>
+      {r.norm.provisional && <div className="v4-alert info" role="note">These scores are <strong>provisional</strong>. We are still collecting the information needed to compare {t ? 'the student' : 'you'} accurately with other students of the same age.</div>}
+      {invalid && <div className="v4-alert error" role="alert">The pattern of answers suggests this attempt may not show {t ? 'the student\'s' : 'your'} real strengths, so we have not suggested careers. Retaking the test when rested is recommended.</div>}
       {r.validity.flag === 'caution' && <div className="v4-alert info" role="note">A few answers looked unusual, so please read these results as a guide, not a verdict.</div>}
 
       {!invalid && (
         <>
           <section className="v4-card" aria-labelledby="h-code">
-            <h2 id="h-code" className="v4-h2">Your interests in a word</h2>
+            <h2 id="h-code" className="v4-h2">{t ? 'Their' : 'Your'} interests in a word</h2>
             {r.holland && r.holland.code
               ? <p><strong style={{ fontSize: 28, letterSpacing: 4 }}>{r.holland.code}</strong><br /><span className="v4-muted">{r.holland.code.split('').map(c => HOLLAND[c]).join(' · ')}</span></p>
-              : <p className="v4-muted">Your interests were spread fairly evenly, so there is no single leading pattern. That is normal; it means many paths could suit you.</p>}
-            {r.orientation && !r.orientation.undifferentiated && <p style={{ marginTop: 10 }}>You lean towards working with <strong>{POLE[r.orientation.dominant]}</strong>, and then <strong>{POLE[r.orientation.secondary]}</strong>.</p>}
+              : <p className="v4-muted">{t ? 'Their' : 'Your'} interests were spread fairly evenly, so there is no single leading pattern. That is normal; it means many paths could suit {t ? 'them' : 'you'}.</p>}
+            {r.orientation && !r.orientation.undifferentiated && <p style={{ marginTop: 10 }}>{t ? 'They lean' : 'You lean'} towards working with <strong>{POLE[r.orientation.dominant]}</strong>, and then <strong>{POLE[r.orientation.secondary]}</strong>.</p>}
           </section>
 
           {DIMENSIONS.map(([dim, title]) => {
@@ -61,15 +71,15 @@ export default function V4Results({ api = defaultApi }) {
             );
           })}
 
-          <Matches matches={r.matches} />
+          <Matches matches={r.matches} viewer={viewer} />
         </>
       )}
-      <p style={{ marginTop: 16 }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
-    </Frame>
+    </>
   );
 }
 
-function Matches({ matches }) {
+function Matches({ matches, viewer }) {
+  const them = viewer === 'counsellor';
   if (!matches || matches.withheld) return null;
   if (matches.explore) {
     return (
@@ -93,5 +103,5 @@ function Matches({ matches }) {
       </ol>
     </section>
   );
-  return <>{matches.streams && list('Subject streams that may suit you', matches.streams, 3)}{matches.fields && list('Career fields that may suit you', matches.fields, 5)}</>;
+  return <>{matches.streams && list(`Subject streams that may suit ${them ? 'them' : 'you'}`, matches.streams, 3)}{matches.fields && list(`Career fields that may suit ${them ? 'them' : 'you'}`, matches.fields, 5)}</>;
 }

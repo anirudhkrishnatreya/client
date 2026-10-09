@@ -27,5 +27,27 @@ export const v2 = {
   pdf: id => api.get(`/v2/reports/${id}/pdf`, { responseType: 'blob' })     // available once the PDF worker exists (status 'ready')
 };
 
+// Counsellor (their own organization only)
+export const school = {
+  cohorts: () => api.get('/v2/org/cohorts'),
+  progress: id => api.get(`/v2/org/cohorts/${id}/progress`),
+  summary: id => api.get(`/v2/org/cohorts/${id}/summary`),
+  studentReport: (cohortId, studentId) => api.get(`/v2/org/cohorts/${cohortId}/students/${studentId}/report`)
+};
+
+// Superadmin (the admin token is attached automatically for /admin URLs)
+export const adminOrgs = {
+  list: () => api.get('/admin/orgs'),
+  create: body => api.post('/admin/orgs', body),
+  recordDpa: (orgId, version) => api.post(`/admin/orgs/${orgId}/dpa`, { version }),
+  cohorts: orgId => api.get(`/admin/orgs/${orgId}/cohorts`),
+  createCohort: (orgId, body) => api.post(`/admin/orgs/${orgId}/cohorts`, body),
+  setCohortStatus: (cohortId, status) => api.put(`/admin/cohorts/${cohortId}/status`, { status }),
+  counsellors: orgId => api.get(`/admin/orgs/${orgId}/counsellors`),
+  createCounsellor: (orgId, body) => api.post(`/admin/orgs/${orgId}/counsellors`, body),
+  deletionRequests: () => api.get('/admin/deletion-requests'),
+  deleteUser: id => api.delete(`/admin/user/${id}`)
+};
+
 /** The machine-readable code of an API error, e.g. 'CONSENT_REQUIRED'. */
 export const errorCode = err => (err && err.response && err.response.data && (err.response.data.code || err.response.data.error)) || null;

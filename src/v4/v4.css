@@ -71,3 +71,5 @@
 .v4-bar > div { height: 100%; background: var(--navy); }
 .v4-pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--mist); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+table th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--slate); padding-bottom: 6px; }

@@ -17,6 +17,10 @@ import V4Dashboard     from './v4/pages/V4Dashboard';
 import V4Assessment    from './v4/pages/V4Assessment';
 import V4Results       from './v4/pages/V4Results';
 import GuardianConsent from './v4/pages/GuardianConsent';
+import SchoolHome      from './v4/pages/SchoolHome';
+import SchoolClass     from './v4/pages/SchoolClass';
+import SchoolStudent   from './v4/pages/SchoolStudent';
+import AdminOrgs       from './v4/pages/AdminOrgs';
 
 // ── User must be logged in
 function RequireUser({ children }) {
@@ -81,6 +85,10 @@ function AppRoutes() {
           <Route path="/v4"                    element={<RequireUser><V4Dashboard /></RequireUser>} />
           <Route path="/v4/test"               element={<RequireUser><V4Assessment /></RequireUser>} />
           <Route path="/v4/results/:id"        element={<RequireUser><V4Results /></RequireUser>} />
+          <Route path="/v4/school"                          element={<RequireUser><SchoolHome /></RequireUser>} />
+          <Route path="/v4/school/:cohortId"                element={<RequireUser><SchoolClass /></RequireUser>} />
+          <Route path="/v4/school/:cohortId/student/:studentId" element={<RequireUser><SchoolStudent /></RequireUser>} />
+          <Route path="/admin/orgs"                         element={<RequireAdmin><AdminOrgs /></RequireAdmin>} />
         </>
       )}
 

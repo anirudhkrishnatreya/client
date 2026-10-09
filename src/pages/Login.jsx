@@ -55,6 +55,7 @@ export default function Login() {
       saveSession(data.token, data.user);
       dispatch({ type: 'SET_USER', id: data.user.id, name: data.user.fullName });
 
+      if (V4_ENABLED && data.user.role === 'counsellor') { nav('/v4/school'); return; }
       if (V4_ENABLED && data.user.track) { nav('/v4'); return; }       // v4 students have their own dashboard
       if (data.user.assessmentCompleted) { nav('/dashboard'); return; }
       if (!data.user.onboardingCompleted) { nav('/register'); return; }
