@@ -18,7 +18,7 @@ export function CardHead({ title, action, to, onAction, icon }) {
 
 export const Pill = ({ children, tone = '', icon }) => <span className={cx('pf-pill', tone)}>{icon && <Icon name={icon} size={13} />}{children}</span>;
 
-const AV = ['#2C3566', '#4C8C6B', '#D9654A', '#6F8FC0', '#8A5A07', '#7A4E9E'];
+const AV = ['#0f3ee4', '#4C8C6B', '#D9654A', '#6F8FC0', '#8A5A07', '#7A4E9E'];
 export function Avatar({ name = '?', size = 40 }) {
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const color = AV[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % AV.length];
@@ -42,7 +42,7 @@ export function Stat({ value, label, delta, up = true, icon, hint }) {
 }
 
 /** A progress ring with a number in the middle. */
-export function Ring({ value, size = 96, stroke = 10, color = '#2C3566', ink = '#2C3566', label, sub }) {
+export function Ring({ value, size = 96, stroke = 10, color = '#0f3ee4', ink = '#0f3ee4', label, sub }) {
   const r = (size - stroke) / 2, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, value)) / 100 * c;
   return (
     <div style={{ position: 'relative', width: size, height: size }} role="img" aria-label={label || `${Math.round(value)} percent`}>
@@ -51,14 +51,14 @@ export function Ring({ value, size = 96, stroke = 10, color = '#2C3566', ink = '
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${f(v)} ${f(c)}`} transform={`rotate(-90 ${size / 2} ${size / 2})`} />
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', textAlign: 'center', lineHeight: 1.05 }}>
-        <div><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: size * 0.27, color: ink, fontWeight: 600 }}>{Math.round(value)}<small style={{ fontSize: size * 0.14 }}>%</small></b>{sub && <div style={{ fontSize: 11, color: ink, opacity: .65 }}>{sub}</div>}</div>
+        <div><b style={{ fontFamily: "'Syne', sans-serif", fontSize: size * 0.27, color: ink, fontWeight: 600 }}>{Math.round(value)}<small style={{ fontSize: size * 0.14 }}>%</small></b>{sub && <div style={{ fontSize: 11, color: ink, opacity: .65 }}>{sub}</div>}</div>
       </div>
     </div>
   );
 }
 
 /** A small line chart. */
-export function Spark({ data, height = 56, width = 220, color = '#2C3566', fill = true, label }) {
+export function Spark({ data, height = 56, width = 220, color = '#0f3ee4', fill = true, label }) {
   if (!data.length) return null;
   const max = Math.max(...data), min = Math.min(...data), span = max - min || 1, pad = 4;
   const pts = data.map((v, i) => [pad + (width - pad * 2) * (data.length === 1 ? 0.5 : i / (data.length - 1)), pad + (height - pad * 2) * (1 - (v - min) / span)]);
@@ -74,7 +74,7 @@ export function Spark({ data, height = 56, width = 220, color = '#2C3566', fill 
 }
 
 /** Vertical bars, one per label. */
-export function Bars({ data, height = 150, color = '#2C3566', max, unit = '', highlight }) {
+export function Bars({ data, height = 150, color = '#0f3ee4', max, unit = '', highlight }) {
   const top = max || Math.max(...data.map(d => d.value), 1);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height, paddingTop: 8 }} role="img" aria-label={data.map(d => `${d.label} ${d.value}${unit}`).join(', ')}>
@@ -99,7 +99,7 @@ export function Radar({ data, size = 280 }) {
       {[0.25, 0.5, 0.75, 1].map(k => <polygon key={k} points={data.map((_, i) => pt(i, R * k).map(f).join(',')).join(' ')} fill="none" stroke="#E6E9F0" />)}
       {data.map((d, i) => { const [x, y] = pt(i, R); return <line key={d.skill} x1={c} y1={c} x2={f(x)} y2={f(y)} stroke="#EEF0F5" />; })}
       <polygon points={poly('target')} fill="rgba(242,169,59,.12)" stroke="#F2A93B" strokeWidth="1.6" strokeDasharray="4 4" />
-      <polygon points={poly('now')} fill="rgba(44,53,102,.16)" stroke="#2C3566" strokeWidth="2.2" strokeLinejoin="round" />
+      <polygon points={poly('now')} fill="rgba(15,62,228,.16)" stroke="#0f3ee4" strokeWidth="2.2" strokeLinejoin="round" />
       {data.map((d, i) => { const [x, y] = pt(i, R + 22); return <text key={d.skill} x={f(x)} y={f(y + 4)} textAnchor="middle" fontSize="11.5" fill="#3A4256" fontFamily="DM Sans, sans-serif">{d.skill}</text>; })}
     </svg>
   );
@@ -107,7 +107,7 @@ export function Radar({ data, size = 280 }) {
 
 /** A contribution-style grid of study minutes: values in columns of 7 days. */
 export function Heat({ values }) {
-  const tone = v => (v === 0 ? '#EDEFF5' : v < 30 ? '#D6DBF0' : v < 60 ? '#A9B3E0' : v < 90 ? '#6F7DC6' : '#2C3566');
+  const tone = v => (v === 0 ? '#EDEFF5' : v < 30 ? '#dbe3ff' : v < 60 ? '#a9bcff' : v < 90 ? '#5f7dff' : '#0f3ee4');
   return <div className="pf-heat" role="img" aria-label="study activity over the last weeks">{values.map((v, i) => <i key={i} style={{ background: tone(v) }} title={`${v} min`} />)}</div>;
 }
 

@@ -31,7 +31,7 @@ export default function Overview() {
           </div>
           <div className="pf-row" style={{ gap: 20 }}>
             <Ring value={data.goal.progress} size={112} stroke={11} color="#F2A93B" ink="#fff" sub="to goal" />
-            <div style={{ textAlign: 'center' }}><div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 40, color: '#fff', lineHeight: 1 }}>{data.me.streak}</div><div className="pf-small" style={{ color: '#C3CAEA' }}><Icon name="flame" size={14} /> day streak</div></div>
+            <div style={{ textAlign: 'center' }}><div style={{ fontFamily: "'Syne', sans-serif", fontSize: 40, color: '#fff', lineHeight: 1 }}>{data.me.streak}</div><div className="pf-small" style={{ color: '#C3CAEA' }}><Icon name="flame" size={14} /> day streak</div></div>
           </div>
         </div>
       </Card>
@@ -84,9 +84,9 @@ export default function Overview() {
       </div>
 
       <div className="pf-grid g3">
-        <Card><CardHead title="Study minutes" icon="clock" /><Bars data={data.weekMinutes} highlight={dayLabel} color="#6F7DC6" unit=" min" /></Card>
+        <Card><CardHead title="Study minutes" icon="clock" /><Bars data={data.weekMinutes} highlight={dayLabel} color="#5f7dff" unit=" min" /></Card>
         <Card><CardHead title="Skills toward your goal" icon="target" /><Radar data={data.skills} size={290} />
-          <div className="pf-row pf-small pf-muted" style={{ justifyContent: 'center', gap: 16 }}><span><i style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: '#2C3566', marginRight: 6 }} />Now</span><span><i style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: '#F2A93B', marginRight: 6 }} />Target</span></div></Card>
+          <div className="pf-row pf-small pf-muted" style={{ justifyContent: 'center', gap: 16 }}><span><i style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: '#0f3ee4', marginRight: 6 }} />Now</span><span><i style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: '#F2A93B', marginRight: 6 }} />Target</span></div></Card>
         <Card><CardHead title="Goal pillars" action="My goal" to="goal" icon="layers" />
           {data.pillars.map(p => <div key={p.id} style={{ marginBottom: 12 }}><div className="pf-row pf-between pf-small" style={{ marginBottom: 5 }}><span>{p.label}</span><b className="pf-num">{p.pct}%</b></div><Progress value={p.pct} tone={p.tone} label={p.label} /></div>)}
           <div className="pf-divider" /><div className="pf-small pf-muted" style={{ marginBottom: 6 }}>Last 12 weeks</div><Heat values={data.heat} /></Card>

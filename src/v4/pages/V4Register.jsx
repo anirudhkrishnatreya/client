@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { v2 as defaultApi } from '../api';
 import { useAuth } from '../../context/AuthContext';
-import Frame from './Frame';
+import AuthLayout from '../../components/AuthLayout';
 import PrivacySummary from './PrivacySummary';
 
 export const GRADE_OPTIONS = [
@@ -63,8 +63,7 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
   };
 
   return (
-    <Frame title="Create your account" narrow>
-      <p className="v4-muted" style={{ marginBottom: 16 }}>You can use any email address. It takes about two minutes.</p>
+    <AuthLayout wide title="Create your account" subtitle="You can use any email address. It takes about two minutes.">
       <form className="v4-card" onSubmit={submit} noValidate>
         <div className="v4-field"><label htmlFor="fullName">Full name</label><input id="fullName" type="text" autoComplete="name" value={f.fullName} onChange={set('fullName')} />{fieldError(errors, 'fullName')}</div>
         <div className="v4-field"><label htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" value={f.email} onChange={set('email')} />{fieldError(errors, 'email')}</div>
@@ -101,6 +100,6 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
         <button className="v4-btn" style={{ width: '100%' }} type="submit" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
       </form>
       <p className="v4-muted" style={{ marginTop: 16, textAlign: 'center' }}>Already have an account? <Link to="/login">Sign in</Link></p>
-    </Frame>
+    </AuthLayout>
   );
 }

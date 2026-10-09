@@ -1,14 +1,14 @@
 /* iMenteo learning platform: student, mentor and parent dashboards. Everything is scoped under .pf. */
 .pf {
-  --ink: #1B2030; --ink2: #3A4256; --muted: #667085; --faint: #98A2B3; --line: #E6E9F0; --line2: #EEF0F5; --bg: #F5F6FA; --card: #fff;
-  --indigo: #2C3566; --deep: #1B2250; --deep2: #262E63; --marigold: #F2A93B; --coral: #D9654A; --leaf: #4C8C6B; --sky: #6F8FC0;
-  --indigo-t: #E9EBF6; --marigold-t: #FDF0D6; --coral-t: #FBE6DF; --leaf-t: #E2F0E8; --sky-t: #E5EEF7;
+  --ink: #121212; --ink2: #2b2f3a; --muted: #667085; --faint: #98A2B3; --line: #E6E9F0; --line2: #EEF0F5; --bg: #faf7f6; --card: #fff;
+  --indigo: #0f3ee4; --deep: #0b2bb3; --deep2: #1a3fd0; --marigold: #F2A93B; --coral: #D9654A; --leaf: #4C8C6B; --sky: #6F8FC0;
+  --indigo-t: #eef1ff; --marigold-t: #FDF0D6; --coral-t: #FBE6DF; --leaf-t: #E2F0E8; --sky-t: #E5EEF7;
   --r: 18px; --shadow: 0 1px 2px rgba(20,24,50,.05), 0 10px 28px rgba(20,24,50,.05); --shadow-lg: 0 20px 50px rgba(20,24,50,.18);
   font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.5; color: var(--ink); background: var(--bg); min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 .pf *, .pf *::before, .pf *::after { box-sizing: border-box; }
-.pf h1, .pf h2, .pf h3, .pf h4 { margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; color: var(--indigo); letter-spacing: -.01em; }
+.pf h1, .pf h2, .pf h3, .pf h4 { margin: 0; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--ink); letter-spacing: 0; }
 .pf p { margin: 0 0 10px; }
 .pf button { font: inherit; cursor: pointer; }
 .pf a { color: inherit; }
@@ -21,13 +21,13 @@
 /* ── shell */
 .pf-shell { display: grid; grid-template-columns: 268px 1fr; min-height: 100vh; transition: grid-template-columns .2s ease; }
 .pf-shell.collapsed { grid-template-columns: 84px 1fr; }
-.pf-side { background: linear-gradient(180deg, var(--deep) 0%, #151B40 100%); color: #D5DAF0; display: flex; flex-direction: column; padding: 18px 14px 14px; position: sticky; top: 0; height: 100vh; z-index: 30; }
+.pf-side { background: linear-gradient(180deg, var(--deep) 0%, #0a1f86 100%); color: #D5DAF0; display: flex; flex-direction: column; padding: 18px 14px 14px; position: sticky; top: 0; height: 100vh; z-index: 30; }
 .pf-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 18px; }
 .pf-brand .chip { background: #fff; border-radius: 12px; padding: 7px 12px; display: flex; align-items: center; } .pf-brand img { height: 22px; display: block; }
 .pf-shell.collapsed .pf-brand .chip { padding: 7px 8px; } .pf-shell.collapsed .pf-brand img { width: 30px; height: 22px; object-fit: cover; object-position: left; }
 .pf-roleswitch { margin: 0 6px 14px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.07); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #AEB6DD; display: flex; justify-content: space-between; align-items: center; }
 .pf-nav { flex: 1; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
-.pf-nav h6 { margin: 16px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #7F89BD; }
+.pf-nav h6 { margin: 16px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #a9bcff; }
 .pf-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: #C9D0EE; text-decoration: none; font-weight: 500; position: relative; margin-bottom: 2px; }
 .pf-link:hover { background: rgba(255,255,255,.07); color: #fff; }
 .pf-link.active { background: rgba(255,255,255,.12); color: #fff; }
@@ -73,7 +73,7 @@
 .pf-card-h .act:hover { text-decoration: underline; }
 .pf-eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--coral); }
 .pf-pagehead { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; } .pf-pagehead h2 { font-size: 30px; line-height: 1.1; font-weight: 500; } .pf-pagehead p { margin: 4px 0 0; color: var(--muted); max-width: 60ch; }
-.pf-hero { background: linear-gradient(120deg, var(--deep) 0%, var(--deep2) 55%, #3A4690 100%); color: #E8EBFA; border: 0; position: relative; overflow: hidden; padding: 26px 28px; }
+.pf-hero { background: linear-gradient(120deg, var(--deep) 0%, var(--deep2) 55%, #4d6bff 100%); color: #E8EBFA; border: 0; position: relative; overflow: hidden; padding: 26px 28px; }
 .pf-hero h2 { color: #fff; font-size: 30px; font-weight: 500; } .pf-hero p { color: #C3CAEA; max-width: 52ch; }
 .pf-hero::after { content: ''; position: absolute; right: -60px; top: -80px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(242,169,59,.55), rgba(242,169,59,0) 70%); }
 .pf-hero .pf-eyebrow { color: #FFC56B; }
@@ -93,7 +93,7 @@
 
 /* ── data display */
 .pf-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: #fff; flex: none; background: var(--indigo); }
-.pf-stat { display: flex; flex-direction: column; gap: 4px; } .pf-stat .v { font-family: Fraunces, Georgia, serif; font-size: 32px; font-weight: 500; color: var(--indigo); line-height: 1.05; } .pf-stat .l { font-size: 13px; color: var(--muted); } .pf-stat .d { font-size: 12.5px; font-weight: 600; }
+.pf-stat { display: flex; flex-direction: column; gap: 4px; } .pf-stat .v { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 500; color: var(--indigo); line-height: 1.05; } .pf-stat .l { font-size: 13px; color: var(--muted); } .pf-stat .d { font-size: 12.5px; font-weight: 600; }
 .pf-stat .d.up { color: var(--leaf); } .pf-stat .d.down { color: var(--coral); }
 .pf-progress { height: 8px; background: #EDEFF5; border-radius: 99px; overflow: hidden; } .pf-progress > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--sky), var(--indigo)); }
 .pf-progress.gold > i { background: linear-gradient(90deg, #FFD27D, var(--marigold)); } .pf-progress.leaf > i { background: linear-gradient(90deg, #8CC7A6, var(--leaf)); } .pf-progress.coral > i { background: linear-gradient(90deg, #F2A58F, var(--coral)); }
@@ -120,7 +120,7 @@
 @media (max-width: 1100px) { .pf-week { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .pf-week { grid-template-columns: 1fr; } }
 .pf-day { background: #fff; border: 1px solid var(--line2); border-radius: 16px; padding: 12px; min-height: 280px; } .pf-day.today { border-color: var(--marigold); box-shadow: 0 0 0 3px rgba(242,169,59,.18); }
-.pf-day h5 { margin: 0 0 8px; font-size: 13px; display: flex; justify-content: space-between; color: var(--ink2); } .pf-day h5 b { color: var(--indigo); font-family: Fraunces, Georgia, serif; font-size: 16px; font-weight: 600; }
+.pf-day h5 { margin: 0 0 8px; font-size: 13px; display: flex; justify-content: space-between; color: var(--ink2); } .pf-day h5 b { color: var(--indigo); font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; }
 .pf-block { border-radius: 12px; padding: 9px 10px; margin-bottom: 8px; font-size: 13px; border-left: 4px solid var(--sky); background: var(--sky-t); cursor: pointer; width: 100%; text-align: left; border-top: 0; border-right: 0; border-bottom: 0; color: var(--ink); }
 .pf-block small { display: block; color: var(--muted); font-size: 11.5px; } .pf-block.practice { border-color: var(--leaf); background: var(--leaf-t); } .pf-block.assess { border-color: var(--coral); background: var(--coral-t); } .pf-block.project { border-color: var(--marigold); background: var(--marigold-t); } .pf-block.revise { border-color: var(--indigo); background: var(--indigo-t); } .pf-block.rest { border-color: #C5CBE0; background: #F3F4F8; }
 .pf-block.done { opacity: .6; text-decoration: line-through; }
@@ -139,3 +139,8 @@
 
 /* Buttons that are links keep their button colours (the page-wide link colour must not win). */
 .pf a.pf-btn { color: #fff; text-decoration: none; } .pf a.pf-btn.ghost { color: var(--indigo); } .pf a.pf-btn.gold { color: var(--deep); }
+
+/* nav and small labels use the landing page's Montserrat */
+.pf-link, .pf-eyebrow, .pf-roleswitch, .pf-nav h6, .pf-tabs button { font-family: 'Montserrat', 'DM Sans', sans-serif; }
+.pf-link { font-weight: 600; font-size: 14px; }
+.pf-eyebrow { font-weight: 600; }

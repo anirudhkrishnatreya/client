@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { v2 as defaultApi, errorCode } from '../api';
 import { useAuth } from '../../context/AuthContext';
 import { PLATFORM_ENABLED } from '../../platform/config';
-import Frame from './Frame';
+import AuthLayout from '../../components/AuthLayout';
 
 // Opened from the link in the parent's email. The link is single-use. Here the parent confirms (for under-18s), and chooses
 // the password for their own iMenteo parent account. After that they sign in with their email and password.
@@ -44,21 +44,21 @@ export default function GuardianConsent({ api = defaultApi }) {
   };
   const decline = async () => { setBusy(true); try { await api.guardianDecline(token); setState('declined'); } catch { setState('error'); } finally { setBusy(false); } };
 
-  if (state === 'loading') return <Frame><p role="status">Loading…</p></Frame>;
-  if (state === 'invalid') return <Frame title="This link has expired or was already used"><p>If you already set up your account, <Link to="/login">sign in</Link> with this email address. Otherwise ask your child to send a new link from their iMenteo page.</p></Frame>;
-  if (state === 'error') return <Frame title="Something went wrong"><p>Please check your connection and try the link again.</p></Frame>;
-  if (state === 'declined') return <Frame title="Understood"><div className="v4-alert info" role="status">We have recorded that you do not agree. {info.student.firstName} will not be able to take the assessment and their information will be removed.</div></Frame>;
+  if (state === 'loading') return <AuthLayout wide><p role="status">Loading…</p></AuthLayout>;
+  if (state === 'invalid') return <AuthLayout wide title="This link has expired or was already used"><p>If you already set up your account, <Link to="/login">sign in</Link> with this email address. Otherwise ask your child to send a new link from their iMenteo page.</p></AuthLayout>;
+  if (state === 'error') return <AuthLayout wide title="Something went wrong"><p>Please check your connection and try the link again.</p></AuthLayout>;
+  if (state === 'declined') return <AuthLayout wide title="Understood"><div className="v4-alert info" role="status">We have recorded that you do not agree. {info.student.firstName} will not be able to take the assessment and their information will be removed.</div></AuthLayout>;
   if (state === 'done') return (
-    <Frame title="You are all set">
+    <AuthLayout wide title="You are all set">
       <div className="v4-alert ok" role="status">{info.consentRequired ? `Thank you. ${info.student.firstName} can now start. ` : ''}Your parent account is ready. From now on, sign in with <strong>{info.hasAccount ? 'your existing password' : 'the email and password you just chose'}</strong>.</div>
       <p style={{ marginTop: 16 }}>{PLATFORM_ENABLED ? <button type="button" className="v4-btn" onClick={() => nav('/platform/parent')}>Go to my dashboard</button> : <Link className="v4-btn" to="/login">Sign in</Link>}</p>
-    </Frame>
+    </AuthLayout>
   );
 
   const first = info.student.firstName;
   const canSubmit = !busy && !info.emailInUse && pw.length > 0 && (!info.consentRequired || agree) && (info.hasAccount || pw2.length > 0);
   return (
-    <Frame title={info.consentRequired ? `Please confirm for ${first}` : `${first} has added you as their parent`} narrow>
+    <AuthLayout wide title={info.consentRequired ? `Please confirm for ${first}` : `${first} has added you as their parent`}>
       <form className="v4-card" onSubmit={submit} noValidate>
         <p style={{ marginBottom: 12 }}>Hello {info.guardianName}. {info.consentRequired
           ? `${first} would like to use iMenteo. Because they are under 18, we need your agreement first. You will also create a parent account to follow their progress.`
@@ -84,6 +84,6 @@ export default function GuardianConsent({ api = defaultApi }) {
             : <button type="button" className="v4-btn danger" disabled={busy} onClick={decline}>Yes, I do not agree</button>)}
         </div>
       </form>
-    </Frame>
+    </AuthLayout>
   );
 }

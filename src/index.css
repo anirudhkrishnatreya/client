@@ -20,6 +20,16 @@
   --mist: #F3F4F6;
   --border: #E5E7EB;
 
+  /* ── Brand (matches the landing page) */
+  --brand: #0f3ee4;
+  --brand2: #2051fd;
+  --brand-lt: #eef1ff;
+  --pink: #fff2ef;
+  --coral: #f8c8bd;
+  --sun: #f6e7b4;
+  --font-head: 'Syne', 'DM Sans', system-ui, sans-serif;
+  --font-ui: 'Montserrat', 'DM Sans', system-ui, sans-serif;
+
   /* ── Radii */
   --radius: 16px;
   --rsm: 8px;
@@ -33,7 +43,7 @@
 
 html { font-size: 16px; scroll-behavior: smooth; }
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'DM Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   background: var(--cream);
   color: var(--navy);
   min-height: 100vh;

@@ -14,7 +14,7 @@ function Quiz({ item, onDone, onCancel }) {
     return (
       <Card>
         <div className="pf-eyebrow">Your result</div>
-        <div className="pf-row" style={{ gap: 24, margin: '8px 0 14px' }}><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 56, color: result.score >= 70 ? 'var(--leaf)' : 'var(--coral)', lineHeight: 1 }}>{result.score}%</b><div><b>{result.right} of {result.total} right</b><div className="pf-muted">{result.feedback.summary}</div></div></div>
+        <div className="pf-row" style={{ gap: 24, margin: '8px 0 14px' }}><b style={{ fontFamily: "'Syne', sans-serif", fontSize: 56, color: result.score >= 70 ? 'var(--leaf)' : 'var(--coral)', lineHeight: 1 }}>{result.score}%</b><div><b>{result.right} of {result.total} right</b><div className="pf-muted">{result.feedback.summary}</div></div></div>
         <div className="pf-grid g2">
           <div><h4 style={{ fontSize: 16 }}>What went well</h4><ul className="pf-list">{result.feedback.strengths.map(s => <li key={s}><Icon name="check" size={16} className="pf-faint" />{s}</li>)}</ul></div>
           <div><h4 style={{ fontSize: 16 }}>Worth another look</h4><ul className="pf-list">{result.feedback.gaps.map(s => <li key={s}><Icon name="flag" size={16} className="pf-faint" />{s}</li>)}</ul></div>
@@ -62,7 +62,7 @@ export default function Assessments() {
     <>
       <PageHead eyebrow="Assessments" title="Check what has stuck">Short, regular check-ins show what you have learned. Each one is marked straight away, with feedback that shapes your next week.</PageHead>
       <div className="pf-grid g-main-r" style={{ marginBottom: 18 }}>
-        <Card><CardHead title="Your scores" icon="trend" /><div className="pf-row" style={{ alignItems: 'flex-end' }}><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 44, color: 'var(--indigo)', lineHeight: 1 }}>{past[0].score}%</b><span className="pf-pill leaf">Latest</span></div><div style={{ marginTop: 10 }}><Spark data={data.scoreTrend} label="Score trend" /></div><div className="pf-small pf-muted">Last {data.scoreTrend.length} check-ins</div></Card>
+        <Card><CardHead title="Your scores" icon="trend" /><div className="pf-row" style={{ alignItems: 'flex-end' }}><b style={{ fontFamily: "'Syne', sans-serif", fontSize: 44, color: 'var(--indigo)', lineHeight: 1 }}>{past[0].score}%</b><span className="pf-pill leaf">Latest</span></div><div style={{ marginTop: 10 }}><Spark data={data.scoreTrend} label="Score trend" /></div><div className="pf-small pf-muted">Last {data.scoreTrend.length} check-ins</div></Card>
         <Card ai><span className="tag"><Icon name="sparkles" size={14} />What the feedback is telling the plan</span><p style={{ margin: '8px 0 0' }}>{past[0].feedback.summary}</p><p className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>Next: {past[0].feedback.next[0].toLowerCase()}.</p></Card>
       </div>
       <Tabs label="Assessment sections" value={tab} onChange={setTab} tabs={[{ id: 'upcoming', label: 'Upcoming', count: up.length }, { id: 'results', label: 'Results', count: past.length }]} />
@@ -77,7 +77,7 @@ export default function Assessments() {
           {past.map(p => <tr key={p.id} className="click" onClick={() => setOpen(p.id)}><td><b>{p.title}</b></td><td>{fmtDate(p.date)}</td><td>{p.topic}</td><td><Pill tone={p.score >= 75 ? 'leaf' : p.score >= 60 ? 'gold' : 'coral'}>{p.score}%</Pill></td><td><Icon name="chevronRight" size={16} className="pf-faint" /></td></tr>)}</tbody></table></div></Card>
       )}
       <Drawer open={!!a} title={a ? a.title : ''} onClose={() => setOpen(null)}>{a && <>
-        <div className="pf-row" style={{ gap: 18, marginBottom: 14 }}><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 48, color: a.score >= 70 ? 'var(--leaf)' : 'var(--coral)', lineHeight: 1 }}>{a.score}%</b><div className="pf-small pf-muted">{fmtDate(a.date)} · {a.mins} min · {a.topic}</div></div>
+        <div className="pf-row" style={{ gap: 18, marginBottom: 14 }}><b style={{ fontFamily: "'Syne', sans-serif", fontSize: 48, color: a.score >= 70 ? 'var(--leaf)' : 'var(--coral)', lineHeight: 1 }}>{a.score}%</b><div className="pf-small pf-muted">{fmtDate(a.date)} · {a.mins} min · {a.topic}</div></div>
         <p>{a.feedback.summary}</p>
         <h4 style={{ fontSize: 16, margin: '14px 0 6px' }}>What went well</h4><ul className="pf-list">{a.feedback.strengths.map(s => <li key={s}><Icon name="check" size={16} />{s}</li>)}</ul>
         <h4 style={{ fontSize: 16, margin: '14px 0 6px' }}>Worth another look</h4><ul className="pf-list">{a.feedback.gaps.map(s => <li key={s}><Icon name="flag" size={16} />{s}</li>)}</ul>

@@ -10,7 +10,7 @@ export default function Goal() {
         <Card className="pf-hero">
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="pf-eyebrow">Your why</div>
-            <p style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 22, lineHeight: 1.35, color: '#fff', margin: '8px 0 18px' }}>“{data.goal.why}”</p>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 22, lineHeight: 1.35, color: '#fff', margin: '8px 0 18px' }}>“{data.goal.why}”</p>
             <div className="pf-row" style={{ gap: 18 }}><Ring value={data.goal.progress} size={104} stroke={11} color="#F2A93B" ink="#fff" sub="done" /><div><b style={{ color: '#fff', fontSize: 18 }}>Phase 1 of 4: {data.roadmap[0].title}</b><div className="pf-small" style={{ color: '#C3CAEA' }}>{data.roadmap[0].note}</div></div></div>
           </div>
         </Card>

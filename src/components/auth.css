@@ -1,0 +1,64 @@
+/* Auth pages, in the landing page's look. */
+.au { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); background: #fff; font-family: 'DM Sans', system-ui, sans-serif; color: #121212; }
+.au *, .au *::before, .au *::after { box-sizing: border-box; }
+.au-side { position: sticky; top: 0; height: 100vh; margin: 12px 0 12px 12px; border-radius: 28px; overflow: hidden; padding: clamp(32px, 5vw, 64px); display: flex; flex-direction: column; justify-content: space-between;
+  background: radial-gradient(90% 70% at 100% 100%, rgba(32, 81, 253, .12), transparent 60%), linear-gradient(58deg, #fde3dc 0%, #fff2ef 38%, #fff 100%); }
+.au-side-in { position: relative; z-index: 2; }
+.au-h { margin: 0; font: 700 clamp(30px, 3.4vw, 50px)/1.12 'Syne', sans-serif; text-transform: uppercase; color: #000; }
+.au-h i { font-style: normal; color: #2051fd; }
+.au-ticks { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; font-size: 16px; color: rgba(18, 18, 18, .72); }
+.au-ticks li { display: flex; gap: 10px; align-items: center; }
+.au-ticks li::before { content: ''; flex: none; width: 22px; height: 22px; border-radius: 50%; background: #0f3ee4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 13px no-repeat; }
+.au-photos { position: relative; height: clamp(190px, 34vh, 320px); z-index: 1; }
+.au-photos img, .au-photos .c { position: absolute; }
+.au-photos .a { left: 2%; bottom: 8%; width: 24%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; transform: rotate(-3deg); box-shadow: 0 18px 30px -14px rgba(0, 0, 0, .35); }
+.au-photos .b { left: 26%; bottom: 0; width: 34%; filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .18)); transform: rotate(4deg); }
+.au-photos .c { left: 60%; bottom: 14%; width: 22%; aspect-ratio: 1; border-radius: 52% 3% 52% 3%; overflow: hidden; transform: rotate(-8deg); background: #e9e5e3; box-shadow: 0 18px 30px -14px rgba(0, 0, 0, .35); }
+.au-photos .c img { position: absolute; height: 100%; width: 150%; left: -10%; top: 0; max-width: none; }
+.au-photos .d { left: 46%; bottom: 46%; width: 18%; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .16)); transform: rotate(-6deg); }
+.au-photos .e { right: 1%; bottom: 52%; width: 15%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; transform: rotate(5deg); box-shadow: 0 14px 24px -12px rgba(0, 0, 0, .35); }
+
+.au-main { display: grid; place-items: start center; padding: clamp(28px, 5vw, 56px) clamp(18px, 4vw, 48px); }
+.au-card { width: 100%; max-width: 440px; }
+.au-card.wide { max-width: 560px; }
+.au-logo { display: inline-block; margin-bottom: 28px; }
+.au-logo img { height: 40px; width: auto; display: block; }
+.au-title { margin: 0 0 8px; font: 700 clamp(26px, 2.6vw, 34px)/1.15 'Syne', sans-serif; color: #121212; }
+.au-sub { margin: 0 0 24px; color: rgba(18, 18, 18, .66); font-size: 16px; line-height: 1.5; }
+.au-foot { margin: 28px 0 0; text-align: center; font-size: 14.5px; color: rgba(18, 18, 18, .66); }
+.au-foot a { color: #0f3ee4; font-weight: 700; text-decoration: none; } .au-foot a:hover { text-decoration: underline; }
+
+/* the form pieces used on these pages (the older v4 classes are restyled to match) */
+.au-body .v4-card { background: transparent; border: 0; box-shadow: none; padding: 0; border-radius: 0; }
+.au-field { margin-bottom: 16px; }
+.au-field label, .au-body .v4-field label { display: block; margin-bottom: 7px; font: 600 13px 'Montserrat', sans-serif; letter-spacing: .2px; color: #1f1f1f; }
+.au-input, .au-body .v4-field input[type=text], .au-body .v4-field input[type=email], .au-body .v4-field input[type=password], .au-body .v4-field input[type=date], .au-body .v4-field input[type=tel], .au-body .v4-field select {
+  width: 100%; height: 50px; padding: 0 16px; font: 400 16px 'DM Sans', sans-serif; color: #121212; background: #fff; border: 1.5px solid rgba(18, 18, 18, .14); border-radius: 12px; transition: border-color .15s, box-shadow .15s; }
+.au-input:hover, .au-body .v4-field input:hover, .au-body .v4-field select:hover { border-color: rgba(18, 18, 18, .3); }
+.au-input:focus, .au-body .v4-field input:focus, .au-body .v4-field select:focus { outline: 0; border-color: #0f3ee4; box-shadow: 0 0 0 4px rgba(15, 62, 228, .14); }
+.au-pw { position: relative; } .au-pw .au-input { padding-right: 76px; }
+.au-pw button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font: 600 12px 'Montserrat', sans-serif; letter-spacing: .6px; color: #0f3ee4; cursor: pointer; }
+.au-pw button:hover { background: #eef1ff; }
+.au-error { margin: 0 0 18px; padding: 12px 14px; border-radius: 12px; background: #fff1ee; border: 1px solid #f8c8bd; color: #a93a22; font-size: 14.5px; }
+.au-btn, .au-body .v4-btn:not(.secondary):not(.danger) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 52px; padding: 0 24px; border: 0; border-radius: 14px; background: #0f3ee4; color: #fff; font: 600 16px 'DM Sans', sans-serif; cursor: pointer; box-shadow: 0 8px 18px -6px rgba(15, 62, 228, .5); transition: transform .18s, box-shadow .18s, background .18s; }
+.au-btn:hover, .au-body .v4-btn:not(.secondary):not(.danger):hover { transform: translateY(-2px); box-shadow: 0 14px 24px -8px rgba(15, 62, 228, .55); }
+.au-btn:disabled, .au-body .v4-btn:disabled { opacity: .55; transform: none; box-shadow: none; cursor: not-allowed; }
+.au-body .v4-btn.secondary { border-radius: 14px; height: 48px; border: 1.5px solid rgba(18, 18, 18, .25); color: #121212; background: #fff; }
+.au-body .v4-btn.danger { border-radius: 14px; height: 48px; }
+.au-body .v4-h2 { font: 700 17px 'Syne', sans-serif; margin: 18px 0 8px; }
+.au-body .v4-check input { accent-color: #0f3ee4; }
+.au-body fieldset.v4-card { padding: 18px !important; border: 1px solid #f8c8bd !important; border-radius: 18px !important; background: #fff2ef !important; }
+.au-body .v4-alert { border-radius: 12px; }
+.au a:focus-visible, .au button:focus-visible, .au input:focus-visible { outline: 3px solid rgba(15, 62, 228, .5); outline-offset: 2px; }
+
+@media (max-width: 1000px) {
+  .au { grid-template-columns: 1fr; background: linear-gradient(58deg, rgba(248, 200, 189, .3), #fff 60%); }
+  .au-side { display: none; }
+  .au-main { padding-top: 24px; }
+}
+.au-body .v4-row { gap: 10px; } .au-body .v4-row .v4-btn { width: auto; flex: 1 1 200px; }
+.au-body .v4-muted { color: rgba(18, 18, 18, .62); }
+.au-body .v4-err { color: #a93a22; font-size: 13px; margin-top: 5px; }
+.au-body .v4-btn:not(.secondary):not(.danger), .au-btn { height: auto; min-height: 52px; padding-top: 12px; padding-bottom: 12px; text-align: center; }
+.au-body .v4-row { flex-direction: column; align-items: stretch; }
+.au-body .v4-row .v4-btn { width: 100%; flex: none; }

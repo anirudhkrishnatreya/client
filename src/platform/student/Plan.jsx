@@ -23,8 +23,8 @@ export default function Plan() {
       <PageHead eyebrow={`Week of ${fmtDate(data.aiPlan.week)}`} title="Your weekly plan" actions={<Link to="../coach" className="pf-btn gold"><Icon name="sparkles" size={16} />Adjust with AI</Link>}>Planned for you from your goal, your last quiz and the time you have. Tap any block to see what to study and why.</PageHead>
       <div className="pf-grid g-main" style={{ marginBottom: 18 }}>
         <Card>
-          <div className="pf-row pf-between pf-wrap"><div><div className="pf-small pf-muted">Planned this week</div><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 28, color: 'var(--indigo)' }}>{hm(total)}</b></div>
-            <div><div className="pf-small pf-muted">Done so far</div><b style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 28, color: 'var(--leaf)' }}>{hm(done)}</b></div>
+          <div className="pf-row pf-between pf-wrap"><div><div className="pf-small pf-muted">Planned this week</div><b style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, color: 'var(--indigo)' }}>{hm(total)}</b></div>
+            <div><div className="pf-small pf-muted">Done so far</div><b style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, color: 'var(--leaf)' }}>{hm(done)}</b></div>
             <div className="pf-row pf-wrap">{['learn', 'practice', 'project', 'revise', 'assess'].map(t => by(t) > 0 && <Pill key={t} tone={{ learn: 'sky', practice: 'leaf', assess: 'coral', project: 'gold', revise: '' }[t]}>{TYPE_LABEL[t]} {hm(by(t))}</Pill>)}</div></div>
         </Card>
         <Card ai><span className="tag"><Icon name="sparkles" size={14} />Why this plan</span><p style={{ margin: '6px 0 0', fontSize: 14 }}>{data.aiPlan.why[0].text}</p></Card>

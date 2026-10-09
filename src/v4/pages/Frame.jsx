@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import logoImg from '../../assets/imenteo_logo.png';
+import logoImg from '../../assets/landing/logo.png';
 import '../v4.css';
 
 // Common page frame for v4 screens: logo, who is signed in, sign out.
