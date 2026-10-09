@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
+import { V4_ENABLED } from '../v4/config';
 import { useMedia, useWidth } from './useFit';
 import WeeksSection from './WeeksSection';
 import { GetStarted, Practice } from './LowerSections';
@@ -21,6 +22,8 @@ import hero6 from '../assets/landing/hero-6-photo.png';
 import hero7 from '../assets/landing/hero-7.png';
 
 const goTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
+const toEnd = e => { e.preventDefault(); window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); };
 const toTop = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 function useAccount() {
@@ -43,9 +46,9 @@ function HeroDesktop() {
         <nav aria-label="Main">
           <a href="#top" className="lp-pill" onClick={toTop} style={{ left: 377, top: 22, width: 97 }}>Home</a>
           <button type="button" className="lp-navtxt" style={{ left: 492, top: 32, width: 60 }} onClick={() => goTo('how-it-works')}>Services</button><Caret x={559.5} y={42.5} />
-          <span className="lp-navtxt" style={{ left: 603, top: 32, width: 60 }}>Mentors</span><Caret x={670.5} y={42.5} />
-          <span className="lp-navtxt" style={{ left: 714, top: 32, width: 67 }}>About Us</span>
-          <span className="lp-navtxt" style={{ left: 824, top: 32, width: 80 }}>Contact Us</span>
+          <button type="button" className="lp-navtxt" style={{ left: 603, top: 32, width: 60 }} onClick={() => goTo('get-started')}>Mentors</button><Caret x={670.5} y={42.5} />
+          <button type="button" className="lp-navtxt" style={{ left: 714, top: 32, width: 67 }} onClick={() => goTo('practice')}>About Us</button>
+          <button type="button" className="lp-navtxt" style={{ left: 824, top: 32, width: 80 }} onClick={toEnd}>Contact Us</button>
         </nav>
         <Link to={acct.to} className="lp-login" style={{ left: 1094, top: 22 }}>{acct.label}</Link>
 
@@ -65,6 +68,8 @@ function HeroDesktop() {
           <span style={{ left: 105, top: 496 }}>WITH <i>MENTORS</i></span>
         </h1>
         <p className="lp-lede" style={{ left: 727, top: 484, width: 423 }}>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
+        <Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn lp-herobtn" style={{ left: 727, top: 566, width: 250 }}>{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link>
+        <button type="button" className="lp-herolink" style={{ left: 1004, top: 578 }} onClick={() => goTo('how-it-works')}>See how it works</button>
         <img src={hashtags} alt="" aria-hidden="true" className="lp-tags" />
       </div>
     </div>
@@ -85,7 +90,9 @@ function HeroMobile() {
           <nav id="lp-menu" className="lp-menu" aria-label="Main">
             <a href="#top" onClick={e => { toTop(e); setOpen(false); }}>Home</a>
             <button type="button" onClick={() => { setOpen(false); goTo('how-it-works'); }}>Services</button>
-            <span>Mentors</span><span>About Us</span><span>Contact Us</span>
+            <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>Mentors</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('practice'); }}>About Us</button>
+            <button type="button" onClick={e => { setOpen(false); toEnd(e); }}>Contact Us</button>
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
           </nav>
         )}
@@ -93,6 +100,7 @@ function HeroMobile() {
       <div className="lp-strip" aria-hidden="true"><div className="lp-strip-in">{[...strip, ...strip].map(([src, cls], i) => <img key={i} src={src} alt="" className={`lp-sp ${cls}`} />)}</div></div>
       <h1 className="lp-mh1">GROW YOUR<br />FUTURE &amp; SKILLS<br />WITH <i>MENTORS</i></h1>
       <p className="lp-mlede">Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
+      <div className="lp-mcta"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link><button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button></div>
       <img src={hashtags} alt="" aria-hidden="true" className="lp-mtags" />
     </div>
   );

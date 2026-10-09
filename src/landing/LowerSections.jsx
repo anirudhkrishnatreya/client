@@ -190,5 +190,5 @@ function PracticeMobile() {
   );
 }
 
-export function GetStarted() { const wide = useMedia('(min-width: 1024px)', true); return <section aria-label="Get started" className="lp-lower">{wide ? <GetStartedDesktop /> : <GetStartedMobile />}</section>; }
-export function Practice() { const wide = useMedia('(min-width: 1024px)', true); return <section aria-label="Schedule sessions" className="lp-lower lp-lower7">{wide ? <PracticeDesktop /> : <PracticeMobile />}</section>; }
+export function GetStarted() { const wide = useMedia('(min-width: 1024px)', true); return <section id="get-started" aria-label="Get started" className="lp-lower">{wide ? <GetStartedDesktop /> : <GetStartedMobile />}</section>; }
+export function Practice() { const wide = useMedia('(min-width: 1024px)', true); return <section id="practice" aria-label="Schedule sessions" className="lp-lower lp-lower7">{wide ? <PracticeDesktop /> : <PracticeMobile />}</section>; }

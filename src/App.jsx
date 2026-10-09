@@ -67,8 +67,8 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/"         element={<LandingV2 />} />
-      <Route path="/figma-landing" element={<LandingPage />} />
+      <Route path="/"         element={<LandingPage />} />
+      <Route path="/landing-v2" element={<LandingV2 />} />
       <Route path="/classic"  element={<Landing />} />
 
       {/* Registration / onboarding */}

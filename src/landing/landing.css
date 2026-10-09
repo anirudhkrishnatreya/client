@@ -183,3 +183,14 @@ a.lp-btn:focus-visible { outline: 2px solid #0f3ee4; outline-offset: 3px; }
 .lp-m6profiles .lp-m6e { position: static; flex: none; width: 28px; height: 28px; }
 .lp-m7 .lp-tag, .lp-m6 .lp-tag { display: inline-flex; padding: 0 18px; }
 .lp-m7cards { margin-top: 52px; gap: 48px; }
+
+/* small touches on the Figma page: working nav links, a first step under the headline */
+.lp-navtxt { transition: color .18s; }
+button.lp-navtxt:hover { color: #0f3ee4; }
+button.lp-navtxt:focus-visible, .lp-herolink:focus-visible { outline: 2px solid #0f3ee4; outline-offset: 3px; border-radius: 6px; }
+.lp-herobtn { position: absolute; }
+.lp-herolink { position: absolute; display: inline-flex; align-items: center; background: none; border: 0; border-bottom: 1.5px solid currentColor; padding: 4px 0; font: 600 14px 'Montserrat', sans-serif; color: #000; cursor: pointer; transition: color .18s; }
+.lp-herolink:hover { color: #0f3ee4; }
+.lp-mcta { display: grid; justify-items: center; gap: 14px; margin: 22px 20px 0; }
+.lp-mcta .lp-btn { width: min(100%, 300px); }
+.lp-mcta .lp-herolink { position: static; }
