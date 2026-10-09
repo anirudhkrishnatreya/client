@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { authLogin } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useAssessment } from '../context/AssessmentContext';
+import { V4_ENABLED } from '../v4/config';
 import logoImg from '../assets/imenteo_logo.png';
 
 export default function Login() {
@@ -54,6 +55,7 @@ export default function Login() {
       saveSession(data.token, data.user);
       dispatch({ type: 'SET_USER', id: data.user.id, name: data.user.fullName });
 
+      if (V4_ENABLED && data.user.track) { nav('/v4'); return; }       // v4 students have their own dashboard
       if (data.user.assessmentCompleted) { nav('/dashboard'); return; }
       if (!data.user.onboardingCompleted) { nav('/register'); return; }
       if (data.resumeState?.hasProgress) { nav('/assessment'); return; }
@@ -229,7 +231,7 @@ export default function Login() {
           </form>
 
           <p style={{ textAlign: 'center', marginTop: '40px', fontSize: '14px', color: '#6B7280' }}>
-            New to iMenteo? <Link to="/register" style={{ color: '#1A221E', fontWeight: 700, textDecoration: 'none' }}>Create an account</Link>
+            New to iMenteo? <Link to={V4_ENABLED ? '/v4/register' : '/register'} style={{ color: '#1A221E', fontWeight: 700, textDecoration: 'none' }}>Create an account</Link>
           </p>
         </div>
       </div>

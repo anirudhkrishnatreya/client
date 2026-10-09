@@ -5,6 +5,7 @@ const AuthCtx = createContext(null);
 
 const TOKEN_KEY = 'im_user_token';
 const USER_KEY  = 'im_user';
+const COOKIE_SESSION = 'cookie';
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(() => {
@@ -20,7 +21,7 @@ export function AuthProvider({ children }) {
     if (!stored) { setLoading(false); return; }
 
     api.get('/auth/me', {
-      headers: { Authorization: `Bearer ${stored}` }
+      headers: stored === COOKIE_SESSION ? {} : { Authorization: `Bearer ${stored}` }
     })
       .then(({ data }) => {
         setUser(data.user);
@@ -39,6 +40,8 @@ export function AuthProvider({ children }) {
 
   // ── Persist session
   const saveSession = useCallback((tok, userData) => {
+    // in cookie-only mode the server returns no token: remember that the session is the cookie
+    tok = tok || COOKIE_SESSION;
     localStorage.setItem(TOKEN_KEY, tok);
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
     setToken(tok);
@@ -47,6 +50,7 @@ export function AuthProvider({ children }) {
 
   // ── Clear session
   const clearSession = useCallback(() => {
+    api.post('/auth/logout').catch(() => {});          // clears the session cookies when there are any
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setToken(null);

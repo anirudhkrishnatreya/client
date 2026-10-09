@@ -11,6 +11,12 @@ import UserDashboard from './pages/UserDashboard';
 import AdminLogin    from './pages/AdminLogin';
 import AdminDash     from './pages/AdminDash';
 import AdminUser     from './pages/AdminUser';
+import { V4_ENABLED }  from './v4/config';
+import V4Register      from './v4/pages/V4Register';
+import V4Dashboard     from './v4/pages/V4Dashboard';
+import V4Assessment    from './v4/pages/V4Assessment';
+import V4Results       from './v4/pages/V4Results';
+import GuardianConsent from './v4/pages/GuardianConsent';
 
 // ── User must be logged in
 function RequireUser({ children }) {
@@ -42,6 +48,13 @@ function RegisterOnly({ children }) {
   return user?.onboardingCompleted ? <Navigate to="/dashboard" replace /> : children;
 }
 
+// v4 sign-up: a signed-in student goes to their v4 page instead
+function GuestOnlyV4({ children }) {
+  const { isLoggedIn, loading } = useAuth();
+  if (loading) return null;
+  return isLoggedIn ? <Navigate to="/v4" replace /> : children;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -59,6 +72,17 @@ function AppRoutes() {
       <Route path="/assessment"     element={<RequireUser><Assessment /></RequireUser>} />
       <Route path="/results"        element={<RequireUser><Results /></RequireUser>} />
       <Route path="/results/:assessmentId" element={<RequireUser><Results /></RequireUser>} />
+
+      {/* v4 assessment: only present when the build sets VITE_V4=on */}
+      {V4_ENABLED && (
+        <>
+          <Route path="/v4/register"           element={<GuestOnlyV4><V4Register /></GuestOnlyV4>} />
+          <Route path="/guardian-consent/:token" element={<GuardianConsent />} />
+          <Route path="/v4"                    element={<RequireUser><V4Dashboard /></RequireUser>} />
+          <Route path="/v4/test"               element={<RequireUser><V4Assessment /></RequireUser>} />
+          <Route path="/v4/results/:id"        element={<RequireUser><V4Results /></RequireUser>} />
+        </>
+      )}
 
       {/* Admin */}
       <Route path="/admin/login"    element={<AdminLogin />} />
