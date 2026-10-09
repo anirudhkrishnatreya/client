@@ -392,8 +392,8 @@ describe('V4Results: the finished report', () => {
     notices: [{ kind: 'provisional', text: 'Results are provisional.' }, { kind: 'guide', text: 'A guide, not a verdict.' }],
     sections: [
       { id: 'intro', title: 'About this report', blocks: [{ id: 'page.howToRead', text: 'Read the nine-step scale.' }] },
-      { id: 'orientation', title: 'Work orientation', available: true, poles: [{ pole: 'ideas', label: 'Ideas', stanine: 8, meaning: 'Working with ideas means thinking.' }], dominant: { label: 'Ideas', text: 'You like ideas.' }, secondary: { label: 'People', text: 'You like people a bit.' } },
-      { id: 'interests', title: 'Interests', holland: { available: true, code: 'IRA', letters: [{ letter: 'I', label: 'Investigative', text: 'Likes to study.' }] }, scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You show a strong interest in law.' }], notScored: [] },
+      { id: 'orientation', title: 'Work orientation', available: true, coordinates: { x: -0.3, y: -0.4 }, poles: [{ pole: 'ideas', label: 'Ideas', stanine: 8, meaning: 'Working with ideas means thinking.' }], dominant: { label: 'Ideas', text: 'You like ideas.' }, secondary: { label: 'People', text: 'You like people a bit.' } },
+      { id: 'interests', title: 'Interests', holland: { available: true, code: 'IRA', types: ['R', 'I', 'A', 'S', 'E', 'C'].map((l, i) => ({ letter: l, label: l, stanine: 3 + i })), letters: [{ letter: 'I', label: 'Investigative', text: 'Likes to study.' }] }, scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You show a strong interest in law.' }], notScored: [] },
       { id: 'aptitude', title: 'Aptitude', scales: [{ id: 'apt.verbal', label: 'Verbal Reasoning', stanine: 3, band: 'developing', dominant: false, meaning: 'Verbal reasoning is words.', analysis: 'Reading may take effort.', plan }], notScored: [{ id: 'apt.spatial', label: 'Spatial Reasoning' }] },
       { id: 'matches', title: 'Fields that fit you', available: true, kind: 'fields', fields: [
         { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [{ scale: 'apt.verbal', label: 'Verbal Reasoning', student: 3, need: 6, plan }] },
@@ -406,20 +406,21 @@ describe('V4Results: the finished report', () => {
     full(doc());
     expect(await screen.findByText('Read the nine-step scale.')).toBeInTheDocument();
     expect(screen.getByText('You like ideas.')).toBeInTheDocument();
-    expect(screen.getByText('IRA')).toBeInTheDocument();
+    expect(screen.getAllByText('IRA').length).toBeGreaterThan(0);                      // on the one-page summary and in the interests chapter
     expect(screen.getByText('You show a strong interest in law.')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Verbal Reasoning: 3 out of 9, Developing' })).toBeInTheDocument();
+    expect(screen.getAllByRole('img', { name: 'Verbal Reasoning: 3 out of 9' }).length).toBeGreaterThan(0);
     expect(screen.getAllByText('Read widely.').length).toBe(2);              // the plan, and again under the field's skill gap
     expect(screen.getByText('Law is about rules.')).toBeInTheDocument();
     expect(screen.getByText(/Not yet checked by a reviewer/)).toBeInTheDocument();
-    expect(screen.getByText(/Not scored.*Spatial Reasoning/)).toBeInTheDocument();
+    expect(screen.getByText(/could not score Spatial Reasoning/)).toBeInTheDocument();
     expect(screen.getByText('Talk to a counsellor.')).toBeInTheDocument();
     expect(screen.getByText('Results are provisional.')).toBeInTheDocument();
   });
   it('fields beyond the detailed ones are listed in order', async () => {
     full(doc());
-    expect(await screen.findByText('Other fields, in order')).toBeInTheDocument();
-    expect(screen.getByText('Design')).toBeInTheDocument();
+    expect((await screen.findAllByText('Design')).length).toBeGreaterThan(0);             // listed in the ranking, without a detail page
+    expect(screen.getByText('The top few, up close')).toBeInTheDocument();
+    expect(screen.getAllByText('Law & Legal Services').length).toBeGreaterThan(1);
   });
   it('draft wording is labelled', async () => {
     full(doc({ status: { contentStatus: 'draft', complete: true } }));

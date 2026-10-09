@@ -29,9 +29,17 @@ export default function V4Results({ api = defaultApi }) {
   if (state === 'missing') return <Frame title="Results not found"><p>We could not find those results.</p><Link className="v4-btn" to="/v4">Back to your page</Link></Frame>;
   if (state === 'error') return <Frame><div className="v4-alert error" role="alert">We could not load your results.</div></Frame>;
 
+  if (state === 'full') {
+    return (
+      <Frame bare>
+        <FullReport report={report} />
+        <p style={{ textAlign: 'center', padding: '0 16px 64px' }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
+      </Frame>
+    );
+  }
   return (
     <Frame title="Your results">
-      {state === 'full' ? <FullReport report={report} /> : (
+      {state === 'full' ? null : (
         <>
           <div className="v4-alert info" role="status">Your full report is still being finished. Here are your scores for now; the detailed report will appear on this page when it is ready.</div>
           <ReportView r={plain} />

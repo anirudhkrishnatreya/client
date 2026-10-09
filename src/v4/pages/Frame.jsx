@@ -4,7 +4,7 @@ import logoImg from '../../assets/imenteo_logo.png';
 import '../v4.css';
 
 // Common page frame for v4 screens: logo, who is signed in, sign out.
-export default function Frame({ children, title, narrow = false }) {
+export default function Frame({ children, title, narrow = false, bare = false }) {
   const nav = useNavigate();
   const auth = useAuth();
   const user = auth && auth.user;
@@ -19,7 +19,7 @@ export default function Frame({ children, title, narrow = false }) {
           </div>
         )}
       </header>
-      <main className="v4-main" style={narrow ? { maxWidth: 560 } : undefined}>
+      <main className="v4-main" style={bare ? { maxWidth: 'none', padding: 0 } : narrow ? { maxWidth: 560 } : undefined}>
         {title && <h1 className="v4-h1">{title}</h1>}
         {children}
       </main>

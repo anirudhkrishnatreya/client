@@ -1,118 +1,167 @@
-// The finished report, rendered from the server's report document (GET /v2/report/:id/full). Every word comes from the
-// document; this component only lays it out. The PDF is made from the same document.
-const BAND = { developing: 'Developing', moderate: 'Moderate', strong: 'Strong' };
+// The finished report, laid out from the server's report document (GET /v2/report/:id/full). Every word comes from the
+// document; this component only lays it out, in the same look as the printed PDF.
+import '@fontsource/fraunces/400.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/fraunces/400-italic.css';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/600.css';
+import '@fontsource/newsreader/400-italic.css';
+import '../report.css';
+import { ScaleTrack, Hexagon, Compass, Ring, CoverArt, Squiggle, bandOf } from '../charts';
 
-const Bar = ({ label, stanine, band }) => (
-  <div className="v4-bar" role="img" aria-label={`${label}: ${stanine} out of 9, ${BAND[band]}`}><div style={{ width: `${(stanine / 9) * 100}%` }} /></div>
-);
-const bandOf = s => (s <= 3 ? 'developing' : s <= 6 ? 'moderate' : 'strong');
+const BAND = { developing: 'Still growing', moderate: 'Steady', strong: 'Strong' };
+const TRACK = { junior: 'Class 6–9', senior: 'Class 10–12', college: 'College' };
+const NOTE_LABEL = { provisional: 'Early results', invalid: 'Worth knowing', caution: 'A small note', interim: 'Who has read this', guide: 'One more thing' };
+const COLORS = ['#F2A93B', '#4C8C6B', '#6F8FC0', '#D9654A'];
 
-function Plan({ plan }) {
+const Badge = ({ band }) => <span className={`rp-badge ${band}`}>{BAND[band]}</span>;
+
+function Plan({ plan, heading = 'Try this' }) {
   if (!plan || !plan.length) return null;
-  return <div className="v4-plan"><h4 className="v4-muted">How to grow this</h4><ul style={{ marginLeft: 18 }}>{plan.map(b => <li key={b.title}><strong>{b.title}.</strong> {b.text}</li>)}</ul></div>;
+  return <div className="rp-plan"><h4>{heading}</h4><ol>{plan.map(b => <li key={b.title}><b>{b.title}.</b> {b.text}</li>)}</ol></div>;
 }
 
-function ScaleCard({ s }) {
+function ScaleRow({ s }) {
   return (
-    <article className="v4-card" aria-label={s.label} style={s.dominant ? { borderColor: 'var(--navy)' } : undefined}>
-      <div className="v4-bar-row" style={{ gridTemplateColumns: '1fr 140px 52px' }}>
-        <strong>{s.label}{s.dominant && <span className="v4-pill" style={{ marginLeft: 8 }}>Strongest</span>}</strong>
-        <Bar label={s.label} stanine={s.stanine} band={s.band} />
-        <span className="v4-muted">{BAND[s.band]}</span>
+    <article className="rp-scale" aria-label={s.label}>
+      <div className="rp-scale-top">
+        <span className="name">{s.label}{s.dominant && <span className="rp-star">one of your strongest</span>}</span>
+        <ScaleTrack stanine={s.stanine} label={s.label} /><Badge band={s.band} />
       </div>
-      <p className="v4-muted" style={{ margin: '6px 0' }}>{s.meaning}</p>
+      <p className="rp-meaning">{s.meaning}</p>
       <p>{s.analysis}</p>
       <Plan plan={s.plan} />
     </article>
   );
 }
 
-function Orientation({ sec }) {
-  if (!sec.available) return null;
+function Chapter({ id, no, title, lede, color, children }) {
   return (
-    <section aria-label={sec.title}>
-      <h2 className="v4-h2">{sec.title}</h2>
-      <div className="v4-card">
-        <div className="v4-bars">
+    <section className="rp-chapter" id={`chapter-${id}`} aria-label={title}>
+      <div className="rp-head"><span className="no">{typeof no === 'number' ? `Chapter ${no}` : no}</span><h2>{title}</h2><Squiggle color={color} /></div>
+      {lede && <p className="rp-lede">{lede}</p>}
+      {children}
+    </section>
+  );
+}
+
+function Orientation({ sec }) {
+  if (!sec.available) return <p className="rp-muted">Your answers were spread evenly, so no one kind of work stood out. That happens, and it is a perfectly good result.</p>;
+  return (
+    <>
+      <div className="rp-grid">
+        <div className="rp-panel"><Compass x={sec.coordinates.x} y={sec.coordinates.y} /></div>
+        <div className="rp-panel rp-poles">
           {sec.poles.map(p => (
             <div key={p.pole}>
-              <div className="v4-bar-row"><span>{p.label}</span><Bar label={p.label} stanine={p.stanine} band={bandOf(p.stanine)} /><strong>{p.stanine}</strong></div>
-              <p className="v4-muted" style={{ margin: '2px 0 8px' }}>{p.meaning}</p>
+              <div className="rp-pole"><b>{p.label}</b><ScaleTrack stanine={p.stanine} label={p.label} width={200} /></div>
+              <p className="rp-muted" style={{ fontSize: 15, margin: '0 0 8px' }}>{p.meaning}</p>
             </div>
           ))}
         </div>
       </div>
-      <div className="v4-card"><h3>{sec.dominant.label}: your strongest pull</h3><p>{sec.dominant.text}</p></div>
-      <div className="v4-card"><h3>{sec.secondary.label}: your second pull</h3><p>{sec.secondary.text}</p></div>
-    </section>
+      <div className="rp-panel tint" style={{ marginBottom: 14 }}><div className="rp-eyebrow">Pulls at you most</div><h3>{sec.dominant.label}</h3><p>{sec.dominant.text}</p></div>
+      <div className="rp-panel"><div className="rp-eyebrow" style={{ color: 'var(--sky)' }}>And then</div><h3>{sec.secondary.label}</h3><p>{sec.secondary.text}</p></div>
+    </>
   );
 }
 
-function Scales({ sec }) {
+function Interests({ sec }) {
   const h = sec.holland;
+  const strong = sec.scales.filter(s => s.dominant), rest = sec.scales.filter(s => !s.dominant);
   return (
-    <section aria-label={sec.title}>
-      <h2 className="v4-h2">{sec.title}</h2>
-      {h && h.available && h.code && (
-        <div className="v4-card">
-          <h3>Your interest code: <span style={{ letterSpacing: 3 }}>{h.code}</span></h3>
-          {h.letters.map(l => <p key={l.letter}><strong>{l.label}.</strong> <span className="v4-muted">{l.text}</span></p>)}
+    <>
+      {h && h.available && (
+        <div className="rp-panel" style={{ marginBottom: 12 }}>
+          <div className="rp-holland">
+            <Hexagon types={h.types} />
+            {h.code
+              ? <div><div className="rp-eyebrow">Your interest code</div><div className="rp-code">{h.code}</div>
+                  <div className="rp-letters">{h.letters.map(l => <div key={l.letter}><b>{l.letter}</b><span><strong style={{ fontFamily: 'Fraunces, Georgia, serif', color: 'var(--indigo)' }}>{l.label}.</strong> {l.text}</span></div>)}</div></div>
+              : <div><h3>Your interests are spread out</h3><p className="rp-muted">No single pattern leads, and that is fine. It means a lot of paths could suit you.</p></div>}
+          </div>
         </div>
       )}
-      {h && h.available && !h.code && <div className="v4-card"><p className="v4-muted">Your interests were spread fairly evenly, so there is no single leading pattern. That is normal.</p></div>}
-      {sec.scales.map(s => <ScaleCard key={s.id} s={s} />)}
-      {sec.notScored && sec.notScored.length > 0 && <p className="v4-muted">Not scored, because too many questions were left unanswered: {sec.notScored.map(n => n.label).join(', ')}.</p>}
-    </section>
+      {strong.map(s => <ScaleRow key={s.id} s={s} />)}
+      {rest.length > 0 && (
+        <>
+          <h3 style={{ fontSize: 24, fontWeight: 400, margin: '26px 0 10px' }}>The rest of the list</h3>
+          <div className="rp-mini">{rest.map(s => <div className="it" key={s.id}><div className="top"><span className="name">{s.label}</span><ScaleTrack stanine={s.stanine} label={s.label} width={130} /></div><p>{s.analysis}</p></div>)}</div>
+        </>
+      )}
+    </>
   );
-}
-
-function List({ title, items }) {
-  return items && items.length ? <div><h4>{title}</h4><ul style={{ marginLeft: 18 }}>{items.map(x => <li key={x}>{x}</li>)}</ul></div> : null;
 }
 
 function FieldCard({ f }) {
   const p = f.page;
   return (
-    <article className="v4-card" aria-label={f.label}>
-      <div className="v4-row"><strong className="v4-grow">{f.rank}. {f.label}</strong>{f.overall != null && <span className="v4-pill">{f.overall}% match</span>}</div>
+    <article className="rp-field" aria-label={f.label}>
+      <div className="hd"><span className="no">{f.rank}</span><h3>{f.label}</h3>{f.overall != null && <Ring pct={f.overall} />}</div>
       {p && (
         <>
-          <p style={{ margin: '8px 0' }}>{p.summary}</p>
-          <div className="v4-cols"><List title="Ways to study" items={p.studyPaths} /><List title="Entrance exams" items={p.exams} /></div>
-          <List title="Jobs people do" items={p.roles} />
-          <p className="v4-muted" style={{ fontSize: 12, marginTop: 6 }}>Sources: {p.sources.join('; ')}. {p.lastReviewedAt ? `Checked internally ${p.lastReviewedAt}.` : 'Not yet checked by a reviewer: please confirm the details before you decide.'}</p>
+          <p>{p.summary}</p>
+          <div className="rp-cols">
+            <List title="How to get there" items={p.studyPaths} /><List title="Exams on the way" items={p.exams} /><List title="What people do" items={p.roles} />
+          </div>
+          <p className="rp-sources">Sources: {p.sources.join('; ')}. {p.lastReviewedAt ? `Checked internally ${p.lastReviewedAt}.` : 'Not yet checked by a reviewer: please confirm the details before you decide.'}</p>
         </>
       )}
       {f.gaps && f.gaps.length > 0 && (
-        <div><h4>Skills to build for this field</h4>{f.gaps.map(g => <div key={g.scale} className="v4-plan"><strong>{g.label}</strong> <span className="v4-muted">(you: {g.student}, usual need: {g.need})</span><Plan plan={g.plan} /></div>)}</div>
+        <div className="rp-gaps"><h4>Worth building for this one</h4>{f.gaps.map(g => <div key={g.scale} className="rp-gap"><b>{g.label}</b> <span className="rp-muted">(you: {g.student} of 9, usually needed: {g.need})</span><Plan plan={g.plan} /></div>)}</div>
       )}
     </article>
   );
 }
+const List = ({ title, items }) => (items && items.length ? <div><h4>{title}</h4><ul>{items.map(x => <li key={x}>{x}</li>)}</ul></div> : null);
 
 function Matches({ sec }) {
   if (!sec.available) return null;
   if (sec.kind === 'explore') {
     return (
-      <section aria-label={sec.title}>
-        <h2 className="v4-h2">{sec.title}</h2>
-        {sec.areas.length ? sec.areas.map(a => <div key={a.id} className="v4-card"><h3>{a.label}</h3><p className="v4-muted">{a.family}</p><p>{a.text}</p></div>) : <div className="v4-card"><p className="v4-muted">No area stood out strongly yet. That is normal at your age: try many things.</p></div>}
-        {sec.strengths.length > 0 && <div className="v4-card"><h3>Your strongest thinking skills</h3><ul style={{ marginLeft: 18 }}>{sec.strengths.map(s => <li key={s.id}>{s.label}</li>)}</ul></div>}
-        <p className="v4-muted">{sec.note}</p>
-      </section>
+      <>
+        {sec.areas.length
+          ? sec.areas.map((a, i) => <article key={a.id} className="rp-field"><div className="hd"><span className="no">{i + 1}</span><h3>{a.label}</h3></div><p className="rp-muted">{a.family}</p><p>{a.text}</p></article>)
+          : <div className="rp-panel"><p className="rp-muted">Nothing has stood out strongly yet, and that is normal at your age. Try lots of things.</p></div>}
+        {sec.strengths.length > 0 && <div className="rp-panel"><h3>What your mind does best</h3><div className="rp-chips">{sec.strengths.map(s => <span key={s.id} className="rp-chip cool">{s.label}</span>)}</div></div>}
+        <p className="rp-muted" style={{ marginTop: 12 }}>{sec.note}</p>
+      </>
     );
   }
   return (
-    <section aria-label={sec.title}>
-      <h2 className="v4-h2">{sec.title}</h2>
-      <p className="v4-muted">Match shows how closely your whole profile fits what each field usually asks for. It is a guide for exploring, not a prediction.</p>
-      {sec.streams && <><h3>Subject streams</h3>{sec.streams.map(f => <FieldCard key={f.id} f={f} />)}</>}
-      <h3>Fields</h3>
+    <>
+      <p className="rp-lede">The percentage shows how closely your whole profile matches what each field usually asks for. Use it to start exploring, not to close doors.</p>
+      <div className="rp-panel" style={{ marginBottom: 18 }}>
+        {sec.fields.map(f => <div className="rp-fitrow" key={f.id}><span className="no">{f.rank}</span><span className="t">{f.label}</span>{f.overall != null && <><span className="rp-fitbar"><i style={{ width: `${f.overall}%` }} /></span><span className="pct">{f.overall}%</span></>}</div>)}
+      </div>
+      <h3 style={{ fontSize: 24, fontWeight: 400, margin: '0 0 10px' }}>The top few, up close</h3>
       {sec.fields.filter(f => f.page).map(f => <FieldCard key={f.id} f={f} />)}
-      {sec.fields.some(f => !f.page) && (
-        <div className="v4-card"><h4>Other fields, in order</h4><ol style={{ marginLeft: 18 }}>{sec.fields.filter(f => !f.page).map(f => <li key={f.id}>{f.label} <span className="v4-muted">{f.overall != null ? `${f.overall}%` : ''}</span></li>)}</ol></div>
-      )}
-    </section>
+      {sec.streams && <><h3 style={{ fontSize: 24, fontWeight: 400, margin: '24px 0 10px' }}>Which stream suits you</h3>{sec.streams.map(f => <FieldCard key={f.id} f={f} />)}</>}
+    </>
+  );
+}
+
+function Glance({ sections }) {
+  const sec = id => sections.find(s => s.id === id);
+  const inter = sec('interests'), orient = sec('orientation'), match = sec('matches');
+  if (!inter) return null;
+  const strongest = id => (sec(id) ? sec(id).scales.filter(s => s.dominant).slice(0, 4) : []);
+  const Chips = ({ items, cls = '' }) => (items.length ? <div className="rp-chips">{items.map(s => <span key={s.id} className={`rp-chip ${cls}`}>{s.label}</span>)}</div> : <p className="rp-muted">Nothing stood out strongly this time.</p>);
+  const h = inter.holland;
+  const top = match && match.available && match.kind === 'fields' ? match.fields.slice(0, 3).map(f => ({ n: f.rank, t: f.label, pct: f.overall }))
+    : match && match.available && match.kind === 'explore' ? match.areas.slice(0, 3).map((a, i) => ({ n: i + 1, t: a.label })) : [];
+  return (
+    <Chapter id="glance" no="The short version" title="You, on one page" color="#D9654A">
+      <div className="rp-grid">
+        {h && h.available && <div className="rp-panel"><div className="rp-eyebrow">Your interest code</div>{h.code && <div className="rp-code">{h.code}</div>}<Hexagon types={h.types} /></div>}
+        {orient && orient.available && <div className="rp-panel"><div className="rp-eyebrow">Where your energy points</div><h3>{orient.dominant.label} first, then {orient.secondary.label}</h3><Compass x={orient.coordinates.x} y={orient.coordinates.y} /></div>}
+      </div>
+      <div className="rp-grid">
+        <div className="rp-panel tint"><h3>What you are drawn to</h3><Chips items={strongest('interests')} /><h3 style={{ marginTop: 14 }}>What your mind does well</h3><Chips items={strongest('aptitude')} cls="cool" /></div>
+        <div className="rp-panel tint"><h3>Your strengths as a person</h3><Chips items={strongest('personality')} /><h3 style={{ marginTop: 14 }}>Your feelings toolkit</h3><Chips items={strongest('ei')} cls="rose" /></div>
+      </div>
+      {top.length > 0 && <div className="rp-panel"><h3>{match.kind === 'fields' ? 'Where this points first' : 'Good places to start exploring'}</h3>{top.map(r => <div className="rp-rowline" key={r.n}><span className="n">{r.n}</span><span className="t">{r.t}</span>{r.pct != null && <b>{r.pct}%</b>}</div>)}</div>}
+    </Chapter>
   );
 }
 
@@ -120,16 +169,46 @@ export default function FullReport({ report }) {
   const { notices, sections, status, student } = report;
   const section = id => sections.find(s => s.id === id);
   const intro = section('intro'), next = section('nextSteps');
+  const first = String(student.name || '').trim().split(/\s+/)[0];
+  const stamp = status.contentStatus === 'draft' ? 'Draft wording · pilot version' : status.contentStatus === 'interim' ? 'Interim edition · expert review in progress' : '';
+  let n = 0;
+  const numbered = id => { const sec = section(id); if (!sec) return null; n += 1; return { sec, no: n, color: COLORS[n % COLORS.length] }; };
+  const orient = numbered('orientation'), inter = numbered('interests'), pers = numbered('personality'), apt = numbered('aptitude'), ei = numbered('ei'), val = numbered('values'), mat = numbered('matches');
+  const last = (n += 1);
+  const nav = [['letter', 'Before you start'], ['glance', 'On one page'], ...[orient, inter, pers, apt, ei, val, mat].filter(Boolean).map(c => [c.sec.id, c.sec.title]), ['nextSteps', next.title]];
+  const scaleChapter = c => c && (
+    <Chapter key={c.sec.id} id={c.sec.id} no={c.no} title={c.sec.title} color={c.color}>
+      {c.sec.scales.map(s => <ScaleRow key={s.id} s={s} />)}
+      {c.sec.notScored && c.sec.notScored.length > 0 && <p className="rp-muted">We could not score {c.sec.notScored.map(x => x.label).join(', ')}, because too many questions were left blank.</p>}
+    </Chapter>
+  );
   return (
-    <>
-      {notices.filter(n => n.text).map(n => <div key={n.kind} className={`v4-alert ${n.kind === 'invalid' ? 'error' : n.kind === 'guide' ? 'ok' : 'info'}`} role={n.kind === 'invalid' ? 'alert' : 'note'}>{n.text}</div>)}
-      {status.contentStatus === 'draft' && <div className="v4-alert info" role="note"><strong>Draft wording.</strong> This is a pilot version of the report: the text is still being reviewed.</div>}
-      <section className="v4-card" aria-label={intro.title}><h2 className="v4-h2">{intro.title}</h2>{intro.blocks.map(b => <p key={b.id}>{b.text}</p>)}</section>
-      {section('orientation') && <Orientation sec={section('orientation')} />}
-      {['interests', 'personality', 'aptitude', 'ei', 'values'].map(id => section(id) && <Scales key={id} sec={section(id)} />)}
-      {section('matches') && <Matches sec={section('matches')} />}
-      <section className="v4-card" aria-label={next.title}><h2 className="v4-h2">{next.title}</h2>{next.blocks.map(b => <p key={b.id}>{b.text}</p>)}</section>
-      <p className="v4-muted" style={{ fontSize: 12 }}>Report for {student.name || 'student'} · version {report.hash.slice(0, 8)}</p>
-    </>
+    <div className="rp">
+      <header className="rp-hero">
+        <CoverArt />
+        <div className="rp-hero-in">
+          <div className="rp-eyebrow" style={{ marginBottom: 14 }}>Career Discovery Report</div>
+          <h1>Who you are, and <em>where it could go</em></h1>
+          <div className="who">{student.name || 'Student'}</div>
+          <div className="meta">{TRACK[student.track]}{student.grade ? `, grade ${student.grade}` : ''}</div>
+          {stamp && <div className="rp-stamp">{stamp}</div>}
+        </div>
+      </header>
+      <nav className="rp-nav" aria-label="Report chapters"><ul>{nav.map(([id, label]) => <li key={id}><a href={`#chapter-${id}`} onClick={e => { e.preventDefault(); const el = document.getElementById(`chapter-${id}`); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>{label}</a></li>)}</ul></nav>
+      <div className="rp-body">
+        <section className="rp-chapter" id="chapter-letter" aria-label="Before you start">
+          <div className="rp-head"><span className="no">Before you start</span><h2>{first ? `Hi ${first}, a quick word` : 'A quick word'}</h2><Squiggle /></div>
+          <div className="rp-letter">{intro.blocks.map(b => <p key={b.id}>{b.text}</p>)}<div className="rp-sign">The iMenteo team</div></div>
+          <div className="rp-notes">{notices.filter(x => x.text).map(x => <div key={x.kind} className={`rp-note ${x.kind}`} role={x.kind === 'invalid' ? 'alert' : 'note'}><b>{NOTE_LABEL[x.kind] || 'Note'}</b>{x.text}</div>)}</div>
+        </section>
+        <Glance sections={sections} />
+        {orient && <Chapter id="orientation" no={orient.no} title={orient.sec.title} lede="This map shows the kind of work that tends to pull you in. We worked it out from what you said you enjoy." color={orient.color}><Orientation sec={orient.sec} /></Chapter>}
+        {inter && <Chapter id="interests" no={inter.no} title={inter.sec.title} color={inter.color}><Interests sec={inter.sec} /></Chapter>}
+        {scaleChapter(pers)}{scaleChapter(apt)}{scaleChapter(ei)}{scaleChapter(val)}
+        {mat && <Chapter id="matches" no={mat.no} title={mat.sec.title} color={mat.color}><Matches sec={mat.sec} /></Chapter>}
+        <Chapter id="nextSteps" no={last} title={next.title} color="#4C8C6B"><div className="rp-closing">{next.blocks.map(b => <p key={b.id}>{b.text}</p>)}</div></Chapter>
+        <p className="rp-foot">Made for {student.name || 'you'} · version {report.hash.slice(0, 8)}</p>
+      </div>
+    </div>
   );
 }
