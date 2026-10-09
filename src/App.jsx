@@ -3,6 +3,7 @@ import { AssessmentProvider } from './context/AssessmentContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Landing       from './pages/Landing';
+import LandingPage   from './landing/LandingPage';
 import Register      from './pages/Register';
 import Login         from './pages/Login';
 import Assessment    from './pages/Assessment';
@@ -65,7 +66,8 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/"         element={<Landing />} />
+      <Route path="/"         element={<LandingPage />} />
+      <Route path="/classic"  element={<Landing />} />
 
       {/* Registration / onboarding */}
       <Route path="/register" element={<RegisterOnly><Register /></RegisterOnly>} />

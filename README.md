@@ -2,6 +2,10 @@
 
 React 18 · Vite 5 · react-router 6 (`HashRouter`, so it works on GitHub Pages) · axios. Talks to the API in the `server/` repo.
 
+## Landing page
+
+The home page (`src/landing/`) is built from the Figma frames "MacBook Air 5" (hero) and "MacBook Air 9" (Week 1). Scrolling turns the orbit to Weeks 2 and 3; their words and photos are in `src/landing/weeks.js`. The older page is still at `#/classic`.
+
 ## Quick start
 ```bash
 npm install
