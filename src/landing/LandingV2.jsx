@@ -47,8 +47,29 @@ function useAccount() {
   return isLoggedIn ? { to: PLATFORM_ENABLED ? '/platform' : '/dashboard', label: 'My dashboard', signedIn: true } : { to: '/login', label: 'Log in', signedIn: false };
 }
 
+const NAV_ITEMS = [['why', 'Why iMenteo'], ['how', 'How it works'], ['who', 'Who it’s for'], ['ai', 'Mentors + AI'], ['safety', 'Safety'], ['faq', 'FAQ']];
+
+/** Which section is on screen, so the nav can highlight it. */
+function useActiveSection(ids) {
+  const [active, setActive] = useState('');
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    const seen = new Map();
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => seen.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0));
+      let best = '', top = 0; seen.forEach((r, id) => { if (r > top) { top = r; best = id; } });
+      setActive(top > 0 ? best : '');
+    }, { rootMargin: '-30% 0px -50% 0px', threshold: [0, 0.01, 0.1, 0.5, 1] });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+    return () => io.disconnect();
+  }, [ids]);
+  return active;
+}
+const NAV_IDS = NAV_ITEMS.map(([id]) => id);
+
 function Nav() {
   const acct = useAccount();
+  const active = useActiveSection(NAV_IDS);
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
   useEffect(() => { const on = () => setSolid(window.scrollY > 8); on(); window.addEventListener('scroll', on, { passive: true }); return () => window.removeEventListener('scroll', on); }, []);
@@ -58,11 +79,7 @@ function Nav() {
       <div className="v2-nav-in">
         <a href="#top" className="v2-logo" aria-label="iMenteo, back to the top" onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setOpen(false); }}><img src={logo} alt="iMenteo" /></a>
         <nav className={`v2-links${open ? ' open' : ''}`} aria-label="Main">
-          <button type="button" onClick={jump('how')}>How it works</button>
-          <button type="button" onClick={jump('who')}>Who it’s for</button>
-          <button type="button" onClick={jump('ai')}>Mentors + AI</button>
-          <button type="button" onClick={jump('safety')}>Safety</button>
-          <button type="button" onClick={jump('faq')}>FAQ</button>
+          {NAV_ITEMS.map(([id, label]) => <button key={id} type="button" className={active === id ? 'on' : ''} aria-current={active === id ? 'true' : undefined} onClick={jump(id)}>{label}</button>)}
           <span className="v2-links-cta">
             <Link to={acct.to} className="v2-btn ghost">{acct.label}</Link>
             {!acct.signedIn && <Link to={SIGNUP} className="v2-btn">Get started</Link>}
@@ -114,34 +131,37 @@ function Hero() {
   return (
     <section className="v2-hero" style={{ paddingTop: NAV_H }}>
       <div className="v2-bgglow" aria-hidden="true" />
+      <div className="v2-strip" aria-hidden="true">
+        <img src={hero1} alt="" className="p sq" style={{ '--i': 0 }} />
+        <img src={hero2} alt="" className="p shape a" style={{ '--i': 1 }} />
+        <img src={hero3} alt="" className="p sq" style={{ '--i': 2 }} />
+        <img src={hero4} alt="" className="p shape b" style={{ '--i': 3 }} />
+        <img src={hero5} alt="" className="p sq" style={{ '--i': 4 }} />
+        <div className="p leaf" style={{ '--i': 5 }}><img src={hero6} alt="" /></div>
+        <img src={hero7} alt="" className="p sq" style={{ '--i': 6 }} />
+      </div>
       <div className="v2-hero-in">
-        <div className="v2-hero-copy">
-          <span className="v2-eyebrow v2-rv in"><Icon name="sparkles" size={14} />Human mentors, AI-assisted</span>
-          <h1 className="v2-h1">Turn your goals into <i>weekly progress.</i></h1>
-          <p className="v2-lede">iMenteo pairs every student with a mentor, then keeps the journey personal: an assessment to understand you, weekly sessions to guide you, and clear progress for you and your parents.</p>
+        <h1 className="v2-h1">
+          <span className="l1">Grow your future</span>
+          <span className="l2">&amp; skills</span>
+          <span className="l3">with <i>mentors</i></span>
+        </h1>
+        <div className="v2-hero-side">
+          <p className="v2-lede">Every student gets a mentor. Weekly sessions, clear action items and a career assessment that shows what fits you, with progress your parents can follow too.</p>
           <div className="v2-cta">
             <Link to={acct.signedIn ? acct.to : SIGNUP} className="v2-btn lg">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
-            <button type="button" className="v2-btn ghost lg" onClick={() => go('how')}>See how it works</button>
+            <button type="button" className="v2-textlink" onClick={() => go('how')}>See how it works<Icon name="chevronDown" size={18} /></button>
           </div>
-          <ul className="v2-ticks" aria-label="Highlights">
-            <li><Icon name="check" size={16} stroke={2.6} />For Class 6 to college</li>
-            <li><Icon name="check" size={16} stroke={2.6} />Pause and continue any time</li>
-            <li><Icon name="check" size={16} stroke={2.6} />Parent account for school students</li>
-          </ul>
-        </div>
-        <div className="v2-collage" aria-hidden="true">
-          <img src={burst} alt="" className="v2-c-burst" />
-          <img src={hero4} alt="" className="v2-c-blob" />
-          <div className="v2-c-leaf"><img src={hero6} alt="" /></div>
-          <img src={hero3} alt="" className="v2-c-sq" />
-          <img src={hero2} alt="" className="v2-c-shape" />
-          <SessionCard /><ActionsCard /><InsightCard />
-          <span className="v2-c-dot d1" /><span className="v2-c-dot d2" /><span className="v2-c-dot d3" />
-          <span className="v2-c-emoji e1">🚀</span><span className="v2-c-emoji e2">🎯</span>
         </div>
       </div>
-      <div className="v2-chips" aria-hidden="true">
-        <div className="v2-chips-in">{[0, 1].map(k => ['#CareerClarity', '#WeeklyMentoring', '#Accountability', '#ParentVisibility', '#AIInsights', '#LearnWithPurpose'].map((t, i) => <span key={`${k}${t}`} className={`v2-chip c${i % 4}`}>{t}</span>))}</div>
+      <ul className="v2-ticks" aria-label="Highlights">
+        <li><Icon name="check" size={16} stroke={2.6} />For Class 6 to college</li>
+        <li><Icon name="check" size={16} stroke={2.6} />Human mentors, AI-assisted</li>
+        <li><Icon name="check" size={16} stroke={2.6} />Pause and continue any time</li>
+        <li><Icon name="check" size={16} stroke={2.6} />A parent account for school students</li>
+      </ul>
+      <div className="v2-peek" aria-label="A look at what students get">
+        <SessionCard /><ActionsCard /><InsightCard />
       </div>
     </section>
   );

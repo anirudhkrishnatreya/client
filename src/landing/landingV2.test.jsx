@@ -14,7 +14,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('landing page v2', () => {
   it('leads with the promise and a clear first step', () => {
     page();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Turn your goals into weekly progress.');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Grow your future\s*& skills\s*with mentors/i);
     const cta = screen.getByRole('link', { name: /Take the career assessment/ });
     expect(cta.getAttribute('href')).toMatch(/register/);
     screen.getAllByRole('link', { name: 'Log in' }).forEach(l => expect(l).toHaveAttribute('href', '/login'));
@@ -25,7 +25,7 @@ describe('landing page v2', () => {
     ids.forEach(el => expect(el).not.toBeNull());
     for (let i = 1; i < ids.length; i++) expect(ids[i - 1].compareDocumentPosition(ids[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const nav = screen.getByRole('navigation', { name: 'Main' });
-    for (const label of ['How it works', 'Who it’s for', 'Mentors + AI', 'Safety', 'FAQ']) expect(within(nav).getByRole('button', { name: label })).toBeInTheDocument();
+    for (const label of ['Why iMenteo', 'How it works', 'Who it’s for', 'Mentors + AI', 'Safety', 'FAQ']) expect(within(nav).getByRole('button', { name: label })).toBeInTheDocument();
   });
   it('labels every product preview as an example, so none can be mistaken for real student data', () => {
     const { container } = page();
