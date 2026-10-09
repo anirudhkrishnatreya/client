@@ -1,3 +1,4 @@
+import { PLATFORM_ENABLED } from '../../platform/config';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { v2 as defaultApi } from '../api';
@@ -32,6 +33,9 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
   const set = k => e => setF(s => ({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const age = useMemo(() => ageFrom(f.dateOfBirth, today), [f.dateOfBirth, today]);
   const minor = age !== null && age < 18;
+  const [forceParent, setForceParent] = useState(false);
+  const schoolGrade = ['6', '7', '8', '9', '10', '11', '12'].includes(f.grade);
+  const showParent = minor || schoolGrade || forceParent;      // a parent's email is compulsory up to class 12, whatever the age
 
   const submit = async e => {
     e.preventDefault();
@@ -41,16 +45,16 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
       ...(f.classCode.trim() ? { classCode: f.classCode.trim() } : { grade: f.grade }),
       ...(f.phone.trim() ? { phone: f.phone.trim() } : {}),
       ...(!minor && f.classCode.trim() && f.shareWithSchool ? { shareWithSchool: true } : {}),
-      ...(minor ? { guardian: { name: f.guardianName.trim(), email: f.guardianEmail.trim(), relationship: f.guardianRelationship } } : {})
+      ...(showParent ? { guardian: { name: f.guardianName.trim(), email: f.guardianEmail.trim(), relationship: f.guardianRelationship } } : {})
     };
     setBusy(true);
     try {
       const { data } = await api.register(body);
       saveSession(data.token, data.user);
-      nav('/v4');
+      nav(PLATFORM_ENABLED ? '/platform/student' : '/v4');
     } catch (err) {
       const d = err.response && err.response.data;
-      if (d && d.code === 'VALIDATION_FAILED') setErrors(d.details || {});
+      if (d && d.code === 'VALIDATION_FAILED') { setErrors(d.details || {}); if (d.details && (d.details.guardianEmail || d.details.guardianName)) setForceParent(true); }
       else if (d && d.code === 'EMAIL_TAKEN') setErrors({ email: 'An account with this email already exists. Try signing in.' });
       else if (d && d.code === 'PHONE_TAKEN') setErrors({ phone: 'This phone number is already used.' });
       else if (d && d.code === 'V4_DISABLED') setGeneral('This is not available yet.');
@@ -73,12 +77,14 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
         )}
         <div className="v4-field"><label htmlFor="phone">Phone <span className="v4-muted">(optional)</span></label><input id="phone" type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} />{fieldError(errors, 'phone')}</div>
 
-        {minor && (
+        {showParent && (
           <fieldset className="v4-card" style={{ marginBottom: 14, background: 'var(--amber-lt)', borderColor: '#FDE68A' }}>
             <legend className="v4-h2" style={{ padding: '0 6px' }}>Your parent or guardian</legend>
-            <p style={{ fontSize: 14, marginBottom: 12 }}>Because you are under 18, a parent or guardian must say it is OK. We will email them a link. You can start the test as soon as they confirm.</p>
+            {minor
+              ? <p style={{ fontSize: 14, marginBottom: 12 }}>Because you are under 18, a parent or guardian must say it is OK. We will email them a link to confirm and to create their own parent account. You can start the test as soon as they confirm.</p>
+              : <p style={{ fontSize: 14, marginBottom: 12 }}>Up to class 12, we need a parent or guardian's email. We will invite them to create a parent account, so they can follow your progress and reports. You can start straight away.</p>}
             <div className="v4-field"><label htmlFor="gName">Their name</label><input id="gName" type="text" value={f.guardianName} onChange={set('guardianName')} />{fieldError(errors, 'guardianName')}</div>
-            <div className="v4-field"><label htmlFor="gEmail">Their email</label><input id="gEmail" type="email" value={f.guardianEmail} onChange={set('guardianEmail')} />{fieldError(errors, 'guardianEmail')}</div>
+            <div className="v4-field"><label htmlFor="gEmail">Their email <span className="v4-muted">(not your own)</span></label><input id="gEmail" type="email" value={f.guardianEmail} onChange={set('guardianEmail')} />{fieldError(errors, 'guardianEmail')}</div>
             <div className="v4-field"><label htmlFor="gRel">Who are they?</label>
               <select id="gRel" value={f.guardianRelationship} onChange={set('guardianRelationship')}>{['parent', 'mother', 'father', 'guardian', 'other'].map(r => <option key={r} value={r}>{r[0].toUpperCase() + r.slice(1)}</option>)}</select></div>
           </fieldset>

@@ -56,7 +56,7 @@ export default function Login() {
       saveSession(data.token, data.user);
       dispatch({ type: 'SET_USER', id: data.user.id, name: data.user.fullName });
 
-      if (PLATFORM_ENABLED && !['counsellor', 'admin'].includes(data.user.role)) { nav('/platform/student'); return; }   // sample dashboards, until real roles exist
+      if (PLATFORM_ENABLED && ['student', 'mentor', 'parent'].includes(data.user.role || 'student')) { nav(`/platform/${data.user.role || 'student'}`); return; }
       if (V4_ENABLED && data.user.role === 'counsellor') { nav('/v4/school'); return; }
       if (V4_ENABLED && data.user.track) { nav('/v4'); return; }       // v4 students have their own dashboard
       if (data.user.assessmentCompleted) { nav('/dashboard'); return; }

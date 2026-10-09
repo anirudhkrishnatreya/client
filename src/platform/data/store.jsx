@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { loadBundle } from './api';
 import { iso } from './mock';
 
-const Ctx = createContext(null);
+export const Ctx = createContext(null);
 export const usePlatform = () => useContext(Ctx);
 const KEY = role => `imenteo-platform-sample-${role}-v1`;
 const read = role => { try { return JSON.parse(localStorage.getItem(KEY(role))); } catch { return null; } };

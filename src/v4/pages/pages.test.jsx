@@ -17,6 +17,8 @@ function mount(ui, { route = '/', path = '/' } = {}) {
 }
 beforeEach(() => localStorage.clear());
 
+vi.mock('../../platform/config', () => ({ PLATFORM_ENABLED: false }));
+
 describe('ageFrom', () => {
   it.each([['2013-06-01', 13], ['2008-10-10', 17], ['2008-10-09', 18], ['2000-01-01', 26], ['not a date', null], ['2010-02-31', null], ['', null]])('%s → %s', (dob, age) => expect(ageFrom(dob, TODAY)).toBe(age));
 });
@@ -52,12 +54,38 @@ describe('V4Register', () => {
     expect(screen.getByText('Your parent or guardian')).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText('Your class or year'), '8');
     await user.type(screen.getByLabelText('Their name'), 'Meera Verma');
-    await user.type(screen.getByLabelText('Their email'), 'meera@example.com');
+    await user.type(screen.getByLabelText(/Their email/), 'meera@example.com');
     await user.click(screen.getByLabelText(/I have read the summary/));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
     await screen.findByText('DASHBOARD');
     expect(api.register.mock.calls[0][0].guardian).toEqual({ name: 'Meera Verma', email: 'meera@example.com', relationship: 'parent' });
     expect(api.register.mock.calls[0][0].grade).toBe('8');
+  });
+
+  it('a parent email is compulsory up to class 12, even for an adult, and not for college', async () => {
+    const api = { register: vi.fn(() => ok({ token: 'T', user: { id: 'u', fullName: 'A', track: 'senior' } })) };
+    const user = userEvent.setup();
+    mount(<V4Register api={api} today={TODAY} />);
+    await fill(user, { dob: '2000-01-01' });
+    await user.selectOptions(screen.getByLabelText('Your class or year'), 'ug1');
+    expect(screen.queryByText('Your parent or guardian')).toBeNull();
+    await user.selectOptions(screen.getByLabelText('Your class or year'), '12');
+    expect(screen.getByText('Your parent or guardian')).toBeInTheDocument();
+    expect(screen.getByText(/we need a parent or guardian's email/i)).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Their name'), 'Meera Verma');
+    await user.type(screen.getByLabelText(/Their email/), 'meera@example.com');
+    await user.click(screen.getByLabelText(/I have read the summary/));
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
+    await screen.findByText('DASHBOARD');
+    expect(api.register.mock.calls[0][0].guardian.email).toBe('meera@example.com');
+  });
+
+  it('shows the parent section when the server asks for it (for example when a class code decided the grade)', async () => {
+    const api = { register: vi.fn().mockRejectedValueOnce(apiErr(400, 'VALIDATION_FAILED', { details: { guardianEmail: 'Enter your parent or guardian\'s email address', guardianName: 'Enter name' } })) };
+    const user = userEvent.setup();
+    mount(<V4Register api={api} today={TODAY} />);
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
+    expect(await screen.findByText('Your parent or guardian')).toBeInTheDocument();
   });
 
   it('a class code replaces the grade question, and the optional sharing choice appears for adults only', async () => {
@@ -115,7 +143,8 @@ describe('V4Register', () => {
 });
 
 describe('GuardianConsent', () => {
-  const info = { student: { firstName: 'Riya' }, guardianName: 'Meera Verma', collects: ['name, email and date of birth', 'answers to the career questionnaire'] };
+  const info = { student: { firstName: 'Riya' }, guardianName: 'Meera Verma', consentRequired: true, hasAccount: false, emailInUse: false, collects: ['name, email and date of birth', 'answers to the career questionnaire'] };
+  const passwords = async (user, pw = 'ParentPass1') => { await user.type(screen.getByLabelText('New password'), pw); await user.type(screen.getByLabelText('Repeat the password'), pw); };
   const page = api => mount(<GuardianConsent api={api} />, { route: '/guardian-consent/tok123', path: '/guardian-consent/:token' });
 
   it('shows what is collected, the sharing choice (off by default), and cannot confirm until the guardian agrees', async () => {
@@ -125,13 +154,14 @@ describe('GuardianConsent', () => {
     expect(await screen.findByText(/Please confirm for Riya/)).toBeInTheDocument();
     expect(screen.getByText('name, email and date of birth')).toBeInTheDocument();
     expect(screen.getByLabelText(/let Riya's school counsellor see/i)).not.toBeChecked();
-    const confirm = screen.getByRole('button', { name: 'Confirm' });
+    const confirm = screen.getByRole('button', { name: 'Confirm and create my account' });
+    await passwords(user);
     expect(confirm).toBeDisabled();
     await user.click(screen.getByLabelText(/I am Riya's parent or guardian/));
     expect(confirm).toBeEnabled();
     await user.click(confirm);
-    expect(await screen.findByText(/can now take the assessment/)).toBeInTheDocument();
-    expect(api.guardianConfirm).toHaveBeenCalledWith('tok123', { agree: true, shareWithSchool: false });
+    expect(await screen.findByText(/can now start/)).toBeInTheDocument();
+    expect(api.guardianConfirm).toHaveBeenCalledWith('tok123', { agree: true, shareWithSchool: false, password: 'ParentPass1' });
   });
 
   it('the guardian can opt in to sharing', async () => {
@@ -140,9 +170,10 @@ describe('GuardianConsent', () => {
     page(api);
     await screen.findByText(/Please confirm for Riya/);
     await user.click(screen.getByLabelText(/let Riya's school counsellor see/i));
+    await passwords(user);
     await user.click(screen.getByLabelText(/I am Riya's parent or guardian/));
-    await user.click(screen.getByRole('button', { name: 'Confirm' }));
-    await waitFor(() => expect(api.guardianConfirm).toHaveBeenCalledWith('tok123', { agree: true, shareWithSchool: true }));
+    await user.click(screen.getByRole('button', { name: 'Confirm and create my account' }));
+    await waitFor(() => expect(api.guardianConfirm).toHaveBeenCalledWith('tok123', { agree: true, shareWithSchool: true, password: 'ParentPass1' }));
   });
 
   it('declining takes two clicks, so it cannot happen by accident', async () => {
@@ -166,8 +197,9 @@ describe('GuardianConsent', () => {
     const user = userEvent.setup();
     page(api);
     await screen.findByText(/Please confirm for Riya/);
+    await passwords(user);
     await user.click(screen.getByLabelText(/I am Riya's parent or guardian/));
-    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm and create my account' }));
     expect(await screen.findByText(/expired or was already used/)).toBeInTheDocument();
   });
 
@@ -175,6 +207,53 @@ describe('GuardianConsent', () => {
     page({ guardianLookup: vi.fn(() => ok(info)) });
     await screen.findByText(/Please confirm for Riya/);
     expect(document.body.textContent).not.toMatch(/@|\d{4}-\d{2}-\d{2}/);
+  });
+
+  it('an adult student\'s parent just creates an account: no consent boxes, and the invitation is worded that way', async () => {
+    const api = { guardianLookup: vi.fn(() => ok({ ...info, consentRequired: false })), guardianConfirm: vi.fn(() => ok({ status: 'linked', token: 'PT', user: { id: 'p1', role: 'parent', fullName: 'Meera Verma' } })) };
+    const user = userEvent.setup();
+    page(api);
+    expect(await screen.findByText(/Riya has added you as their parent/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/I am Riya's parent or guardian/)).toBeNull();
+    await passwords(user);
+    await user.click(screen.getByRole('button', { name: 'Create my account' }));
+    expect(await screen.findByText(/Your parent account is ready/)).toBeInTheDocument();
+    expect(api.guardianConfirm).toHaveBeenCalledWith('tok123', { shareWithSchool: false, password: 'ParentPass1' });
+    expect(localStorage.getItem('im_user_token')).toBe('PT');
+  });
+
+  it('refuses mismatched passwords before calling the server, and relays a weak-password message', async () => {
+    const api = { guardianLookup: vi.fn(() => ok(info)), guardianConfirm: vi.fn(() => Promise.reject(apiErr(400, 'VALIDATION_FAILED', { details: { password: ['At least one number'] } }))) };
+    const user = userEvent.setup();
+    page(api);
+    await screen.findByText(/Please confirm for Riya/);
+    await user.type(screen.getByLabelText('New password'), 'ParentPass1');
+    await user.type(screen.getByLabelText('Repeat the password'), 'Different1');
+    await user.click(screen.getByLabelText(/I am Riya's parent or guardian/));
+    await user.click(screen.getByRole('button', { name: 'Confirm and create my account' }));
+    expect(await screen.findByText(/do not match/)).toBeInTheDocument();
+    expect(api.guardianConfirm).not.toHaveBeenCalled();
+    await user.clear(screen.getByLabelText('Repeat the password')); await user.type(screen.getByLabelText('Repeat the password'), 'ParentPass1');
+    await user.click(screen.getByRole('button', { name: 'Confirm and create my account' }));
+    expect(await screen.findByText(/at least one number/i)).toBeInTheDocument();
+  });
+
+  it('a parent who already has an account enters that password instead of choosing one', async () => {
+    const api = { guardianLookup: vi.fn(() => ok({ ...info, hasAccount: true })), guardianConfirm: vi.fn(() => Promise.reject(apiErr(401, 'PASSWORD_WRONG'))) };
+    const user = userEvent.setup();
+    page(api);
+    await screen.findByText(/Please confirm for Riya/);
+    expect(screen.queryByLabelText('Repeat the password')).toBeNull();
+    await user.type(screen.getByLabelText('Your password'), 'WrongPass9');
+    await user.click(screen.getByLabelText(/I am Riya's parent or guardian/));
+    await user.click(screen.getByRole('button', { name: 'Confirm and create my account' }));
+    expect(await screen.findByText(/not the password of your existing parent account/)).toBeInTheDocument();
+  });
+
+  it('an email that belongs to another kind of account cannot continue', async () => {
+    page({ guardianLookup: vi.fn(() => ok({ ...info, emailInUse: true })) });
+    expect(await screen.findByText(/different kind of iMenteo account/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm and create my account' })).toBeDisabled();
   });
 });
 
@@ -501,4 +580,3 @@ describe('V4Results: parity features of the finished report', () => {
     expect(screen.getByText(/rao@school.example/)).toBeInTheDocument();
   });
 });
-

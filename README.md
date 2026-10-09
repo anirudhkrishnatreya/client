@@ -15,7 +15,7 @@ To see the v4 assessment locally, run the server with `ASSESSMENT_V4=on` and sta
 | Variable | Purpose |
 |---|---|
 | `VITE_API_URL` | API base URL. Unset in development (Vite proxy). Set for a deployed build |
-| `VITE_PLATFORM` | `on` adds the student, mentor and parent dashboards at `#/platform`. They run on made-up sample data for now (see `src/platform/data/`), kept in the browser; Reset in the corner clears it |
+| `VITE_PLATFORM` | `on` adds the student, mentor and parent dashboards at `#/platform`. Signed-in people go to their own (`/platform/student`, `/mentor`, `/parent`), backed by the server (`src/platform/live/`). `#/platform/preview` shows the same screens on made-up sample data, with no sign-in |
 | `VITE_V4` | `on` includes the v4 assessment screens and routes. Off by default: with it off, the bundle is the same as before v4 existed |
 
 ## Two assessments live side by side

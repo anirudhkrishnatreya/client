@@ -5,6 +5,7 @@ import { Avatar, Drawer, Pill } from '../ui/kit';
 import { NAV, ROLE_LABEL } from './nav';
 import { usePlatform } from '../data/store';
 import logo from '../../assets/imenteo_logo.png';
+import { useAuth } from '../../context/AuthContext';
 
 const stored = () => { try { return localStorage.getItem('imenteo-platform-collapsed') === '1'; } catch { return false; } };
 
@@ -31,8 +32,26 @@ function Notifications({ items, onRead }) {
   );
 }
 
-export default function AppShell({ role }) {
-  const { data } = usePlatform();
+/** A few plain sentences from the real numbers, for the summary panel. (Written from facts, not by an AI model.) */
+function factsFor(role, data) {
+  if (role === 'mentor') {
+    const act = data.students.filter(s => !s.limited);
+    const late = act.reduce((n, s) => n + s.tasks.overdue, 0);
+    const high = data.alerts.filter(a => a.level === 'high');
+    return [`You mentor ${data.students.length} student${data.students.length === 1 ? '' : 's'}; ${act.length} can be followed in detail.`, late ? `${late} task${late === 1 ? ' is' : 's are'} overdue across your students.` : 'No tasks are overdue.',
+      high.length ? `${high.length} need attention: ${high.slice(0, 3).map(a => a.text).join(' ')}` : 'Nobody is flagged as at risk right now.', `${data.sessions.length} session${data.sessions.length === 1 ? ' is' : 's are'} scheduled.`];
+  }
+  const c = data.child;
+  if (!c) return ['No child is linked to your account yet.'];
+  const a = c.assessment.state;
+  return [`${c.firstName} has finished ${c.tasks.done} of ${c.tasks.total} task${c.tasks.total === 1 ? '' : 's'}${c.tasks.overdue ? `, and ${c.tasks.overdue} ${c.tasks.overdue === 1 ? 'is' : 'are'} overdue` : ''}.`,
+    a === 'submitted' ? 'The career assessment is finished and the report is ready.' : a === 'in_progress' ? 'The career assessment is under way.' : 'The career assessment has not been started.',
+    data.sessions.next ? `The next mentor session is on ${data.sessions.next.date}.` : 'No mentor session is booked yet.'];
+}
+
+export default function AppShell({ role, preview = false }) {
+  const { data, live, error } = usePlatform();
+  const { clearSession } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
   const [collapsed, setCollapsed] = useState(stored);
@@ -40,7 +59,7 @@ export default function AppShell({ role }) {
   const [ai, setAi] = useState(false);
   const [q, setQ] = useState('');
   const { actions } = usePlatform();
-  const base = `/platform/${role}`;
+  const base = preview ? `/platform/preview/${role}` : `/platform/${role}`;
   useEffect(() => { setOpen(false); }, [loc.pathname]);
   const toggle = () => setCollapsed(c => { const n = !c; try { localStorage.setItem('imenteo-platform-collapsed', n ? '1' : '0'); } catch { /* ignore */ } return n; });
 
@@ -49,7 +68,7 @@ export default function AppShell({ role }) {
   const me = data && data.me;
   const counts = data ? {
     tasks: role === 'student' ? data.tasks.filter(t => t.status !== 'done').length : 0,
-    sessions: role === 'mentor' ? data.sessions.filter(s => !s.prepped).length : 0
+    sessions: role === 'mentor' ? (live ? data.sessions.length : data.sessions.filter(s => !s.prepped).length) : 0
   } : {};
   const onSearch = e => { e.preventDefault(); const hit = items.find(i => i.label.toLowerCase().includes(q.trim().toLowerCase())); if (hit && q.trim()) { nav(`${base}/${hit.to}`); setQ(''); } };
 
@@ -57,8 +76,10 @@ export default function AppShell({ role }) {
     <div className="pf">
       <div className={`pf-shell${collapsed ? ' collapsed' : ''}${open ? ' open' : ''}`}>
         <aside className="pf-side" aria-label="Main navigation">
-          <div className="pf-brand"><Link to="/platform" className="chip" aria-label="iMenteo, choose another view"><img src={logo} alt="iMenteo" /></Link></div>
-          <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span><Link to="/platform" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link></div>
+          <div className="pf-brand"><Link to={live ? base : '/platform/preview'} className="chip" aria-label="iMenteo home"><img src={logo} alt="iMenteo" /></Link></div>
+          <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span>{live
+            ? <button type="button" onClick={() => { clearSession(); nav('/login'); }} style={{ background: 'none', border: 0, color: '#FFC56B', fontSize: 12, cursor: 'pointer', display: 'inline-flex', gap: 5, alignItems: 'center' }} title="Sign out"><Icon name="logout" size={15} />Sign out</button>
+            : <Link to="/platform/preview" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>
           <nav className="pf-nav">
             {NAV[role].map(sec => (
               <div key={sec.section}>
@@ -71,7 +92,7 @@ export default function AppShell({ role }) {
               </div>
             ))}
           </nav>
-          <div className="pf-user"><Avatar name={me ? me.name : '…'} size={38} /><div className="who"><b>{me ? me.name : 'Loading…'}</b><small>{ROLE_LABEL[role]}{role === 'student' && me ? ` · Class ${me.klass}` : ''}</small></div></div>
+          <div className="pf-user"><Avatar name={me ? me.name : '…'} size={38} /><div className="who"><b>{me ? me.name : 'Loading…'}</b><small>{ROLE_LABEL[role]}{role === 'student' && me ? ` · ${me.gradeLabel || `Class ${me.klass}`}` : ''}</small></div></div>
           <button type="button" className="pf-collapse" onClick={toggle} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><Icon name={collapsed ? 'chevronRight' : 'chevronLeft'} size={16} /><span style={{ display: collapsed ? 'none' : 'inline' }}>Collapse</span></button>
         </aside>
         <div className="pf-scrim" onClick={() => setOpen(false)} />
@@ -82,18 +103,19 @@ export default function AppShell({ role }) {
             <form className="pf-search" onSubmit={onSearch} role="search"><Icon name="search" size={18} /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Jump to a page" aria-label="Jump to a page" /></form>
             {role === 'student'
               ? <button type="button" className="pf-ask" onClick={() => nav(`${base}/coach`)}><Icon name="sparkles" size={18} />Ask AI coach</button>
-              : <button type="button" className="pf-ask" onClick={() => setAi(true)}><Icon name="sparkles" size={18} />AI summary</button>}
+              : <button type="button" className="pf-ask" onClick={() => setAi(true)}><Icon name="sparkles" size={18} />{live ? 'Summary' : 'AI summary'}</button>}
             {data && <Notifications items={data.notifications || []} onRead={actions.markRead || (() => {})} />}
           </header>
-          <main className="pf-content">{data ? <Outlet /> : <div role="status" className="pf-card"><div className="pf-muted">Loading your dashboard…</div></div>}</main>
+          <main className="pf-content">{data ? <Outlet /> : error ? <div role="alert" className="pf-card"><b>We could not load your dashboard.</b><p className="pf-muted">Please check your connection and try again.</p><button type="button" className="pf-btn sm" onClick={() => actions.reload && actions.reload()}>Try again</button></div> : <div role="status" className="pf-card"><div className="pf-muted">Loading your dashboard…</div></div>}</main>
         </div>
       </div>
-      <Drawer open={ai} title="AI summary" onClose={() => setAi(false)}>
+      <Drawer open={ai} title={live ? 'This week at a glance' : 'AI summary'} onClose={() => setAi(false)}>
+        {live && data ? <><ul className="pf-list">{factsFor(role, data).map(t => <li key={t}>{t}</li>)}</ul><p className="pf-small pf-muted" style={{ marginTop: 12 }}>Written from your students’ real activity. AI-written summaries with advice will come later.</p></> : <>
         <div className="pf-ai pf-card" style={{ marginBottom: 14 }}><span className="tag"><Icon name="sparkles" size={14} />Sample summary</span>
-          <p style={{ marginTop: 8 }}>{role === 'mentor' ? 'Six of your eight students had a steady week. Two need a conversation before their next session: Rohan has been away for nine days, and Kabir missed every study block.' : 'Aarav had a steady week. He finished four of five planned study days, and his Python score is up twelve points. One task is due tomorrow.'}</p></div>
-        <p className="pf-small pf-muted">Summaries like this will be written by the platform’s AI from the real activity and scores. This preview shows what they will look like.</p>
+          <p style={{ marginTop: 8 }}>{role === 'mentor' ? 'Six of your eight students had a steady week. Two need a conversation before their next session: Rohan has been away for nine days, and Kabir missed every study block.' : 'Aarav had a steady week: four of five study days done, and his Python quiz score rose from 62 to 74. One task is due tomorrow.'}</p></div>
+        <p className="pf-small pf-muted">Summaries like this will be written by the platform’s AI from the real activity and scores. This preview shows what they will look like.</p></>}
       </Drawer>
-      <div className="pf-demo" role="note"><Pill tone="gold">Sample data</Pill><span>Preview with made-up students</span>{actions.reset && <button type="button" onClick={actions.reset} style={{ background: 'none', border: 0, color: '#FFC56B', textDecoration: 'underline' }}>Reset</button>}</div>
+      {!live && <div className="pf-demo" role="note"><Pill tone="gold">Sample data</Pill><span>Preview with made-up students</span>{actions.reset && <button type="button" onClick={actions.reset} style={{ background: 'none', border: 0, color: '#FFC56B', textDecoration: 'underline' }}>Reset</button>}</div>}
     </div>
   );
 }

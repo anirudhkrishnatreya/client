@@ -2,9 +2,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import PlatformApp from './PlatformApp';
+import { AuthProvider } from '../context/AuthContext';
 import { markQuiz, QUIZ } from './data/quiz';
 
-const go = path => render(<MemoryRouter initialEntries={[`/platform/${path}`]}><Routes><Route path="/platform/*" element={<PlatformApp />} /></Routes></MemoryRouter>);
+const go = path => render(<MemoryRouter initialEntries={[`/platform/preview/${path}`]}><AuthProvider><Routes><Route path="/platform/*" element={<PlatformApp />} /></Routes></AuthProvider></MemoryRouter>);
 beforeEach(() => localStorage.clear());
 
 const ROUTES = {

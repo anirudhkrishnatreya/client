@@ -14,7 +14,7 @@ export default function Tasks() {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ title: '', subject: 'Python', due: iso(new Date(Date.now() + 2 * 86400000)) });
   const task = data.tasks.find(t => t.id === open);
-  const res = task && task.source ? data.library.find(l => l.id === task.source) : null;
+  const res = task && task.source ? (data.library || []).find(l => l.id === task.source) : null;
   const submit = e => { e.preventDefault(); if (!draft.title.trim()) return; actions.addTask({ ...draft, title: draft.title.trim() }); setAdding(false); setDraft(d => ({ ...d, title: '' })); };
 
   return (
@@ -25,7 +25,7 @@ export default function Tasks() {
         <div className="pf-kanban">
           {COLS.map(c => { const items = data.tasks.filter(t => t.status === c.id); return (
             <div key={c.id} className="pf-col" aria-label={c.label}><h5><span>{c.label}</span><span className="pf-pill grey">{items.length}</span></h5>
-              {items.map(t => { const d = dueLabel(t.due); return (
+              {items.map(t => { const d = dueLabel(t.due, t.status === 'done'); return (
                 <button type="button" key={t.id} className="pf-task" onClick={() => setOpen(t.id)}><b>{t.title}</b>
                   <div className="pf-row pf-wrap" style={{ gap: 6 }}><Pill tone={d.tone}>{d.text}</Pill><Pill tone={PRIO[t.priority]}>{t.priority}</Pill></div>
                   <div className="pf-small pf-faint" style={{ marginTop: 6 }}>{t.subject} · {t.by}</div></button>
@@ -36,13 +36,13 @@ export default function Tasks() {
         </div>
       ) : (
         <Card flush><div className="pf-scroll"><table className="pf-table"><thead><tr><th>Task</th><th>Subject</th><th>Due</th><th>From</th><th>Status</th></tr></thead>
-          <tbody>{data.tasks.map(t => { const d = dueLabel(t.due); return (
+          <tbody>{data.tasks.map(t => { const d = dueLabel(t.due, t.status === 'done'); return (
             <tr key={t.id} className="click" onClick={() => setOpen(t.id)}><td><b>{t.title}</b></td><td>{t.subject}</td><td><Pill tone={d.tone}>{d.text}</Pill></td><td>{t.by}</td><td><Pill tone={t.status === 'done' ? 'leaf' : t.status === 'review' ? 'sky' : 'grey'}>{COLS.find(c => c.id === t.status).label}</Pill></td></tr>
           ); })}</tbody></table></div></Card>
       )}
       <Drawer open={!!task} title={task ? task.title : ''} onClose={() => setOpen(null)}>
         {task && <>
-          <div className="pf-row pf-wrap" style={{ marginBottom: 14 }}><Pill tone={dueLabel(task.due).tone} icon="calendar">{dueLabel(task.due).text}</Pill><Pill icon="clock">about {task.est} min</Pill><Pill tone={PRIO[task.priority]}>{task.priority} priority</Pill><Pill>{task.by}</Pill></div>
+          <div className="pf-row pf-wrap" style={{ marginBottom: 14 }}><Pill tone={dueLabel(task.due).tone} icon="calendar">{dueLabel(task.due).text}</Pill>{task.est ? <Pill icon="clock">about {task.est} min</Pill> : null}<Pill tone={PRIO[task.priority]}>{task.priority} priority</Pill><Pill>{task.by}</Pill></div>
           {task.notes && <p>{task.notes}</p>}
           {res && <Card style={{ marginBottom: 14 }}><div className="pf-eyebrow">Study from</div><b>{res.title}</b><div className="pf-small pf-muted">{res.provider}</div>{res.url && <a className="pf-btn sm ghost" style={{ marginTop: 8 }} href={res.url} target="_blank" rel="noopener noreferrer"><Icon name="link" size={14} />Open</a>}</Card>}
           <label className="pf-label" htmlFor="st">Status</label>

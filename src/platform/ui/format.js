@@ -4,11 +4,12 @@ const parse = s => { const [y, m, d] = String(s).slice(0, 10).split('-').map(Num
 export const fmtDate = s => { const d = parse(s); return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
 export const fmtShort = s => { const d = parse(s); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
 export const daysFromToday = s => { const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((parse(s) - t) / 86400000); };
-export function dueLabel(s) {
+export function dueLabel(s, done = false) {
   const n = daysFromToday(s);
+  if (done) return { text: fmtDate(s), tone: 'grey' };
   if (n === 0) return { text: 'Due today', tone: 'gold' };
   if (n === 1) return { text: 'Due tomorrow', tone: 'gold' };
-  if (n < 0) return { text: `${-n} day${n === -1 ? '' : 's'} ago`, tone: 'grey' };
+  if (n < 0) return { text: `Overdue by ${-n} day${n === -1 ? '' : 's'}`, tone: 'coral' };
   return { text: `Due ${fmtDate(s)}`, tone: 'grey' };
 }
 export const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
