@@ -84,7 +84,7 @@ export default function V4Dashboard({ api = defaultApi, today = new Date() }) {
 
 export function PdfCell({ api, report }) {
   const [err, setErr] = useState('');
-  const status = report.pdf && report.pdf.status;
+  const [status, setStatus] = useState(report.pdf && report.pdf.status);
   if (status === 'ready') {
     const download = async () => {
       setErr('');
@@ -98,7 +98,13 @@ export function PdfCell({ api, report }) {
     return <><button className="v4-btn" onClick={download}>Download PDF</button>{err && <span className="v4-err" role="alert">{err}</span>}</>;
   }
   if (status === 'preparing') return <span className="v4-muted" role="status">Preparing your PDF…</span>;
-  if (status === 'failed') return <span className="v4-muted" role="status">The PDF could not be made. We will retry.</span>;
+  if (status === 'failed') {
+    const retry = async () => {
+      setErr('');
+      try { await api.requestPdf(report.assessmentId); setStatus('preparing'); } catch { setErr('We could not restart it. Please try again later.'); }
+    };
+    return <><span className="v4-muted" role="status">The PDF could not be made.</span> <button className="v4-btn secondary" onClick={retry}>Try again</button>{err && <span className="v4-err" role="alert">{err}</span>}</>;
+  }
   return <span className="v4-muted">PDF coming soon</span>;
 }
 

@@ -332,7 +332,8 @@ describe('V4Results', () => {
   };
   const report = (over = {}) => ({ assessmentId: 'a1', track: 'senior', norm: { provisional: true }, validity: { flag: 'ok' }, scales, holland: { code: 'EAS' }, orientation: { dominant: 'people', secondary: 'ideas', undifferentiated: false },
     dominant: { interests: ['int.field.law'], aptitude: ['apt.verbal'], personality: [], ei: [] }, matches: { fields: [{ rank: 1, id: 'law', label: 'Law & Legal Services', overall: 81, components: { interest: { pct: 100 }, ei: { pct: 70 } } }], streams: [{ rank: 1, id: 'humanities', label: 'Humanities and Social Sciences', overall: 74, components: { interest: { pct: 90 } } }] }, ...over });
-  const page = api => mount(<V4Results api={api} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
+  const notReady = () => Promise.reject(apiErr(409, 'REPORT_NOT_READY'));
+  const page = (api, fullReport = notReady) => mount(<V4Results api={{ fullReport, ...api }} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
 
   it('shows the Holland code, orientation, strongest areas, bars with accessible labels, and matches; says scores are provisional', async () => {
     page({ report: vi.fn(() => ok({ report: report() })) });
@@ -366,8 +367,95 @@ describe('V4Results', () => {
     page({ report: vi.fn(() => Promise.reject(apiErr(403, 'FORBIDDEN'))) });
     expect(await screen.findByText('Results not found')).toBeInTheDocument();
   });
+  it('while the wording is unfinished the plain scores appear with an explanation', async () => {
+    page({ report: vi.fn(() => ok({ report: report() })) });
+    expect(await screen.findByText(/full report is still being finished/)).toBeInTheDocument();
+    expect(screen.getByText('EAS')).toBeInTheDocument();
+  });
+  it('a missing report is "not found" even when the finished report is asked for first', async () => {
+    page({}, () => Promise.reject(apiErr(404, 'NOT_FOUND')));
+    expect(await screen.findByText('Results not found')).toBeInTheDocument();
+  });
+  it('a server error is shown as an error, not as "not ready"', async () => {
+    page({}, () => Promise.reject(apiErr(500, 'SERVER_ERROR')));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not load/);
+  });
   it('a caution flag adds a gentle note', async () => {
     page({ report: vi.fn(() => ok({ report: report({ validity: { flag: 'caution' } }) })) });
     expect(await screen.findByText(/looked unusual/)).toBeInTheDocument();
+  });
+});
+
+describe('V4Results: the finished report', () => {
+  const plan = [{ title: 'Read widely', text: 'Mix your reading.' }];
+  const doc = (over = {}) => ({ hash: 'abcdef1234567890', student: { name: 'Asha Rao', track: 'senior' }, status: { contentStatus: 'approved', complete: true },
+    notices: [{ kind: 'provisional', text: 'Results are provisional.' }, { kind: 'guide', text: 'A guide, not a verdict.' }],
+    sections: [
+      { id: 'intro', title: 'About this report', blocks: [{ id: 'page.howToRead', text: 'Read the nine-step scale.' }] },
+      { id: 'orientation', title: 'Work orientation', available: true, poles: [{ pole: 'ideas', label: 'Ideas', stanine: 8, meaning: 'Working with ideas means thinking.' }], dominant: { label: 'Ideas', text: 'You like ideas.' }, secondary: { label: 'People', text: 'You like people a bit.' } },
+      { id: 'interests', title: 'Interests', holland: { available: true, code: 'IRA', letters: [{ letter: 'I', label: 'Investigative', text: 'Likes to study.' }] }, scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You show a strong interest in law.' }], notScored: [] },
+      { id: 'aptitude', title: 'Aptitude', scales: [{ id: 'apt.verbal', label: 'Verbal Reasoning', stanine: 3, band: 'developing', dominant: false, meaning: 'Verbal reasoning is words.', analysis: 'Reading may take effort.', plan }], notScored: [{ id: 'apt.spatial', label: 'Spatial Reasoning' }] },
+      { id: 'matches', title: 'Fields that fit you', available: true, kind: 'fields', fields: [
+        { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [{ scale: 'apt.verbal', label: 'Verbal Reasoning', student: 3, need: 6, plan }] },
+        { rank: 2, id: 'design', label: 'Design', overall: 70 }], streams: [] },
+      { id: 'nextSteps', title: 'What to do next', blocks: [{ id: 'page.nextSteps', text: 'Talk to a counsellor.' }] }
+    ], ...over });
+  const full = d => mount(<V4Results api={{ fullReport: vi.fn(() => ok({ report: d })) }} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
+
+  it('lays out every section of the document, with the words exactly as the server sent them', async () => {
+    full(doc());
+    expect(await screen.findByText('Read the nine-step scale.')).toBeInTheDocument();
+    expect(screen.getByText('You like ideas.')).toBeInTheDocument();
+    expect(screen.getByText('IRA')).toBeInTheDocument();
+    expect(screen.getByText('You show a strong interest in law.')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Verbal Reasoning: 3 out of 9, Developing' })).toBeInTheDocument();
+    expect(screen.getAllByText('Read widely.').length).toBe(2);              // the plan, and again under the field's skill gap
+    expect(screen.getByText('Law is about rules.')).toBeInTheDocument();
+    expect(screen.getByText(/Not yet checked by a reviewer/)).toBeInTheDocument();
+    expect(screen.getByText(/Not scored.*Spatial Reasoning/)).toBeInTheDocument();
+    expect(screen.getByText('Talk to a counsellor.')).toBeInTheDocument();
+    expect(screen.getByText('Results are provisional.')).toBeInTheDocument();
+  });
+  it('fields beyond the detailed ones are listed in order', async () => {
+    full(doc());
+    expect(await screen.findByText('Other fields, in order')).toBeInTheDocument();
+    expect(screen.getByText('Design')).toBeInTheDocument();
+  });
+  it('draft wording is labelled', async () => {
+    full(doc({ status: { contentStatus: 'draft', complete: true } }));
+    expect(await screen.findByText(/Draft wording/)).toBeInTheDocument();
+  });
+  it('an invalid attempt shows the notice and next steps, nothing else', async () => {
+    full(doc({ notices: [{ kind: 'invalid', text: 'This report may not describe you.' }], sections: [
+      { id: 'intro', title: 'About this report', blocks: [{ id: 'page.howToRead', text: 'Intro.' }] },
+      { id: 'nextSteps', title: 'What to do next', blocks: [{ id: 'page.nextSteps', text: 'Retake it.' }] }] }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('may not describe you');
+    expect(screen.getByText('Retake it.')).toBeInTheDocument();
+    expect(screen.queryByText(/% match/)).toBeNull();
+  });
+  it('a Junior document shows areas to explore', async () => {
+    full(doc({ sections: [
+      { id: 'intro', title: 'About this report', blocks: [{ id: 'page.howToRead', text: 'Intro.' }] },
+      { id: 'matches', title: 'Things to explore', available: true, kind: 'explore', areas: [{ id: 'science', label: 'Science & Experiments', family: 'Science and discovery', text: 'Try a safe experiment.' }], strengths: [{ id: 'apt.logical', label: 'Logical Reasoning' }], note: 'Areas to explore, not recommendations.' },
+      { id: 'nextSteps', title: 'What to do next', blocks: [{ id: 'page.nextSteps', text: 'Next.' }] }] }));
+    expect(await screen.findByText('Try a safe experiment.')).toBeInTheDocument();
+    expect(screen.getByText('Logical Reasoning')).toBeInTheDocument();
+  });
+});
+
+describe('PdfCell: failed', () => {
+  it('offers to try again, and then shows it is being prepared', async () => {
+    const api = { requestPdf: vi.fn(() => ok({})) };
+    const user = userEvent.setup();
+    render(<PdfCell api={api} report={{ assessmentId: 'a1', pdf: { status: 'failed' } }} />);
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(api.requestPdf).toHaveBeenCalledWith('a1'));
+    expect(await screen.findByText(/Preparing your PDF/)).toBeInTheDocument();
+  });
+  it('says so when it cannot be restarted', async () => {
+    const user = userEvent.setup();
+    render(<PdfCell api={{ requestPdf: vi.fn(() => Promise.reject(new Error('x'))) }} report={{ assessmentId: 'a1', pdf: { status: 'failed' } }} />);
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not restart/);
   });
 });

@@ -2,19 +2,27 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { v2 as defaultApi, errorCode } from '../api';
 import Frame from './Frame';
+import FullReport from './FullReport';
 
 const DIMENSIONS = [['interest', 'Interests'], ['personality', 'Personality'], ['aptitude', 'Abilities'], ['ei', 'Emotional intelligence'], ['values', 'What matters at work']];
 const HOLLAND = { R: 'Realistic', I: 'Investigative', A: 'Artistic', S: 'Social', E: 'Enterprising', C: 'Conventional' };
 const POLE = { data: 'Data', ideas: 'Ideas', people: 'People', things: 'Things' };
 const BAND = { developing: 'Developing', moderate: 'Moderate', strong: 'Strong' };
 
-// Interim results view. The full designed report (and its PDF) comes later; this shows the same numbers plainly.
+// The student's report. Shows the finished report (the same document the PDF is made from). While its wording is still
+// being reviewed the server says "not ready", and the student sees the plain scores instead, with a short explanation.
 export default function V4Results({ api = defaultApi }) {
   const { id } = useParams();
   const [report, setReport] = useState(null);
+  const [plain, setPlain] = useState(null);
   const [state, setState] = useState('loading');
   useEffect(() => {
-    api.report(id).then(({ data }) => { setReport(data.report); setState('ready'); }).catch(e => setState(errorCode(e) === 'NOT_FOUND' || errorCode(e) === 'FORBIDDEN' ? 'missing' : 'error'));
+    const missing = e => errorCode(e) === 'NOT_FOUND' || errorCode(e) === 'FORBIDDEN';
+    api.fullReport(id).then(({ data }) => { setReport(data.report); setState('full'); }).catch(e => {
+      if (missing(e)) return setState('missing');
+      if (errorCode(e) !== 'REPORT_NOT_READY') return setState('error');
+      api.report(id).then(({ data }) => { setPlain(data.report); setState('plain'); }).catch(e2 => setState(missing(e2) ? 'missing' : 'error'));
+    });
   }, [api, id]);
 
   if (state === 'loading') return <Frame><p role="status">Loading your results…</p></Frame>;
@@ -23,7 +31,12 @@ export default function V4Results({ api = defaultApi }) {
 
   return (
     <Frame title="Your results">
-      <ReportView r={report} />
+      {state === 'full' ? <FullReport report={report} /> : (
+        <>
+          <div className="v4-alert info" role="status">Your full report is still being finished. Here are your scores for now; the detailed report will appear on this page when it is ready.</div>
+          <ReportView r={plain} />
+        </>
+      )}
       <p style={{ marginTop: 16 }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
     </Frame>
   );

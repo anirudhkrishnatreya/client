@@ -24,7 +24,9 @@ export const v2 = {
   submit: () => api.post('/v2/assessment/submit'),
   reports: () => api.get('/v2/reports'),
   report: id => api.get(`/v2/report/${id}`),
-  pdf: id => api.get(`/v2/reports/${id}/pdf`, { responseType: 'blob' })     // available once the PDF worker exists (status 'ready')
+  fullReport: id => api.get(`/v2/report/${id}/full`),
+  pdf: id => api.get(`/v2/reports/${id}/pdf`, { responseType: 'blob' }),   // when the dashboard says status 'ready'
+  requestPdf: id => api.post(`/v2/reports/${id}/pdf`)
 };
 
 // Counsellor (their own organization only)
