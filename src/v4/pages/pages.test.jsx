@@ -460,3 +460,45 @@ describe('PdfCell: failed', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not restart/);
   });
 });
+
+describe('V4Results: parity features of the finished report', () => {
+  const rich = () => ({ hash: 'abcdef1234567890', student: { name: 'Asha Rao', track: 'senior', school: 'Test School' }, status: { contentStatus: 'approved', complete: true }, notices: [],
+    sections: [
+      { id: 'intro', title: 'About this report', blocks: [{ id: 'page.howToRead', text: 'Intro text.' }] },
+      { id: 'interests', title: 'What you are drawn to', about: 'Interests are the fields you enjoy.', holland: { available: false }, chart: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong' }, { id: 'int.field.design', label: 'Design', stanine: 3, band: 'developing' }],
+        scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You like law.' }], notScored: [] },
+      { id: 'aptitude', title: 'What your mind does well', about: 'Aptitude is what your mind does well.', chart: [{ id: 'apt.creative', label: 'Creative Thinking', stanine: 7, band: 'strong' }],
+        scales: [{ id: 'apt.creative', label: 'Creative Thinking', stanine: 7, band: 'strong', dominant: true, meaning: 'Creative thinking.', analysis: 'You link ideas.', plan: [{ title: 'Make something', text: 'Turn an idea into a thing.' }] }], notScored: [] },
+      { id: 'matches', title: 'Where this could lead', available: true, kind: 'fields', fields: [
+        { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, parts: [{ key: 'orientation', label: 'Style', pct: 70 }, { key: 'interest', label: 'Interest', pct: 90 }, { key: 'ei', label: 'EQ', pct: 80 }], strengths: [{ scale: 'apt.verbal', label: 'Verbal Reasoning' }],
+          page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], employers: ['Law firms'], trending: ['Intellectual property'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [] }] },
+      { id: 'developmentPlan', title: 'Skills worth building first', about: 'Pick one or two skills and start this month.', items: [{ scale: 'ei.conflict', label: 'Conflict Management', student: 3, need: 6, fields: ['Law & Legal Services'], plan: [{ title: 'Breathe first', text: 'Take one slow breath before you reply.' }] }] },
+      { id: 'nextSteps', title: 'Your next few steps', blocks: [{ id: 'page.nextSteps', text: 'Read this with someone.' }] },
+      { id: 'talkItThrough', title: 'Talk it through', blocks: [{ id: 'page.talkItThrough', text: 'A report is a start.' }], school: 'Test School', contacts: [{ name: 'Ms Rao', email: 'rao@school.example' }] }
+    ] });
+  const show = () => mount(<V4Results api={{ fullReport: vi.fn(() => ok({ report: rich() })) }} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
+
+  it('shows the chapter introduction, standout tiles and a chart of every scale', async () => {
+    show();
+    expect(await screen.findByText('Aptitude is what your mind does well.')).toBeInTheDocument();
+    expect(screen.getAllByRole('img', { name: /Law 8 of 9, Design 3 of 9/ }).length).toBe(1);
+    expect(document.querySelectorAll('.rp-tile .rp-icon').length).toBeGreaterThan(2);
+  });
+  it('career pages show the five-part breakdown, why it fits, where people work and what to explore', async () => {
+    show();
+    expect(await screen.findByText('How it adds up')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Style 70 percent, Interest 90 percent, EQ 80 percent/ })).toBeInTheDocument();
+    expect(screen.getByText('Why it fits you')).toBeInTheDocument();
+    expect(screen.getByText('Verbal Reasoning')).toBeInTheDocument();
+    expect(screen.getByText('Law firms')).toBeInTheDocument();
+    expect(screen.getByText('Intellectual property')).toBeInTheDocument();
+  });
+  it('shows the school on the cover, the development plan and the counsellor contact', async () => {
+    show();
+    expect(await screen.findByText(/Test School/, { selector: '.meta' })).toBeInTheDocument();
+    expect(screen.getByText('Pick one or two skills and start this month.')).toBeInTheDocument();
+    expect(screen.getByText('Conflict Management')).toBeInTheDocument();
+    expect(screen.getByText(/rao@school.example/)).toBeInTheDocument();
+  });
+});
+

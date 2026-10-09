@@ -1,3 +1,4 @@
+import { GLYPHS, GLYPH_FOR, TINT } from './iconData';
 // Report charts as small SVG components. The geometry matches the PDF template (server/engine/v4/report/charts.js),
 // so the screen and the printed report look like the same document.
 const BAND = { developing: '#F2A93B', moderate: '#6F8FC0', strong: '#4C8C6B' };
@@ -80,4 +81,55 @@ export function CoverArt() {
 
 export function Squiggle({ color = '#F2A93B', width = 120 }) {
   return <svg className="rp-squig" viewBox={`0 0 ${width} 10`} width={width} height="10" aria-hidden="true"><path d="M2 6 q6 -6 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke={color} strokeWidth="2.6" strokeLinecap="round" /></svg>;
+}
+
+// ── icons and charts added for parity with the printed report
+const dimensionOf = id => (id.startsWith('orient.') ? 'orientation' : id.startsWith('int.') ? 'interests' : id.startsWith('p.') ? 'personality' : id.startsWith('apt.') ? 'aptitude' : id.startsWith('ei.') ? 'ei' : 'values');
+
+export function IconTile({ id, size = 48 }) {
+  const [bg, ink] = TINT[dimensionOf(id)];
+  const glyph = GLYPHS[GLYPH_FOR[id]] || GLYPHS.star;
+  return (
+    <svg className="rp-icon" viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
+      <circle cx="24" cy="24" r="23" fill={bg} />
+      {/* the glyph markup is a fixed constant from our own icon set, never student input */}
+      <g transform="translate(10 10) scale(1.1667)" fill="none" stroke={ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: glyph }} />
+    </svg>
+  );
+}
+
+export function BarChart({ rows, color = '#F2A93B', width = 520 }) {
+  const left = 215, right = 28, h = 22, top = 6, gridW = width - left - right;
+  const height = top + rows.length * h + 20;
+  const x = v => left + gridW * v / 9;
+  return (
+    <svg className="rp-barchart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={rows.map(r => `${r.label} ${r.stanine} of 9`).join(', ')}>
+      {[3, 6, 9].map(v => <g key={v}><line x1={f(x(v))} y1={top} x2={f(x(v))} y2={top + rows.length * h} stroke="#DDE2EC" strokeDasharray="3 3" /><text x={f(x(v))} y={top + rows.length * h + 13} textAnchor="middle" fontSize="9" fill="#5E6575">{v}</text></g>)}
+      {rows.map((r, i) => { const y = top + i * h; return (
+        <g key={r.id}>
+          <text x={left - 8} y={y + 14} textAnchor="end" fontSize="10.5" fill="#23262F">{r.label}</text>
+          <rect x={left} y={y + 4} width={gridW} height="11" rx="5.5" fill="#E7EBF2" />
+          <rect x={left} y={y + 4} width={f(Math.max(11, gridW * r.stanine / 9))} height="11" rx="5.5" fill={color} />
+          <text x={f(x(r.stanine) + 5)} y={y + 13.5} fontSize="10" fontWeight="600" fill="#23262F">{r.stanine}</text>
+        </g>
+      ); })}
+    </svg>
+  );
+}
+
+const PART_COLOR = { orientation: '#D9654A', interest: '#F2A93B', aptitude: '#4C8C6B', personality: '#2C3566', ei: '#6F8FC0' };
+export function PartsBars({ parts, width = 250 }) {
+  const left = 72, right = 34, h = 18, gridW = width - left - right;
+  return (
+    <svg className="rp-parts" viewBox={`0 0 ${width} ${parts.length * h + 2}`} role="img" aria-label={parts.map(p => `${p.label} ${p.pct} percent`).join(', ')}>
+      {parts.map((p, i) => (
+        <g key={p.key}>
+          <text x={left - 8} y={i * h + 12} textAnchor="end" fontSize="10" fill="#23262F">{p.label}</text>
+          <rect x={left} y={i * h + 4} width={gridW} height="9" rx="4.5" fill="#E7EBF2" />
+          <rect x={left} y={i * h + 4} width={f(Math.max(9, gridW * p.pct / 100))} height="9" rx="4.5" fill={PART_COLOR[p.key] || '#F2A93B'} />
+          <text x={left + gridW + 6} y={i * h + 12} fontSize="9.5" fontWeight="600" fill="#23262F">{p.pct}</text>
+        </g>
+      ))}
+    </svg>
+  );
 }

@@ -103,3 +103,21 @@
 .rp-closing p { margin: 0; }
 .rp-foot { font-size: 14px; color: var(--muted); margin-top: 28px; }
 @media (max-width: 600px) { .rp-art { width: 280px; right: -70px; bottom: -100px; opacity: .55; } .rp-hero { padding: 40px 20px 72px; } }
+
+/* parity with the printed report: tiles, charts, five-part breakdown, development plan, talk it through */
+.rp-tiles { display: flex; flex-wrap: wrap; gap: 14px 18px; margin: 6px 0 14px; }
+.rp-tile { width: 92px; text-align: center; font-size: 14px; line-height: 1.25; }
+.rp-tile .rp-icon { display: block; margin: 0 auto 6px; }
+.rp-barchart { display: block; width: 100%; max-width: 560px; height: auto; margin: 0 auto; }
+.rp-barchart text { font-family: Newsreader, Georgia, serif; }
+.rp-chartpanel { margin: 8px 0 18px; }
+.rp-parts { display: block; width: 100%; max-width: 260px; height: auto; }
+.rp-parts text { font-family: Newsreader, Georgia, serif; }
+.rp-fit2 { display: grid; grid-template-columns: minmax(200px, 270px) 1fr; gap: 16px 24px; margin: 8px 0; align-items: start; }
+@media (max-width: 640px) { .rp-fit2 { grid-template-columns: 1fr; } }
+.rp-fit2 h4, .rp-cols h4.t { font-style: italic; font-weight: 400; font-size: 18px; color: var(--coral); margin-bottom: 4px; }
+.rp-glgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 28px; }
+.rp-glgrid h3 { font-size: 19px; font-weight: 400; margin: 6px 0 2px; }
+.rp-devplan .name { font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; color: var(--indigo); }
+.rp-contact { margin-top: 14px; }
+.rp-sub { font-size: 22px; font-weight: 400; margin: 22px 0 10px; }
