@@ -14,15 +14,6 @@ export function AuthProvider({ children }) {
   const [token, setToken]     = useState(() => localStorage.getItem(TOKEN_KEY) || null);
   const [loading, setLoading] = useState(true);   // true while verifying token on mount
 
-  // ── Keep axios header in sync with token
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['X-User-Authorization'] = `Bearer ${token}`;
-    } else {
-      delete api.defaults.headers.common['X-User-Authorization'];
-    }
-  }, [token]);
-
   // ── On app mount: validate stored token by calling /api/auth/me
   useEffect(() => {
     const stored = localStorage.getItem(TOKEN_KEY);
@@ -52,7 +43,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
     setToken(tok);
     setUser(userData);
-    api.defaults.headers.common['X-User-Authorization'] = `Bearer ${tok}`;
   }, []);
 
   // ── Clear session
@@ -61,7 +51,6 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(USER_KEY);
     setToken(null);
     setUser(null);
-    delete api.defaults.headers.common['X-User-Authorization'];
   }, []);
 
   // ── Update user state without full re-login (e.g. after onboarding)

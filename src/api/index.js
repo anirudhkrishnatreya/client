@@ -4,12 +4,12 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } });
 
-// ── Attach user OR admin token on every request
+// ── Attach the token that matches the route: admin token for /admin/*, user token otherwise
 api.interceptors.request.use(cfg => {
-  const userToken  = localStorage.getItem('im_user_token');
-  const adminToken = localStorage.getItem('im_admin_token');
-  if (userToken  && !cfg.headers.Authorization) cfg.headers.Authorization = `Bearer ${userToken}`;
-  else if (adminToken && !cfg.headers.Authorization) cfg.headers.Authorization = `Bearer ${adminToken}`;
+  if (cfg.headers.Authorization) return cfg;
+  const isAdminRoute = (cfg.url || '').startsWith('/admin');
+  const token = localStorage.getItem(isAdminRoute ? 'im_admin_token' : 'im_user_token');
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
   return cfg;
 });
 
