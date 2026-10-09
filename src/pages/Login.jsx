@@ -4,6 +4,7 @@ import { authLogin } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useAssessment } from '../context/AssessmentContext';
 import { V4_ENABLED } from '../v4/config';
+import { PLATFORM_ENABLED } from '../platform/config';
 import logoImg from '../assets/imenteo_logo.png';
 
 export default function Login() {
@@ -55,6 +56,7 @@ export default function Login() {
       saveSession(data.token, data.user);
       dispatch({ type: 'SET_USER', id: data.user.id, name: data.user.fullName });
 
+      if (PLATFORM_ENABLED && !['counsellor', 'admin'].includes(data.user.role)) { nav('/platform/student'); return; }   // sample dashboards, until real roles exist
       if (V4_ENABLED && data.user.role === 'counsellor') { nav('/v4/school'); return; }
       if (V4_ENABLED && data.user.track) { nav('/v4'); return; }       // v4 students have their own dashboard
       if (data.user.assessmentCompleted) { nav('/dashboard'); return; }
