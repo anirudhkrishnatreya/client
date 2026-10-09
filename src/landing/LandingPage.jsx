@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
-import { useMedia, useWidth } from './useFit';
+import { useMedia, useViewport, useWidth } from './useFit';
 import WeeksSection from './WeeksSection';
 import { GetStarted, Practice } from './LowerSections';
 import '@fontsource/syne/700.css';
@@ -37,10 +37,13 @@ const Caret = ({ x, y }) => <img src={chevron} alt="" aria-hidden="true" classNa
 /** Desktop hero: the 1280 x 832 frame, scaled to the window width. */
 function HeroDesktop() {
   const [ref, w] = useWidth();
-  const s = w ? w / 1280 : 1;
+  const { h: vh } = useViewport();
+  // never larger than the design, and small enough that the whole first screen fits the window
+  const s = Math.max(0.5, Math.min(w ? w / 1280 : 1, vh / 832, 1));
   const acct = useAccount();
   return (
     <div ref={ref} className="lp-fit lp-herobg" style={{ height: 832 * s }}>
+     <div className="lp-center" style={{ width: 1280 * s, height: 832 * s }}>
       <div className="lp-stage" style={{ transform: `scale(${s})`, width: 1280, height: 832 }}>
         <img src={logo} alt="iMenteo" className="lp-logo" />
         <nav aria-label="Main">
@@ -72,6 +75,7 @@ function HeroDesktop() {
         <button type="button" className="lp-herolink" style={{ left: 1004, top: 578 }} onClick={() => goTo('how-it-works')}>See how it works</button>
         <img src={hashtags} alt="" aria-hidden="true" className="lp-tags" />
       </div>
+     </div>
     </div>
   );
 }

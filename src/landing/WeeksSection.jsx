@@ -155,7 +155,7 @@ function staticVars(k) {
 function Desktop({ reduced, offset }) {
   const sec = useRef(null), scene = useRef(null);
   const { w: vw, h: vh } = useViewport();
-  const s = Math.min(vw / W, (vh - offset) / H);
+  const s = Math.min(vw / W, (vh - offset) / H, 1);
   useScroll(sec, scene, !reduced, offset);
   const stage = k => (
     <div className="lp-fitbox" style={{ width: W * s, height: H * s }}>

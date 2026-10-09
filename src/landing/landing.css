@@ -194,3 +194,7 @@ button.lp-navtxt:focus-visible, .lp-herolink:focus-visible { outline: 2px solid 
 .lp-mcta { display: grid; justify-items: center; gap: 14px; margin: 22px 20px 0; }
 .lp-mcta .lp-btn { width: min(100%, 300px); }
 .lp-mcta .lp-herolink { position: static; }
+
+/* the design is centred and never scaled up; the page colour fills the sides */
+.lp-center { position: relative; margin: 0 auto; }
+.lp-tags { -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }

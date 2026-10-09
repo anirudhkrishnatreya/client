@@ -33,10 +33,12 @@ const PROFILE_CARDS = [[737, 1620], [737, 1730], [973, 1620], [973, 1730]];
 /** Scales a fixed-size design frame to the width of its container. */
 function Fit({ w, h, className = '', children }) {
   const [ref, cw] = useWidth();
-  const s = cw ? cw / w : 1;
+  const s = cw ? Math.min(cw / w, 1) : 1;           // never larger than the design
   return (
     <div ref={ref} className={`lp-fit ${className}`} style={{ height: h * s }}>
-      <div className="lp-stage" style={{ width: w, height: h, transform: `scale(${s})` }}>{children}</div>
+      <div className="lp-center" style={{ width: w * s, height: h * s }}>
+        <div className="lp-stage" style={{ width: w, height: h, transform: `scale(${s})` }}>{children}</div>
+      </div>
     </div>
   );
 }
