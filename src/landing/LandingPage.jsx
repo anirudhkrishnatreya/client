@@ -41,7 +41,7 @@ function Chips() {
   const pills = [];
   for (let g = -1; g <= 5; g += 1) GROUP.forEach(([x, y, w, h, tilt, look], i) => {
     const warm = look === 'warm' ? (g % 2 === 0 ? 'sun' : 'coral') : look;
-    pills.push(<span key={`${g}-${i}`} className={`lp-chip ${warm}`} style={{ left: `calc(var(--u) * ${x + g * GROUP_W})`, top: `calc(var(--u) * ${y + 36})`, minWidth: `calc(var(--u) * ${w})`, height: `calc(var(--u) * ${h})`, transform: `translate(-50%, -50%) rotate(${tilt}deg)` }}>{TAGS[(((g + 1) * 5 + i) % TAGS.length + TAGS.length) % TAGS.length]}</span>);
+    pills.push(<span key={`${g}-${i}`} className={`lp-chip ${warm}`} style={{ left: `calc(var(--u) * ${x + g * GROUP_W})`, top: `calc(var(--u) * ${y + 62})`, minWidth: `calc(var(--u) * ${w})`, height: `calc(var(--u) * ${h})`, transform: `translate(-50%, -50%) rotate(${tilt}deg)` }}>{TAGS[(((g + 1) * 5 + i) % TAGS.length + TAGS.length) % TAGS.length]}</span>);
   });
   return <div className="lp-chips" aria-hidden="true">{pills}</div>;
 }

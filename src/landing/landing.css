@@ -431,3 +431,19 @@ button.lp-btn { cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .lpx-foot-grid { grid-template-columns: 1fr 1fr; } .lpx-foot-brand { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) { .lpx-foot-grid { grid-template-columns: 1fr 1fr; gap: 26px 18px; } .lpx-foot-bot { flex-direction: column; align-items: flex-start; } }
+
+/* ── spacing fixes: photo row never overlaps, tags sit lower, footer uses the full width ── */
+.lp-herof { --pad: clamp(16px, 2.4vw, 44px); --gap: clamp(14px, 2vw, 34px); }
+.lp-hstrip { --S: min(calc((100vw - 2 * var(--pad) - 6 * var(--gap)) / 7.2), 23vh, 240px); gap: var(--gap); justify-content: space-between; margin-top: clamp(16px, 3.6vh, 44px); }
+.lp-hstrip .shape.a { width: calc(var(--S) * 1.04); margin: 0; }
+.lp-hstrip .shape.b { width: calc(var(--S) * 1.2); margin: 0; }
+.lp-hbody { padding-bottom: calc(var(--u) * 20); }
+.lp-chips { height: calc(var(--u) * 214); margin-top: calc(var(--u) * 14); }
+.lpx-foot > * { width: min(1500px, 100% - 2 * clamp(20px, 5vw, 96px)); }
+.lpx-foot-hero { grid-template-columns: 1.05fr .95fr; gap: clamp(24px, 4vw, 80px); }
+.lpx-foot-art { height: clamp(300px, 30vw, 440px); }
+.lpx-foot-grid { grid-template-columns: 1.8fr 1fr 1fr 1.1fr; gap: clamp(28px, 4vw, 72px); }
+@media (max-width: 900px) { .lpx-foot-grid { grid-template-columns: 1fr 1fr; } .lpx-foot-hero { grid-template-columns: 1fr; } .lpx-foot-art { height: 260px; max-width: 460px; } }
+@media (max-width: 560px) { .lp-hstrip { --S: 110px; } }
+.lp-hbody { padding-top: clamp(26px, 6vh, 64px); padding-bottom: calc(var(--u) * 8); }
+.lp-chips { margin-top: 0; height: calc(var(--u) * 206); }
