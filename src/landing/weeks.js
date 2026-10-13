@@ -3,13 +3,9 @@
 import card1 from '../assets/landing/card-1.png';
 import card2 from '../assets/landing/card-2.png';
 import blob1 from '../assets/landing/blob-1.png';
-import hero1 from '../assets/landing/hero-1.png';
+import PHOTO from './photos';
 import hero2 from '../assets/landing/hero-2-shape.png';
-import hero3 from '../assets/landing/hero-3.png';
 import hero4 from '../assets/landing/hero-4-shape.png';
-import hero5 from '../assets/landing/hero-5.png';
-import hero6 from '../assets/landing/hero-6-photo.png';
-import hero7 from '../assets/landing/hero-7.png';
 import iconSurvey from '../assets/landing/icon-survey.svg';
 import iconGauge from '../assets/landing/icon-gauge.svg';
 import iconReport from '../assets/landing/icon-report.svg';
@@ -35,19 +31,19 @@ export const WEEKS = [
     { img: iconReport, title: 'Your Career Fit Report', text: 'Get your top recommended paths, your key strengths, and a skills roadmap to start from.' }
   ],
   emojis: ['sparkles', 'target', 'heart', 'bulb', 'bolt', 'flag', 'award'],
-  art: { cardA: card1, captionA: 'Tell us about you: background, strengths, goals.', cardB: card2, captionB: 'Tell us about you: background, strengths, goals.', blob: blob1, blobSize: [174, 174], round: hero6 } },
+  art: { cardA: card1, captionA: 'Tell us about you: background, strengths, goals.', cardB: card2, captionB: 'Tell us about you: background, strengths, goals.', blob: blob1, blobSize: [174, 174], round: PHOTO.p10638081 } },
   { n: 2, title: 'Meet Your Mentor', items: [
     { icon: 'match', title: 'Mentor Match.', text: 'Matched on your goals and profile, with a person checking the fit.' },
     { icon: 'session', title: 'Your First Session', text: 'Talk through your report together and set clear goals for the weeks ahead.' },
     { icon: 'plan', title: 'Your Action Plan', text: 'Leave with a simple, week-by-week plan you can start on right away.' }
   ],
   emojis: ['users', 'target', 'message', 'heart', 'star', 'calendar', 'flag'],
-  art: { cardA: hero3, captionA: 'Matched with a mentor who gets your goals.', cardB: hero1, captionB: 'Your first session, booked and ready.', blob: hero4, blobSize: [190, 141], round: hero7 } },
+  art: { cardA: PHOTO.p8419640, captionA: 'Matched with a mentor who gets your goals.', cardB: PHOTO.p4308097, captionB: 'Your first session, booked and ready.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
   { n: 3, title: 'Build the Habit', items: [
     { icon: 'week', title: 'Weekly Sessions.', text: 'Meet your mentor every week and leave with clear action items.' },
     { icon: 'check', title: 'Insights That Help', text: 'Short summaries of your progress and what to focus on next, reviewed by your mentor.' },
     { icon: 'growth', title: 'Progress You Can See', text: 'You and your parents follow your growth through reports and mentor notes.' }
   ],
   emojis: ['trend', 'award', 'book', 'bolt', 'check', 'cap', 'star'],
-  art: { cardA: hero5, captionA: 'Clear action items after every session.', cardB: hero3, captionB: 'Progress that shows up week by week.', blob: hero2, blobSize: [158, 174], round: hero1 } }
+  art: { cardA: PHOTO.p7683820, captionA: 'Clear action items after every session.', cardB: PHOTO.p30858451, captionB: 'Progress that shows up week by week.', blobPhoto: PHOTO.p7129712, blobMask: hero2, blobSize: [158, 174], round: PHOTO.p21006242 } }
 ];

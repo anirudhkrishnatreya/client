@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { V4_ENABLED } from '../v4/config';
 import Icon from '../platform/ui/Icon';
+import PHOTO from './photos';
 import { useMedia, useWidth } from './useFit';
 import burstRed from '../assets/landing/burst-red.svg';
 import woman from '../assets/landing/g-woman.png';
@@ -85,7 +86,7 @@ function GetStartedDesktop() {
         <span className="lp-e" style={at(46, 111, { width: 41, height: 38, color: '#0f3ee4' })}><Icon name="users" size={22} stroke={2} /></span>
       </div>
       <div style={at(454, 322, { width: 371, height: 180, borderRadius: 20, background: '#f1f1f1' })} />
-      <div style={at(454, 522, { width: 371, height: 180, borderRadius: 20, background: '#f1f1f1' })} />
+      <div style={at(454, 522, { width: 371, height: 180, borderRadius: 20, background: '#f1f1f1', overflow: 'hidden' })}><img src={PHOTO.p6684552} alt="Students working on a project together" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }} /></div>
       <SessionExample style={at(470, 369, { width: 340, height: 133 })} />
       <div style={at(460, 340, { width: 41, height: 41 })}><img src={emojiB} alt="" style={{ width: 41, height: 41 }} /></div>
       <span className="lp-e" style={at(460, 340, { width: 41, height: 38, color: '#c98a14' })}><Icon name="star" size={22} stroke={2} /></span>

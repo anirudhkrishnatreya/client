@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { DELTA, LINE_ICONS, WEEKS } from './weeks';
 import { useMedia, useViewport } from './useFit';
 import Icon from '../platform/ui/Icon';
+import Shaped from './Shaped';
 import ring28 from '../assets/landing/ring-28.png';
 import ring29 from '../assets/landing/ring-29.png';
 import ring30 from '../assets/landing/ring-30.png';
@@ -66,8 +67,8 @@ function Cluster({ week, k }) {
     <div className="lp-cl" style={{ '--a': `calc(var(--g) * 1deg - ${k * DELTA}deg)`, opacity: `var(--co${k}, 0)` }} aria-hidden="true">
       <div className="lp-it lp-card" style={{ ...place(856 - CX, 204 - CY), width: 212, height: 234 }}><img src={a.cardA} alt="" /><p>{a.captionA}</p></div>
       <div className="lp-it lp-card blue" style={{ ...place(906 - CX, 524 - CY), width: 212, height: 234 }}><img src={a.cardB} alt="" /><p>{a.captionB}</p></div>
-      <img className="lp-it" src={a.blob} alt="" style={{ ...place(1117 - CX, 322 - CY, 4.12), width: a.blobSize[0], height: a.blobSize[1] }} />
-      <div className="lp-it lp-round" style={{ ...place(1185.4 - CX, 600.4 - CY, -8), width: 160, height: 160 }}><img src={a.round} alt="" /></div>
+      {a.blobPhoto ? <Shaped className="lp-it" photo={a.blobPhoto} mask={a.blobMask} style={{ ...place(1117 - CX, 322 - CY, 4.12), width: a.blobSize[0], height: a.blobSize[1] }} /> : <img className="lp-it" src={a.blob} alt="" style={{ ...place(1117 - CX, 322 - CY, 4.12), width: a.blobSize[0], height: a.blobSize[1] }} />}
+      <div className="lp-it lp-round" style={{ ...place(1185.4 - CX, 600.4 - CY, -8), width: 160, height: 160 }}><img src={a.round} alt="" style={{ width: '100%', left: 0, objectFit: 'cover' }} /></div>
       {EMOJI_AT.map(([x, y], i) => (
         <div key={`e${i}`} className="lp-it lp-emoji" style={{ ...place(x + 16 - CX, y + 16 - CY) }}><img src={emojiBg} alt="" /><span style={{ color: BADGE_TONES[i % 4] }}><Icon name={week.emojis[i]} size={17} stroke={2} /></span></div>
       ))}
@@ -112,7 +113,7 @@ function WeekTextAbs({ week, k }) {
 function useWarmImages() {
   useEffect(() => {
     const srcs = new Set();
-    WEEKS.forEach(w => { const a = w.art; [a.cardA, a.cardB, a.blob, a.round].forEach(x => srcs.add(x)); });
+    WEEKS.forEach(w => { const a = w.art; [a.cardA, a.cardB, a.blob || a.blobPhoto, a.round].forEach(x => srcs.add(x)); });
     RINGS.forEach(r => srcs.add(r[0]));
     srcs.forEach(src => { const im = new Image(); im.src = src; if (im.decode) im.decode().catch(() => {}); });
   }, []);

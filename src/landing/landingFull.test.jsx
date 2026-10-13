@@ -81,6 +81,17 @@ describe('the full landing page', () => {
     expect(f.textContent).toMatch(/Grow your future/i);
     expect(f.textContent).toMatch(/We do not sell student data/);
   });
+  it('uses every photo only once: no picture repeats anywhere on the page', () => {
+    const { container } = page();
+    const urls = [];
+    container.querySelectorAll('img').forEach(i => { const src = i.getAttribute('src') || ''; if (/\.(jpe?g|png)(\?|$)/i.test(src)) urls.push(src); });
+    container.querySelectorAll('.lp-shaped').forEach(d => { const m = (d.getAttribute('style') || '').match(/background-image:\s*url\(["']?([^"')]+)/); if (m) urls.push(m[1]); });
+    // the design's cut-out shapes and the logo are artwork, not photos
+    const photos = urls.filter(u => !/logo|shape|burst|hashtags|ring|emoji|dot/i.test(u));
+    expect(photos.length).toBeGreaterThan(20);
+    const dupes = photos.filter((u, i) => photos.indexOf(u) !== i);
+    expect(dupes).toEqual([]);
+  });
   it('shows no contact address until one is configured', () => {
     const { container } = page();
     expect(container.querySelector('footer a[href^="mailto:"]')).toBeNull();

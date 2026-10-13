@@ -7,15 +7,13 @@ import Icon from '../platform/ui/Icon';
 import { CONTACT_EMAIL, TAGS } from './config';
 import hero2 from '../assets/landing/hero-2-shape.png';
 import hero4 from '../assets/landing/hero-4-shape.png';
-import hero6 from '../assets/landing/hero-6-photo.png';
-import hero7 from '../assets/landing/hero-7.png';
+import PHOTO from './photos';
+import Shaped from './Shaped';
 import logo from '../assets/landing/logo.png';
 import burst from '../assets/landing/burst-red.svg';
 import emojiBg from '../assets/landing/g-emoji-c.svg';
 import ringWord from '../assets/landing/g-ring-10x.svg';
 import waves from '../assets/landing/p-waves.svg';
-import hero5 from '../assets/landing/hero-5.png';
-import hero3 from '../assets/landing/hero-3.png';
 
 const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
 export const goSection = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
@@ -81,7 +79,7 @@ export function Assessment() {
         </Reveal>
         <Reveal className="lpx-report" delay={120} aria-label="An example report">
           <Example />
-          <div className="lpx-report-top"><img src={hero5} alt="" /><div><b>Career Discovery Report</b><small>What your answers say about you</small></div></div>
+          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="file" size={26} stroke={1.8} /></span><div><b>Career Discovery Report</b><small>What your answers say about you</small></div></div>
           <ul className="lpx-bars">{BARS.map(([l, v]) => <li key={l}><span>{l}</span><div><i style={{ width: `${v}%` }} /></div></li>)}</ul>
           <div className="lpx-fields"><small>Top fields to explore</small><span>Computer Science</span><span>Engineering</span><span>Data &amp; Maths</span></div>
         </Reveal>
@@ -208,7 +206,7 @@ export function FinalCta() {
       <Reveal className="lpx-final-in">
         <img src={waves} alt="" aria-hidden="true" className="lpx-final-waves" />
         <img src={burst} alt="" aria-hidden="true" className="lpx-final-burst" />
-        <img src={hero3} alt="" aria-hidden="true" className="lpx-final-photo" />
+        <img src={PHOTO.p5905709} alt="" aria-hidden="true" className="lpx-final-photo" />
         <h2>Start with the<br />career assessment.</h2>
         <p>Find out what fits you, then meet the mentor who can help you get there.</p>
         <div className="lpx-ctas"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn white">{acct.signedIn ? 'Open my dashboard' : 'Get started'}<Icon name="chevronRight" size={18} /></Link>{!acct.signedIn && <Link to="/login" className="lpx-btn outline">I already have an account</Link>}</div>
@@ -228,7 +226,7 @@ export function Footer() {
           <p>A career assessment to know yourself, a mentor to guide you every week, and progress your parents can follow. That is iMenteo.</p>
         </div>
         <div className="lpx-foot-art" aria-hidden="true">
-          <img src={hero4} alt="" className="a" /><div className="b"><img src={hero6} alt="" /></div><img src={hero2} alt="" className="c" /><img src={hero7} alt="" className="d" />
+          <Shaped photo={PHOTO.p16461275} mask={hero4} className="a" /><div className="b"><img src={PHOTO.p4126695} alt="" /></div><Shaped photo={PHOTO.p8199167} mask={hero2} className="c" position="center 30%" /><img src={PHOTO.p7972949} alt="" className="d" />
         </div>
       </div>
 
