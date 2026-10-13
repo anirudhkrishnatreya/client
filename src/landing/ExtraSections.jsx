@@ -4,7 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
 import Icon from '../platform/ui/Icon';
-import { CONTACT_EMAIL } from './config';
+import { CONTACT_EMAIL, TAGS } from './config';
+import hero2 from '../assets/landing/hero-2-shape.png';
+import hero4 from '../assets/landing/hero-4-shape.png';
+import hero6 from '../assets/landing/hero-6-photo.png';
+import hero7 from '../assets/landing/hero-7.png';
 import logo from '../assets/landing/logo.png';
 import burst from '../assets/landing/burst-red.svg';
 import emojiBg from '../assets/landing/g-emoji-c.svg';
@@ -34,25 +38,26 @@ function Reveal({ className = '', delay = 0, children, ...rest }) {
   return <div ref={ref} className={`lpx-rv ${className}`} style={{ transitionDelay: `${delay}ms` }} {...rest}>{children}</div>;
 }
 
-const Tag = ({ children, shadow = true }) => <span className={`lpx-tag${shadow ? ' shadow' : ''}`}>{children}</span>;
+const Tag = ({ children, icon, shadow = true }) => <span className={`lpx-tag${shadow ? ' shadow' : ''}`}>{icon && <Icon name={icon} size={16} stroke={2.2} />}{children}</span>;
 /** A word circled by hand, as in the design. */
 const Circled = ({ children }) => <i className="lpx-circ"><img src={ringWord} alt="" aria-hidden="true" />{children}</i>;
-const Emoji = ({ children, size = 22 }) => <span className="lpx-emoji" aria-hidden="true"><img src={emojiBg} alt="" /><b style={{ fontSize: size }}>{children}</b></span>;
+const TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
+const Emoji = ({ children, tone = 0 }) => <span className="lpx-emoji" aria-hidden="true"><img src={emojiBg} alt="" /><b style={{ color: TONES[tone % 4] }}><Icon name={children} size={22} stroke={2} /></b></span>;
 const Example = () => <span className="lpx-eg">Example</span>;
 
 /* ── Why iMenteo ───────────────────────────────────────── */
 const WHY = [
-  ['🧭', 'Know yourself', 'A structured career assessment maps your interests, personality, abilities, emotional intelligence and values into a clear, readable report.'],
-  ['🤝', 'Be guided by a person', 'Matched with a mentor on your goals and profile, with a person checking the fit. Weekly sessions keep the relationship steady, not one-off.'],
-  ['📈', 'See real progress', 'Every session ends with action items. Students and parents can follow tasks, reports and mentor notes, so progress is visible, not guessed.']
+  ['target', 'Know yourself', 'A structured career assessment maps your interests, personality, abilities, emotional intelligence and values into a clear, readable report.'],
+  ['users', 'Be guided by a person', 'Matched with a mentor on your goals and profile, with a person checking the fit. Weekly sessions keep the relationship steady, not one-off.'],
+  ['trend', 'See real progress', 'Every session ends with action items. Students and parents can follow tasks, reports and mentor notes, so progress is visible, not guessed.']
 ];
 const FACTS = [['5', 'dimensions in the career assessment'], ['3', 'tracks: Class 6–9, 10–12 and college'], ['Weekly', '1:1 sessions with clear action items'], ['+ Parent', 'view for every school student']];
 export function Why() {
   return (
     <section id="about" className="lpx lpx-why" aria-label="Why iMenteo">
       <img src={burst} alt="" aria-hidden="true" className="lpx-burst" style={{ left: 'calc(50% - 360px)', top: 8 }} />
-      <Reveal className="lpx-head"><Tag>WHY IMENTEO 💡</Tag><h2>Not just a list of mentors.<br />A <Circled>journey</Circled> with a plan.</h2><p>Most students get advice once and then lose the thread. iMenteo is built around what happens between sessions: the tasks, the check-ins and the follow-through.</p></Reveal>
-      <div className="lpx-cards3">{WHY.map(([e, t, d], i) => <Reveal key={t} className="lpx-card" delay={i * 90}><Emoji size={24}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
+      <Reveal className="lpx-head"><Tag icon="bulb">WHY IMENTEO</Tag><h2>Not just a list of mentors.<br />A <Circled>journey</Circled> with a plan.</h2><p>Most students get advice once and then lose the thread. iMenteo is built around what happens between sessions: the tasks, the check-ins and the follow-through.</p></Reveal>
+      <div className="lpx-cards3">{WHY.map(([e, t, d], i) => <Reveal key={t} className="lpx-card" delay={i * 90}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
       <Reveal className="lpx-facts">{FACTS.map(([n, t]) => <div key={n}><b>{n}</b><span>{t}</span></div>)}</Reveal>
     </section>
   );
@@ -67,7 +72,7 @@ export function Assessment() {
     <section id="assessment" className="lpx lpx-panel" aria-label="The career assessment">
       <div className="lpx-panel-in">
         <Reveal className="lpx-panel-copy">
-          <Tag>THE CAREER ASSESSMENT 🎯</Tag>
+          <Tag icon="target">THE CAREER ASSESSMENT</Tag>
           <h2 className="lpx-h">Find out what <Circled>fits</Circled> you.</h2>
           <p>Take the assessment at your own pace, over a few sittings. Your answers are saved as you go, and you get a readable report you can keep and talk through with your mentor and parents.</p>
           <div className="lpx-chips">{DIMS.map(([c, t]) => <span key={t} className={`lpx-chip ${c}`}>{t}</span>)}</div>
@@ -116,7 +121,7 @@ export function Who() {
   const r = ROLES[tab];
   return (
     <section id="who" className="lpx" aria-label="Who it is for">
-      <Reveal className="lpx-head"><Tag>FOR EVERYONE 🙌</Tag><h2>One platform, four people who matter to a student’s progress.</h2></Reveal>
+      <Reveal className="lpx-head"><Tag icon="users">FOR EVERYONE</Tag><h2>One platform, four people who matter to a student’s progress.</h2></Reveal>
       <div className="lpx-tabs" role="tablist" aria-label="Choose a role">
         {Object.entries(ROLES).map(([k, v]) => <button key={k} type="button" role="tab" id={`lpx-tab-${k}`} aria-selected={tab === k} aria-controls="lpx-who-panel" className={tab === k ? 'on' : ''} onClick={() => setTab(k)}><Icon name={v.icon} size={18} />{v.label}</button>)}
       </div>
@@ -134,22 +139,22 @@ export function Who() {
 
 /* ── Mentors and AI ────────────────────────────────────── */
 const RULES = [
-  ['🔎', 'Grounded in real records', 'Insights come from tasks, session notes and check-ins that actually happened. Nothing is invented.'],
-  ['⚖️', 'Facts and suggestions are kept apart', 'What was recorded is shown as fact. What the AI suggests is clearly marked as a suggestion.'],
-  ['🧑‍🏫', 'A mentor stays in charge', 'AI-written summaries are reviewed by the mentor. It never decides anything about a student on its own.'],
-  ['✏️', 'You can correct it', 'If a summary is wrong, it can be fixed, and private mentor notes stay private.']
+  ['search', 'Grounded in real records', 'Insights come from tasks, session notes and check-ins that actually happened. Nothing is invented.'],
+  ['layers', 'Facts and suggestions are kept apart', 'What was recorded is shown as fact. What the AI suggests is clearly marked as a suggestion.'],
+  ['user', 'A mentor stays in charge', 'AI-written summaries are reviewed by the mentor. It never decides anything about a student on its own.'],
+  ['edit', 'You can correct it', 'If a summary is wrong, it can be fixed, and private mentor notes stay private.']
 ];
 export function AiSection() {
   return (
     <section id="ai" className="lpx lpx-panel blue" aria-label="Mentors and AI">
       <div className="lpx-panel-in">
         <Reveal className="lpx-panel-copy">
-          <Tag>MENTORS + AI 🤖</Tag>
+          <Tag icon="sparkles">MENTORS + AI</Tag>
           <h2 className="lpx-h">AI helps.<br /><Circled>People</Circled> decide.</h2>
           <p>AI saves a mentor’s time on summaries and preparation, so sessions can be about the student. It is a helper, never a replacement for the person in the room.</p>
           <span className="lpx-note"><Icon name="info" size={15} />AI insights are being rolled out step by step</span>
         </Reveal>
-        <div className="lpx-rules">{RULES.map(([e, t, d], i) => <Reveal key={t} className="lpx-rule" delay={i * 80}><Emoji>{e}</Emoji><div><h3>{t}</h3><p>{d}</p></div></Reveal>)}</div>
+        <div className="lpx-rules">{RULES.map(([e, t, d], i) => <Reveal key={t} className="lpx-rule" delay={i * 80}><Emoji tone={i}>{e}</Emoji><div><h3>{t}</h3><p>{d}</p></div></Reveal>)}</div>
       </div>
     </section>
   );
@@ -157,16 +162,16 @@ export function AiSection() {
 
 /* ── Safety ────────────────────────────────────────────── */
 const SAFE = [
-  ['👪', 'A parent for every school student', 'Up to Class 12, we ask for a parent’s email at sign-up. They set their own password and get their own account.'],
-  ['🛡️', 'Consent for under-18s', 'A parent confirms before a student under 18 begins. Consent can be withdrawn, and deletion of the data can be requested.'],
-  ['👁️', 'Schools see only what is shared', 'A school counsellor sees an individual report only if the parent agrees. The default is no.'],
-  ['🔑', 'Access by role', 'Students, mentors, parents and schools each see only what they should. A mentor sees only their own students.']
+  ['users', 'A parent for every school student', 'Up to Class 12, we ask for a parent’s email at sign-up. They set their own password and get their own account.'],
+  ['shield', 'Consent for under-18s', 'A parent confirms before a student under 18 begins. Consent can be withdrawn, and deletion of the data can be requested.'],
+  ['eye', 'Schools see only what is shared', 'A school counsellor sees an individual report only if the parent agrees. The default is no.'],
+  ['lock', 'Access by role', 'Students, mentors, parents and schools each see only what they should. A mentor sees only their own students.']
 ];
 export function Safety() {
   return (
     <section id="safety" className="lpx lpx-safe" aria-label="Safety and privacy">
-      <Reveal className="lpx-head"><Tag>SAFE BY DESIGN 🛡️</Tag><h2>Built for students, so<br />safety comes first.</h2><p>We collect only what is needed to guide a student, we do not sell it, and we do not use it for advertising.</p></Reveal>
-      <div className="lpx-cards4">{SAFE.map(([e, t, d], i) => <Reveal key={t} className="lpx-card sm" delay={i * 70}><Emoji>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
+      <Reveal className="lpx-head"><Tag icon="shield">SAFE BY DESIGN</Tag><h2>Built for students, so<br />safety comes first.</h2><p>We collect only what is needed to guide a student, we do not sell it, and we do not use it for advertising.</p></Reveal>
+      <div className="lpx-cards4">{SAFE.map(([e, t, d], i) => <Reveal key={t} className="lpx-card sm" delay={i * 70}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
     </section>
   );
 }
@@ -185,7 +190,7 @@ export function Faq() {
   const [open, setOpen] = useState(0);
   return (
     <section id="faq" className="lpx lpx-faq" aria-label="Questions">
-      <Reveal className="lpx-head"><Tag>QUESTIONS ❓</Tag><h2>Good questions, plain answers.</h2></Reveal>
+      <Reveal className="lpx-head"><Tag icon="info">QUESTIONS</Tag><h2>Good questions, plain answers.</h2></Reveal>
       <div className="lpx-qs">{FAQ.map(([q, a], i) => (
         <div key={q} className={`lpx-q${open === i ? ' open' : ''}`}>
           <h3><button type="button" aria-expanded={open === i} aria-controls={`lpx-faq-${i}`} onClick={() => setOpen(open === i ? -1 : i)}>{q}<Icon name="chevronDown" size={20} /></button></h3>
@@ -213,15 +218,39 @@ export function FinalCta() {
 }
 
 export function Footer() {
+  const to = id => () => goSection(id);
   return (
     <footer id="footer" className="lpx-foot">
-      <div className="lpx-foot-in">
-        <div><img src={logo} alt="iMenteo" className="lpx-foot-logo" /><p>Human mentors, AI-assisted, for students who want to turn goals into progress.</p></div>
-        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={() => goSection('how-it-works')}>How it works</button><button type="button" onClick={() => goSection('assessment')}>Career assessment</button><button type="button" onClick={() => goSection('who')}>Who it’s for</button><button type="button" onClick={() => goSection('safety')}>Safety</button><button type="button" onClick={() => goSection('faq')}>FAQ</button></nav>
-        <nav aria-label="Account"><b>Account</b><Link to="/login">Log in</Link><Link to={SIGNUP}>Create an account</Link></nav>
-        {CONTACT_EMAIL && <nav aria-label="Contact"><b>Contact</b><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></nav>}
+      <div className="lpx-foot-hero">
+        <div className="lpx-foot-copy">
+          <Tag icon="sparkles">GROW WITH IMENTEO</Tag>
+          <h2>Grow your future<br />&amp; skills<br />with <i>mentors</i></h2>
+          <p>A career assessment to know yourself, a mentor to guide you every week, and progress your parents can follow. That is iMenteo.</p>
+        </div>
+        <div className="lpx-foot-art" aria-hidden="true">
+          <img src={hero4} alt="" className="a" /><div className="b"><img src={hero6} alt="" /></div><img src={hero2} alt="" className="c" /><img src={hero7} alt="" className="d" />
+        </div>
       </div>
-      <div className="lpx-foot-bot"><span>© {new Date().getFullYear()} iMenteo</span></div>
+
+      <div className="lpx-foot-tags" aria-hidden="true">{TAGS.map((t, i) => <span key={t} className={`lp-chip m c${i % 4}`}>{t}</span>)}</div>
+
+      <div className="lpx-foot-grid">
+        <div className="lpx-foot-brand">
+          <img src={logo} alt="iMenteo" className="lpx-foot-logo" />
+          <p>Human mentors, AI-assisted, for students who want to turn goals into progress.</p>
+          <ul className="lpx-trust"><li><Icon name="users" size={15} />Human mentors</li><li><Icon name="sparkles" size={15} />AI-assisted</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
+        </div>
+        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
+        <nav aria-label="For you"><b>For you</b><button type="button" onClick={to('who')}>Students</button><button type="button" onClick={to('who')}>Mentors</button><button type="button" onClick={to('who')}>Parents</button><button type="button" onClick={to('who')}>Schools</button></nav>
+        <nav aria-label="Account"><b>Account</b><Link to="/login">Log in</Link><Link to={SIGNUP}>Create an account</Link>
+          {CONTACT_EMAIL ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> : <button type="button" onClick={to('faq')}>Questions? Read the FAQ</button>}</nav>
+      </div>
+
+      <div className="lpx-foot-bot">
+        <span>© {new Date().getFullYear()} iMenteo. All rights reserved.</span>
+        <span className="lpx-foot-note"><Icon name="lock" size={14} />We do not sell student data or use it for advertising.</span>
+        <button type="button" className="lpx-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top<Icon name="chevronDown" size={16} style={{ transform: 'rotate(180deg)' }} /></button>
+      </div>
     </footer>
   );
 }

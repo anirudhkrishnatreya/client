@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
-import { useMedia, useViewport, useWidth } from './useFit';
+import { useMedia } from './useFit';
 import WeeksSection from './WeeksSection';
 import { GetStarted, Practice } from './LowerSections';
 import { Why, Assessment, Who, AiSection, Safety, Faq, FinalCta, Footer } from './ExtraSections';
 import StickyBar, { BAR_H } from './StickyBar';
+import { TAGS } from './config';
 import '@fontsource/syne/700.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/dm-sans/400.css';
 import './landing.css';
 import logo from '../assets/landing/logo.png';
 import chevron from '../assets/landing/chevron.svg';
-import hashtags from '../assets/landing/hashtags.png';
 import hero1 from '../assets/landing/hero-1.png';
 import hero2 from '../assets/landing/hero-2-shape.png';
 import hero3 from '../assets/landing/hero-3.png';
@@ -32,51 +32,59 @@ function useAccount() {
   return isLoggedIn ? { to: PLATFORM_ENABLED ? '/platform' : '/dashboard', label: 'My dashboard' } : { to: '/login', label: 'Login / Signup' };
 }
 
-/** A small down-arrow, drawn from the design's own arrow asset. */
-const Caret = ({ x, y }) => <img src={chevron} alt="" aria-hidden="true" className="lp-caret" style={{ left: x - 2.09, top: y - 3.68 }} />;
+// one repeating group of five pills, in the design's own arrangement: [centre x, centre y, width, height, tilt, look]  (design units, group width 421)
+const GROUP = [[141, 38, 133, 36, 25, 'out'], [250, 13, 139, 44, -4, 'solid'], [405, 11, 133, 36, -25, 'out'], [331, 74, 138, 38, 0, 'out'], [490, 78, 139, 36, 0, 'warm']];
+const GROUP_W = 421;
 
-/** Desktop hero: the 1280 x 832 frame, scaled to the window width. */
+/** Still (not moving) floating tags, scaled with the window so they always span it. */
+function Chips() {
+  const pills = [];
+  for (let g = -1; g <= 5; g += 1) GROUP.forEach(([x, y, w, h, tilt, look], i) => {
+    const warm = look === 'warm' ? (g % 2 === 0 ? 'sun' : 'coral') : look;
+    pills.push(<span key={`${g}-${i}`} className={`lp-chip ${warm}`} style={{ left: `calc(var(--u) * ${x + g * GROUP_W})`, top: `calc(var(--u) * ${y + 36})`, minWidth: `calc(var(--u) * ${w})`, height: `calc(var(--u) * ${h})`, transform: `translate(-50%, -50%) rotate(${tilt}deg)` }}>{TAGS[(((g + 1) * 5 + i) % TAGS.length + TAGS.length) % TAGS.length]}</span>);
+  });
+  return <div className="lp-chips" aria-hidden="true">{pills}</div>;
+}
+
+/** Desktop hero. Laid out to fill the window (whatever its shape): the photo row spans the width, the headline scales with the
+ *  smaller of its width and height, and the tags sit along the bottom. */
 function HeroDesktop() {
-  const [ref, w] = useWidth();
-  const { h: vh } = useViewport();
-  // never larger than the design, and small enough that the whole first screen fits the window
-  const s = Math.max(0.5, Math.min(w ? w / 1280 : 1, vh / 832, 1));
   const acct = useAccount();
   return (
-    <div ref={ref} className="lp-fit lp-herobg" style={{ height: 832 * s }}>
-     <div className="lp-center" style={{ width: 1280 * s, height: 832 * s }}>
-      <div className="lp-stage" style={{ transform: `scale(${s})`, width: 1280, height: 832 }}>
-        <img src={logo} alt="iMenteo" className="lp-logo" />
-        <nav aria-label="Main">
-          <a href="#top" className="lp-pill" onClick={toTop} style={{ left: 377, top: 22, width: 97 }}>Home</a>
-          <button type="button" className="lp-navtxt" style={{ left: 492, top: 32, width: 60 }} onClick={() => goTo('how-it-works')}>Services</button><Caret x={559.5} y={42.5} />
-          <button type="button" className="lp-navtxt" style={{ left: 603, top: 32, width: 60 }} onClick={() => goTo('get-started')}>Mentors</button><Caret x={670.5} y={42.5} />
-          <button type="button" className="lp-navtxt" style={{ left: 714, top: 32, width: 67 }} onClick={() => goTo('about')}>About Us</button>
-          <button type="button" className="lp-navtxt" style={{ left: 824, top: 32, width: 80 }} onClick={() => goTo('footer')}>Contact Us</button>
+    <div className="lp-herof lp-herobg">
+      <header className="lp-hnav">
+        <img src={logo} alt="iMenteo" className="lp-hlogo" />
+        <nav aria-label="Main" className="lp-hlinks">
+          <a href="#top" className="lp-hpill" onClick={toTop}>Home</a>
+          <button type="button" className="lp-hlink" onClick={() => goTo('how-it-works')}>Services<img src={chevron} alt="" /></button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>Mentors<img src={chevron} alt="" /></button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About Us</button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact Us</button>
         </nav>
-        <Link to={acct.to} className="lp-login" style={{ left: 1094, top: 22 }}>{acct.label}</Link>
+        <Link to={acct.to} className="lp-hlogin">{acct.label}</Link>
+      </header>
 
-        <img src={hero1} alt="" className="lp-photo" style={{ left: 19, top: 138 }} />
-        <div className="lp-shape" style={{ left: 187, top: 125.65, width: 166.628, height: 180.703 }}><img src={hero2} alt="" style={{ width: 150.106, height: 165.922, transform: 'rotate(-6deg)' }} /></div>
-        <img src={hero3} alt="" className="lp-photo" style={{ left: 362, top: 138 }} />
-        <div className="lp-shape" style={{ left: 528.68, top: 126, width: 214.465, height: 171.865 }}><img src={hero4} alt="" style={{ width: 196.054, height: 146, transform: 'rotate(8deg)' }} /></div>
-        <img src={hero5} alt="" className="lp-photo" style={{ left: 750, top: 138 }} />
-        <div className="lp-shape" style={{ left: 913, top: 127.64, width: 180.711, height: 180.711 }}>
-          <div className="lp-leaf" style={{ transform: 'rotate(-8deg)' }}><img src={hero6} alt="" /></div>
-        </div>
-        <img src={hero7} alt="" className="lp-photo" style={{ left: 1098, top: 138 }} />
-
-        <h1 className="lp-h1">
-          <span style={{ left: 90, top: 361 }}>GROW&nbsp; YOUR FUTURE</span>
-          <span style={{ left: 193, top: 428 }}>&amp; SKILLS</span>
-          <span style={{ left: 105, top: 496 }}>WITH <i>MENTORS</i></span>
-        </h1>
-        <p className="lp-lede" style={{ left: 727, top: 484, width: 423 }}>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
-        <Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn lp-herobtn" style={{ left: 727, top: 566, width: 250 }}>{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link>
-        <button type="button" className="lp-herolink" style={{ left: 1004, top: 578 }} onClick={() => goTo('how-it-works')}>See how it works</button>
-        <img src={hashtags} alt="" aria-hidden="true" className="lp-tags" />
+      <div className="lp-hstrip" aria-hidden="true">
+        <img src={hero1} alt="" className="p" />
+        <img src={hero2} alt="" className="p shape a" />
+        <img src={hero3} alt="" className="p" />
+        <img src={hero4} alt="" className="p shape b" />
+        <img src={hero5} alt="" className="p" />
+        <div className="p leaf"><img src={hero6} alt="" /></div>
+        <img src={hero7} alt="" className="p" />
       </div>
-     </div>
+
+      <div className="lp-hbody">
+        <h1 className="lp-hh1"><span className="l1">Grow&nbsp; your future</span><span className="l2">&amp; skills</span><span className="l3">with <i>mentors</i></span></h1>
+        <div className="lp-hside">
+          <p>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
+          <div className="lp-hcta">
+            <Link to={acct.label === 'My dashboard' ? acct.to : SIGNUP} className="lp-btn lp-herobtn">{acct.label === 'My dashboard' ? 'Open my dashboard' : 'Take the career assessment'}</Link>
+            <button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button>
+          </div>
+        </div>
+      </div>
+      <Chips />
     </div>
   );
 }
@@ -106,7 +114,7 @@ function HeroMobile() {
       <h1 className="lp-mh1">GROW YOUR<br />FUTURE &amp; SKILLS<br />WITH <i>MENTORS</i></h1>
       <p className="lp-mlede">Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
       <div className="lp-mcta"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link><button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button></div>
-      <img src={hashtags} alt="" aria-hidden="true" className="lp-mtags" />
+      <div className="lp-mtagrow" aria-hidden="true">{TAGS.map((t, i) => <span key={t} className={`lp-chip m c${i % 4}`} style={{ transform: `rotate(${[-4, 3, -2, 5][i % 4]}deg)` }}>{t}</span>)}</div>
     </div>
   );
 }

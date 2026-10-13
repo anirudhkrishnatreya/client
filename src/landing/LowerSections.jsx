@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { V4_ENABLED } from '../v4/config';
+import Icon from '../platform/ui/Icon';
 import { useMedia, useWidth } from './useFit';
 import burstRed from '../assets/landing/burst-red.svg';
 import woman from '../assets/landing/g-woman.png';
@@ -27,12 +28,13 @@ import upArrow from '../assets/landing/p-arrow.svg';
 const at = (left, top, extra = {}) => ({ position: 'absolute', left, top, ...extra });
 const signUp = V4_ENABLED ? '/v4/register' : '/register';
 const MENTOR_CARDS = [
-  [653, 830, '😃', 'Tell us about you', 'Your goals, your interests and the help you are looking for.'],
-  [653, 980, '🧠', 'Take the assessment', 'A few sittings you can pause. Your answers are saved as you go.'],
-  [883, 870, '🤝', 'Meet your match', 'Matched on your profile, with a person checking the fit.'],
-  [883, 1020, '🚀', 'Start your first session', 'Leave with clear action items for the week ahead.']
+  [653, 830, 'user', 'Tell us about you', 'Your goals, your interests and the help you are looking for.'],
+  [653, 980, 'clipboard', 'Take the assessment', 'A few sittings you can pause. Your answers are saved as you go.'],
+  [883, 870, 'users', 'Meet your match', 'Matched on your profile, with a person checking the fit.'],
+  [883, 1020, 'flag', 'Start your first session', 'Leave with clear action items for the week ahead.']
 ];
-const PROFILE_CARDS = [[737, 1620, '📅', 'Weekly sessions'], [737, 1730, '✅', 'Action items'], [973, 1620, '📊', 'Progress reports'], [973, 1730, '👪', 'Parent view']];
+const PROFILE_CARDS = [[737, 1620, 'calendar', 'Weekly sessions'], [737, 1730, 'tasks', 'Action items'], [973, 1620, 'chart', 'Progress reports'], [973, 1730, 'heart', 'Parent view']];
+const TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
 const BULLETS = ['A mentor matched to your goals', 'A session booked for you every week', 'Clear action items after each one', 'Progress your parents can follow'];
 
 /** An example mentor-session card, drawn in code (the Figma picture of one named a real-looking person). */
@@ -59,8 +61,8 @@ function Fit({ w, h, className = '', children }) {
   );
 }
 
-const Emoji = ({ x, y, bg, children, size = 24 }) => (
-  <div style={at(x, y, { width: 40, height: 40 })}><img src={bg} alt="" className="lp-ebg" /><span className="lp-e" style={{ fontSize: size }}>{children}</span></div>
+const Emoji = ({ x, y, bg, children, tone = '#0f3ee4' }) => (
+  <div style={at(x, y, { width: 40, height: 40 })}><img src={bg} alt="" className="lp-ebg" /><span className="lp-e" style={{ color: tone }}><Icon name={children} size={22} stroke={2} /></span></div>
 );
 
 /** "Get started with your future here" (MacBook Air 6), 1280 x 1985. */
@@ -80,18 +82,18 @@ function GetStartedDesktop() {
         <p className="lp-create" style={at(22, 33)}>Create and<br />Connect!</p>
         <img src={star} alt="" style={at(208, 10, { width: 101, height: 101 })} />
         <div style={at(46, 111, { width: 41, height: 41 })}><img src={emojiA} alt="" style={{ width: 41, height: 41 }} /></div>
-        <span className="lp-e" style={at(51.97, 116.14, { fontSize: 26, transform: 'rotate(-9deg)' })}>😃</span>
+        <span className="lp-e" style={at(46, 111, { width: 41, height: 38, color: '#0f3ee4' })}><Icon name="users" size={22} stroke={2} /></span>
       </div>
       <div style={at(454, 322, { width: 371, height: 180, borderRadius: 20, background: '#f1f1f1' })} />
       <div style={at(454, 522, { width: 371, height: 180, borderRadius: 20, background: '#f1f1f1' })} />
       <SessionExample style={at(470, 369, { width: 340, height: 133 })} />
       <div style={at(460, 340, { width: 41, height: 41 })}><img src={emojiB} alt="" style={{ width: 41, height: 41 }} /></div>
-      <span className="lp-e" style={at(465.97, 345.14, { fontSize: 26, transform: 'rotate(-9deg)' })}>🤩</span>
+      <span className="lp-e" style={at(460, 340, { width: 41, height: 38, color: '#c98a14' })}><Icon name="star" size={22} stroke={2} /></span>
       <div style={at(847, 322, { width: 315, height: 380, borderRadius: 20, background: 'rgba(15,129,228,.2)', overflow: 'hidden' })}><img src={laptopMan} alt="A student working on a laptop" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} /></div>
 
       {/* find your perfect mentor */}
       <div style={at(119, 761, { width: 1043, height: 426, borderRadius: 20, background: 'linear-gradient(to bottom, rgba(32,81,253,.2), rgba(32,81,253,.06))' })} />
-      <div className="lp-tag" style={at(168, 810, { width: 200 })}>FOR DREAMERS 😎</div>
+      <div className="lp-tag" style={at(168, 810, { width: 200 })}><Icon name="sparkles" size={16} stroke={2.2} />FOR DREAMERS</div>
       <h2 className="lp-s6big" style={at(168, 879)}>Find Your<br />Perfect Mentor<br />in <i>4 Steps!</i></h2>
       <img src={ringMinutes} alt="" aria-hidden="true" style={at(212, 964.9, { width: 262, height: 137 })} />
       <Link to={signUp} className="lp-btn lp-btn-arrow" style={at(172, 1091, { width: 182 })}>Set up now<img src={arrow} alt="" style={{ width: 20, height: 14.7 }} /></Link>
@@ -100,7 +102,7 @@ function GetStartedDesktop() {
       {MENTOR_CARDS.map(([x, y, e, t, d], i) => (
         <div key={i}>
           <div className="lp-mcard" style={at(x, y, { width: 211, height: 113 })} />
-          <Emoji x={x + 11} y={y - 22} bg={emojiC}>{e}</Emoji>
+          <Emoji x={x + 11} y={y - 22} bg={emojiC} tone={TONES[i % 4]}>{e}</Emoji>
           <p className="lp-mt1" style={at(x + 18, y + 18)}>{t}</p>
           <p className="lp-mt2" style={at(x + 18, y + 45, { width: 168 })}>{d}</p>
         </div>
@@ -122,7 +124,7 @@ function GetStartedDesktop() {
         <div style={at(74, 114, { width: 119, height: 30, borderRadius: 5, background: '#fff' })} />
         <p className="lp-connect" style={at(81, 118)}>Let’s connect</p>
       </div>
-      <div className="lp-tag shadow" style={at(730, 1287, { width: 200 })}>FOR DREAMERS 😎</div>
+      <div className="lp-tag shadow" style={at(730, 1287, { width: 200 })}><Icon name="sparkles" size={16} stroke={2.2} />FOR DREAMERS</div>
       <h2 className="lp-s6big" style={at(737, 1339)}>Grow &amp;<br />Learn <i>smarter</i></h2>
       <img src={ringWord} alt="" aria-hidden="true" style={at(868, 1376, { width: 215, height: 107 })} />
       <ul className="lp-bullets" style={at(737, 1481)}>
@@ -131,7 +133,7 @@ function GetStartedDesktop() {
       {PROFILE_CARDS.map(([x, y, e, t], i) => (
         <div key={i}>
           <div className="lp-pcard" style={at(x, y + 0, { width: 211, height: 64 })} />
-          <div style={at(x + 11, y - 22, { width: 40, height: 40 })}><img src={emojiD} alt="" className="lp-ebg2" /><span className="lp-e" style={{ fontSize: 24 }}>{e}</span></div>
+          <div style={at(x + 11, y - 22, { width: 40, height: 40 })}><img src={emojiD} alt="" className="lp-ebg2" /><span className="lp-e" style={{ color: TONES[i % 4] }}><Icon name={e} size={22} stroke={2} /></span></div>
           <p className="lp-mt3" style={at(x + 18, y + 18)}>{t}</p>
         </div>
       ))}
@@ -152,17 +154,17 @@ function GetStartedMobile() {
         <div className="lp-m6tile photo"><img src={laptopMan} alt="A student working on a laptop" /></div>
       </div>
       <div className="lp-m6panel">
-        <span className="lp-tag static">FOR DREAMERS 😎</span>
+        <span className="lp-tag static"><Icon name="sparkles" size={16} stroke={2.2} />FOR DREAMERS</span>
         <h2 className="lp-m6big">Find Your Perfect Mentor in <i>4 Steps!</i></h2>
         <Link to={signUp} className="lp-btn lp-btn-arrow static">Set up now<img src={arrow} alt="" style={{ width: 20, height: 14.7 }} /></Link>
-        <div className="lp-m6cards">{MENTOR_CARDS.map(([, , e, t, d]) => <div key={t} className="lp-mcard"><span className="lp-m6e">{e}</span><b>{t}</b><p>{d}</p></div>)}</div>
+        <div className="lp-m6cards">{MENTOR_CARDS.map(([, , e, t, d]) => <div key={t} className="lp-mcard"><span className="lp-m6e"><Icon name={e} size={16} stroke={2} /></span><b>{t}</b><p>{d}</p></div>)}</div>
       </div>
       <div className="lp-m6grow">
         <img src={portrait} alt="A student taking notes at a laptop" className="lp-m6portrait" />
-        <span className="lp-tag static shadow">FOR DREAMERS 😎</span>
+        <span className="lp-tag static shadow"><Icon name="sparkles" size={16} stroke={2.2} />FOR DREAMERS</span>
         <h2 className="lp-m6big">Grow &amp; Learn <i>smarter</i></h2>
         <ul className="lp-bullets static">{BULLETS.map(b => <li key={b}>{b}</li>)}</ul>
-        <div className="lp-m6profiles">{PROFILE_CARDS.map(([, , e, t]) => <div key={t} className="lp-pcard"><span className="lp-m6e">{e}</span>{t}</div>)}</div>
+        <div className="lp-m6profiles">{PROFILE_CARDS.map(([, , e, t]) => <div key={t} className="lp-pcard"><span className="lp-m6e"><Icon name={e} size={16} stroke={2} /></span>{t}</div>)}</div>
       </div>
     </div>
   );
@@ -173,7 +175,7 @@ function PracticeDesktop() {
   const card = (x, cx, withArrow, emoji, title, text) => (
     <div key={x}>
       <div className="lp-pc" style={at(x, 315, { width: 354, height: 274 })} />
-      <div style={at(x + 143, 290, { width: 60, height: 60 })}><img src={clockBg} alt="" style={{ position: 'absolute', left: -4, top: 0, width: 68, height: 68 }} /><span className="lp-e" style={{ inset: 0, fontSize: 32 }}>{emoji}</span></div>
+      <div style={at(x + 143, 290, { width: 60, height: 60 })}><img src={clockBg} alt="" style={{ position: 'absolute', left: -4, top: 0, width: 68, height: 68 }} /><span className="lp-e" style={{ inset: 0, color: '#0f3ee4' }}><Icon name={emoji} size={30} stroke={1.9} /></span></div>
       <p className="lp-pt" style={at(cx - 150, 365, { width: 300 })}>{title}</p>
       <div style={at(cx - 40, 397, { width: 80, height: 2, background: '#000' })} />
       <p className="lp-pd" style={at(cx - 128.5, 425, { width: 257 })}>{text}</p>
@@ -185,11 +187,11 @@ function PracticeDesktop() {
       <div className="lp-s7card" style={at(119, 20, { width: 1043, height: 694 })} />
       <div style={at(123, 21, { width: 1039, height: 686, overflow: 'hidden' })}>
         <img src={waves} alt="" aria-hidden="true" style={at(-944.91, -270.11, { width: 1539.82, height: 1174.227 })} />
-        <div className="lp-tag shadow wide" style={at(410, 31, { width: 220 })}>WEEKLY SESSIONS 📅</div>
+        <div className="lp-tag shadow wide" style={at(410, 31, { width: 220 })}><Icon name="calendar" size={16} stroke={2.2} />WEEKLY SESSIONS</div>
         <img src={burstRed} alt="" aria-hidden="true" style={at(771, 12, { width: 120, height: 120 })} />
         <h2 className="lp-s7h" style={at(0, 104, { width: 1034 })}>Schedule Sessions &amp;<br />Make Every Week Count</h2>
         <p className="lp-s6p" style={at(212, 223, { width: 610 })}>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
-        <div style={at(0, 0)}>{card(147, 324.5, true, '⏰', 'Schedule Sessions', 'Find a time with your mentor, and see every upcoming session in one place.')}{card(537, 714.5, false, '📝', 'Record Progress', 'After each session, the mentor notes what was covered and sets action items.')}</div>
+        <div style={at(0, 0)}>{card(147, 324.5, true, 'clock', 'Schedule Sessions', 'Find a time with your mentor, and see every upcoming session in one place.')}{card(537, 714.5, false, 'file', 'Record Progress', 'After each session, the mentor notes what was covered and sets action items.')}</div>
       </div>
     </Fit>
   );
@@ -198,11 +200,11 @@ function PracticeDesktop() {
 function PracticeMobile() {
   return (
     <div className="lp-m7">
-      <span className="lp-tag static shadow">WEEKLY SESSIONS 📅</span>
+      <span className="lp-tag static shadow"><Icon name="calendar" size={16} stroke={2.2} />WEEKLY SESSIONS</span>
       <h2>Schedule Sessions &amp; Make Every Week Count</h2>
       <p>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
-      <div className="lp-m7cards">{[['⏰', 'Schedule Sessions', 'Find a time with your mentor, and see every upcoming session in one place.', true], ['📝', 'Record Progress', 'After each session, the mentor notes what was covered and sets action items.', false]].map(([e, t, d, arrow]) => (
-        <div key={t} className="lp-pc"><span className="lp-m7clock">{e}</span><h3>{t}</h3><i /><p>{d}</p><button type="button" className="lp-btn lp-btn-arrow static" onClick={() => { const el = document.getElementById('who'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>Know more{arrow && <img src={upArrow} alt="" style={{ width: 19.8, height: 13.3, transform: 'rotate(-40.91deg)' }} />}</button></div>
+      <div className="lp-m7cards">{[['clock', 'Schedule Sessions', 'Find a time with your mentor, and see every upcoming session in one place.', true], ['file', 'Record Progress', 'After each session, the mentor notes what was covered and sets action items.', false]].map(([e, t, d, arrow]) => (
+        <div key={t} className="lp-pc"><span className="lp-m7clock"><Icon name={e} size={26} stroke={1.9} /></span><h3>{t}</h3><i /><p>{d}</p><button type="button" className="lp-btn lp-btn-arrow static" onClick={() => { const el = document.getElementById('who'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>Know more{arrow && <img src={upArrow} alt="" style={{ width: 19.8, height: 13.3, transform: 'rotate(-40.91deg)' }} />}</button></div>
       ))}</div>
     </div>
   );

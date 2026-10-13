@@ -15,7 +15,7 @@ describe('landing page (desktop)', () => {
   beforeEach(() => media(q => /min-width: 1024px/.test(q)));
   it('shows the headline, the nav and the sign-in link', () => {
     page();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/GROW\s+YOUR FUTURE.*SKILLS.*WITH MENTORS/s);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/GROW\s+YOUR FUTURE.*SKILLS.*WITH MENTORS/is);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Login / Signup' })).toHaveAttribute('href', '/login');
     expect(screen.getAllByAltText('iMenteo').length).toBeGreaterThan(0);

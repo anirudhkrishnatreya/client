@@ -19,7 +19,7 @@ describe('the full landing page', () => {
   });
   it('keeps the designed hero and its first step', () => {
     page();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/GROW\s+YOUR FUTURE.*SKILLS.*WITH MENTORS/s);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/GROW\s+YOUR FUTURE.*SKILLS.*WITH MENTORS/is);
     expect(screen.getAllByRole('link', { name: /Take the career assessment/ })[0].getAttribute('href')).toMatch(/register/);
   });
   it('has a slim bar with a link to each main section, for after the first screen has scrolled away', () => {
@@ -62,6 +62,24 @@ describe('the full landing page', () => {
     expect(q).toHaveAttribute('aria-expanded', 'false');
     await user.click(q); expect(q).toHaveAttribute('aria-expanded', 'true');
     await user.click(q); expect(q).toHaveAttribute('aria-expanded', 'false');
+  });
+  it('uses icons and real hashtags, with no emoji and no "#Education" filler', () => {
+    const { container } = page();
+    const text = container.textContent;
+    expect(text).not.toMatch(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B50}]/u);
+    expect(text).not.toMatch(/#Education/);
+    expect(text).toMatch(/#CareerClarity/); expect(text).toMatch(/#WeeklyMentoring/);
+  });
+  it('the first screen is built to fill the window, not to be a scaled picture', () => {
+    const { container } = page();
+    expect(container.querySelector('.lp-herof')).not.toBeNull();
+  });
+  it('the footer has link columns, the tags and a closing statement, not just a copyright line', () => {
+    const { container } = page();
+    const f = container.querySelector('footer');
+    expect(f.querySelectorAll('nav').length).toBeGreaterThanOrEqual(3);
+    expect(f.textContent).toMatch(/Grow your future/i);
+    expect(f.textContent).toMatch(/We do not sell student data/);
   });
   it('shows no contact address until one is configured', () => {
     const { container } = page();

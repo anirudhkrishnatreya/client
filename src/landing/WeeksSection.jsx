@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { DELTA, LINE_ICONS, WEEKS } from './weeks';
 import { useMedia, useViewport } from './useFit';
+import Icon from '../platform/ui/Icon';
 import ring28 from '../assets/landing/ring-28.png';
 import ring29 from '../assets/landing/ring-29.png';
 import ring30 from '../assets/landing/ring-30.png';
@@ -31,6 +32,7 @@ const DOT_AT = [[950, 30], [983, 676], [1025, 545], [1063, 163], [1173, 54], [11
 const BURST = [[burst1, 46.08, 27.67, 50.24, 72.23], [burst2, 47.83, 26.7, 51.99, 71.25], [burst3, 46.55, 26.96, 50.72, 71.52], [burst4, 46.55, 26.96, 50.72, 71.52], [burst5, 47.14, 26.75, 51.3, 71.31], [burst6, 46.18, 27.29, 50.34, 71.84], [burst7, 47.15, 26.75, 51.31, 71.31], [burst8, 46.18, 27.29, 50.34, 71.85]];
 const BURST_BOX = { x: 912, y: 329, w: 26, h: 26 };
 
+const BADGE_TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = t => t * t * (3 - 2 * t);
 /** Scroll progress 0..1 -> how far through the weeks we are (0 = week 1, 2 = week 3), with a rest at each week. */
@@ -67,7 +69,7 @@ function Cluster({ week, k }) {
       <img className="lp-it" src={a.blob} alt="" style={{ ...place(1117 - CX, 322 - CY, 4.12), width: a.blobSize[0], height: a.blobSize[1] }} />
       <div className="lp-it lp-round" style={{ ...place(1185.4 - CX, 600.4 - CY, -8), width: 160, height: 160 }}><img src={a.round} alt="" /></div>
       {EMOJI_AT.map(([x, y], i) => (
-        <div key={`e${i}`} className="lp-it lp-emoji" style={{ ...place(x + 16 - CX, y + 16 - CY) }}><img src={emojiBg} alt="" /><span>{week.emojis[i]}</span></div>
+        <div key={`e${i}`} className="lp-it lp-emoji" style={{ ...place(x + 16 - CX, y + 16 - CY) }}><img src={emojiBg} alt="" /><span style={{ color: BADGE_TONES[i % 4] }}><Icon name={week.emojis[i]} size={17} stroke={2} /></span></div>
       ))}
       {DOT_AT.map(([x, y], i) => <img key={`d${i}`} className="lp-it" src={dot} alt="" style={{ ...place(x + 8.5 - CX, y + 8.5 - CY), width: 17, height: 17 }} />)}
       <img className="lp-it" src={starRed} alt="" style={{ ...place(792 + 13 - CX, 348 + 13 - CY), width: 26, height: 26 }} />
