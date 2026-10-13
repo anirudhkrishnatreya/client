@@ -6,6 +6,8 @@ import { V4_ENABLED } from '../v4/config';
 import { useMedia, useViewport, useWidth } from './useFit';
 import WeeksSection from './WeeksSection';
 import { GetStarted, Practice } from './LowerSections';
+import { Why, Assessment, Who, AiSection, Safety, Faq, FinalCta, Footer } from './ExtraSections';
+import StickyBar, { BAR_H } from './StickyBar';
 import '@fontsource/syne/700.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/dm-sans/400.css';
@@ -23,7 +25,6 @@ import hero7 from '../assets/landing/hero-7.png';
 
 const goTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
 const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
-const toEnd = e => { e.preventDefault(); window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); };
 const toTop = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 function useAccount() {
@@ -50,8 +51,8 @@ function HeroDesktop() {
           <a href="#top" className="lp-pill" onClick={toTop} style={{ left: 377, top: 22, width: 97 }}>Home</a>
           <button type="button" className="lp-navtxt" style={{ left: 492, top: 32, width: 60 }} onClick={() => goTo('how-it-works')}>Services</button><Caret x={559.5} y={42.5} />
           <button type="button" className="lp-navtxt" style={{ left: 603, top: 32, width: 60 }} onClick={() => goTo('get-started')}>Mentors</button><Caret x={670.5} y={42.5} />
-          <button type="button" className="lp-navtxt" style={{ left: 714, top: 32, width: 67 }} onClick={() => goTo('practice')}>About Us</button>
-          <button type="button" className="lp-navtxt" style={{ left: 824, top: 32, width: 80 }} onClick={toEnd}>Contact Us</button>
+          <button type="button" className="lp-navtxt" style={{ left: 714, top: 32, width: 67 }} onClick={() => goTo('about')}>About Us</button>
+          <button type="button" className="lp-navtxt" style={{ left: 824, top: 32, width: 80 }} onClick={() => goTo('footer')}>Contact Us</button>
         </nav>
         <Link to={acct.to} className="lp-login" style={{ left: 1094, top: 22 }}>{acct.label}</Link>
 
@@ -95,8 +96,8 @@ function HeroMobile() {
             <a href="#top" onClick={e => { toTop(e); setOpen(false); }}>Home</a>
             <button type="button" onClick={() => { setOpen(false); goTo('how-it-works'); }}>Services</button>
             <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>Mentors</button>
-            <button type="button" onClick={() => { setOpen(false); goTo('practice'); }}>About Us</button>
-            <button type="button" onClick={e => { setOpen(false); toEnd(e); }}>Contact Us</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About Us</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact Us</button>
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
           </nav>
         )}
@@ -114,10 +115,19 @@ export default function LandingPage() {
   const wide = useMedia('(min-width: 1024px)', true);
   return (
     <div className="lp" id="top">
+      <StickyBar />
       {wide ? <HeroDesktop /> : <HeroMobile />}
-      <WeeksSection />
+      <Why />
+      <WeeksSection offset={BAR_H} />
       <GetStarted />
+      <Assessment />
+      <Who />
       <Practice />
+      <AiSection />
+      <Safety />
+      <Faq />
+      <FinalCta />
+      <Footer />
     </div>
   );
 }
