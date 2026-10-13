@@ -3,6 +3,8 @@ import { AssessmentProvider } from './context/AssessmentContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Landing       from './pages/Landing';
+import LandingPage   from './landing/LandingPage';
+import LandingV2     from './landing/LandingV2';
 import Register      from './pages/Register';
 import Login         from './pages/Login';
 import Assessment    from './pages/Assessment';
@@ -11,6 +13,18 @@ import UserDashboard from './pages/UserDashboard';
 import AdminLogin    from './pages/AdminLogin';
 import AdminDash     from './pages/AdminDash';
 import AdminUser     from './pages/AdminUser';
+import { V4_ENABLED }  from './v4/config';
+import { PLATFORM_ENABLED } from './platform/config';
+import PlatformApp from './platform/PlatformApp';
+import V4Register      from './v4/pages/V4Register';
+import V4Dashboard     from './v4/pages/V4Dashboard';
+import V4Assessment    from './v4/pages/V4Assessment';
+import V4Results       from './v4/pages/V4Results';
+import GuardianConsent from './v4/pages/GuardianConsent';
+import SchoolHome      from './v4/pages/SchoolHome';
+import SchoolClass     from './v4/pages/SchoolClass';
+import SchoolStudent   from './v4/pages/SchoolStudent';
+import AdminOrgs       from './v4/pages/AdminOrgs';
 
 // ── User must be logged in
 function RequireUser({ children }) {
@@ -42,11 +56,20 @@ function RegisterOnly({ children }) {
   return user?.onboardingCompleted ? <Navigate to="/dashboard" replace /> : children;
 }
 
+// v4 sign-up: a signed-in student goes to their v4 page instead
+function GuestOnlyV4({ children }) {
+  const { isLoggedIn, loading } = useAuth();
+  if (loading) return null;
+  return isLoggedIn ? <Navigate to="/v4" replace /> : children;
+}
+
 function AppRoutes() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/"         element={<Landing />} />
+      <Route path="/"         element={<LandingPage />} />
+      <Route path="/landing-v2" element={<LandingV2 />} />
+      <Route path="/classic"  element={<Landing />} />
 
       {/* Registration / onboarding */}
       <Route path="/register" element={<RegisterOnly><Register /></RegisterOnly>} />
@@ -59,6 +82,23 @@ function AppRoutes() {
       <Route path="/assessment"     element={<RequireUser><Assessment /></RequireUser>} />
       <Route path="/results"        element={<RequireUser><Results /></RequireUser>} />
       <Route path="/results/:assessmentId" element={<RequireUser><Results /></RequireUser>} />
+
+      {/* v4 assessment: only present when the build sets VITE_V4=on */}
+      {PLATFORM_ENABLED && <Route path="/platform/*" element={<PlatformApp />} />}
+
+      {V4_ENABLED && (
+        <>
+          <Route path="/v4/register"           element={<GuestOnlyV4><V4Register /></GuestOnlyV4>} />
+          <Route path="/guardian-consent/:token" element={<GuardianConsent />} />
+          <Route path="/v4"                    element={<RequireUser><V4Dashboard /></RequireUser>} />
+          <Route path="/v4/test"               element={<RequireUser><V4Assessment /></RequireUser>} />
+          <Route path="/v4/results/:id"        element={<RequireUser><V4Results /></RequireUser>} />
+          <Route path="/v4/school"                          element={<RequireUser><SchoolHome /></RequireUser>} />
+          <Route path="/v4/school/:cohortId"                element={<RequireUser><SchoolClass /></RequireUser>} />
+          <Route path="/v4/school/:cohortId/student/:studentId" element={<RequireUser><SchoolStudent /></RequireUser>} />
+          <Route path="/admin/orgs"                         element={<RequireAdmin><AdminOrgs /></RequireAdmin>} />
+        </>
+      )}
 
       {/* Admin */}
       <Route path="/admin/login"    element={<AdminLogin />} />

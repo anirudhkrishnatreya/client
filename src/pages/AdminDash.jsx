@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminGetUsers, adminGetStats } from '../api';
 import logoImg from '../assets/imenteo_logo.png';
+import { V4_ENABLED } from '../v4/config';
 
 function StatChip({ label, value, sub, color }) {
   return (
@@ -52,6 +53,7 @@ export default function AdminDash() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ color: 'rgba(255,255,255,.6)', fontSize: 13 }}>👤 {admin.username || 'Admin'}</span>
+          {V4_ENABLED && <Link to="/admin/orgs" style={{ color: '#fff', fontSize: 12, fontWeight: 600, marginRight: 14, textDecoration: 'underline' }}>Schools</Link>}
           <button onClick={logout} style={{ background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', color: '#fff', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, padding: '7px 14px', borderRadius: 7, cursor: 'pointer' }}>Logout</button>
         </div>
       </div>

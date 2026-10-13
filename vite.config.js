@@ -10,5 +10,12 @@ export default defineConfig({
     proxy: {
       '/api': { target: 'http://localhost:5001', changeOrigin: true }
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.js'],
+    include: ['src/**/*.test.{js,jsx}'],
+    css: false
   }
 });
