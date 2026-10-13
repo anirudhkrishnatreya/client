@@ -111,7 +111,7 @@ function GetStartedDesktop() {
 
       {/* grow and learn */}
       <img src={portrait} alt="A student taking notes at a laptop" style={at(120, 1295, { width: 234, height: 456, borderRadius: 20, objectFit: 'cover' })} />
-      <div style={at(374, 1295, { width: 267, height: 282, borderRadius: 20, background: '#f1f1f1' })} />
+      <div style={at(374, 1295, { width: 267, height: 282, borderRadius: 20, background: '#f1f1f1', overflow: 'hidden' })}><img src={PHOTO.p8055086} alt="A family at the table while a child does homework" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }} /></div>
       <img src={burstRed} alt="" aria-hidden="true" style={at(352, 1267, { width: 120, height: 120 })} />
       <div style={at(374, 1597, { width: 267, height: 154, overflow: 'hidden' })}>
         <div style={at(0, -1, { width: 267, height: 155, borderRadius: 20, background: 'rgba(32,81,253,.09)' })} />

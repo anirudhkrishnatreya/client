@@ -14,7 +14,8 @@ import p4126695 from '../assets/landing/photos/p4126695.jpg';
 import p8199167 from '../assets/landing/photos/p8199167.jpg';
 import p5905709 from '../assets/landing/photos/p5905709.jpg';
 import p7972949 from '../assets/landing/photos/p7972949.jpg';
+import p8055086 from '../assets/landing/photos/p8055086.jpg';
 import p10638081 from '../assets/landing/photos/p10638081.jpg';
 
-export const PHOTO = { p6684552, p8419640, p4308097, p5306434, p6392977, p7683820, p30858451, p7129712, p21006242, p16461275, p4126695, p8199167, p5905709, p7972949, p10638081 };
+export const PHOTO = { p6684552, p8419640, p4308097, p5306434, p6392977, p7683820, p30858451, p7129712, p21006242, p16461275, p4126695, p8199167, p5905709, p7972949, p10638081, p8055086 };
 export default PHOTO;
