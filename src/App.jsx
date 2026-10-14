@@ -25,6 +25,7 @@ import SchoolHome      from './v4/pages/SchoolHome';
 import SchoolClass     from './v4/pages/SchoolClass';
 import SchoolStudent   from './v4/pages/SchoolStudent';
 import AdminOrgs       from './v4/pages/AdminOrgs';
+import { homeRouteFor } from './utils/homeRoute';
 
 // ── User must be logged in
 function RequireUser({ children }) {
@@ -40,11 +41,12 @@ function RequireAdmin({ children }) {
     : <Navigate to="/admin/login" replace />;
 }
 
-// ── Redirect already-logged-in users away from auth pages
+// ── Redirect already-logged-in users away from auth pages, to their own dashboard (same place a fresh
+// login sends them) rather than a hardcoded page that only fits one kind of account.
 function GuestOnly({ children }) {
-  const { isLoggedIn, loading } = useAuth();
+  const { user, isLoggedIn, loading } = useAuth();
   if (loading) return null;
-  return isLoggedIn ? <Navigate to="/dashboard" replace /> : children;
+  return isLoggedIn ? <Navigate to={homeRouteFor(user)} replace /> : children;
 }
 
 // ── Allow onboarding for logged-in users until profile setup is complete
@@ -53,14 +55,14 @@ function RegisterOnly({ children }) {
   if (loading) return null;
 
   if (!isLoggedIn) return children;
-  return user?.onboardingCompleted ? <Navigate to="/dashboard" replace /> : children;
+  return user?.onboardingCompleted ? <Navigate to={homeRouteFor(user)} replace /> : children;
 }
 
-// v4 sign-up: a signed-in student goes to their v4 page instead
+// v4 sign-up: a signed-in user goes to their own dashboard instead
 function GuestOnlyV4({ children }) {
-  const { isLoggedIn, loading } = useAuth();
+  const { user, isLoggedIn, loading } = useAuth();
   if (loading) return null;
-  return isLoggedIn ? <Navigate to="/v4" replace /> : children;
+  return isLoggedIn ? <Navigate to={homeRouteFor(user)} replace /> : children;
 }
 
 function AppRoutes() {

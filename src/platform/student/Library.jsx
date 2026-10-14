@@ -4,7 +4,10 @@ import { Card, Icon, PageHead, Pill, Progress } from '../ui/kit';
 
 const KIND_ICON = { Course: 'cap', 'Video series': 'video', Practice: 'code', Book: 'book', Project: 'bolt' };
 
-export default function Library() {
+// `live`: the real student dashboard reuses this same catalogue (progress tracking isn't built yet, so every
+// item would otherwise show a permanent, unmovable "0%" bar, which reads as broken rather than unbuilt). The
+// sample preview keeps the progress bars, since there the numbers are real sample data showing the feature off.
+export default function Library({ live = false }) {
   const { data } = usePlatform();
   const topics = ['All', ...new Set(data.library.map(l => l.topic))];
   const [topic, setTopic] = useState('All');
@@ -12,6 +15,7 @@ export default function Library() {
   return (
     <>
       <PageHead eyebrow="Learning library" title="Where to learn from">Free, well-known sources chosen for your goal and your level, with the reason each one is here.</PageHead>
+      {live && <div className="pf-note" role="note" style={{ marginBottom: 18 }}>A list personalised to your goal, and progress tracking for each item, are coming soon. For now, here is a starting set.</div>}
       <div className="pf-chip-row" style={{ marginBottom: 18 }} role="group" aria-label="Filter by topic">{topics.map(t => <button key={t} type="button" className="pf-chip" aria-pressed={topic === t} style={topic === t ? { background: 'var(--indigo)', color: '#fff', borderColor: 'var(--indigo)' } : undefined} onClick={() => setTopic(t)}>{t}</button>)}</div>
       <div className="pf-grid g3">
         {shown.map(l => (
@@ -20,7 +24,7 @@ export default function Library() {
             <h4 style={{ fontSize: 18, margin: '12px 0 2px', lineHeight: 1.25 }}>{l.title}</h4>
             <div className="pf-small pf-muted">{l.provider} · {l.level} · about {l.hours} h</div>
             <p className="pf-small" style={{ margin: '10px 0 12px', flex: 1 }}>{l.why}</p>
-            <div className="pf-row pf-between pf-small" style={{ marginBottom: 5 }}><span className="pf-muted">Your progress</span><b className="pf-num">{l.progress}%</b></div><Progress value={l.progress} tone={l.progress === 100 ? 'leaf' : ''} label={`${l.title} progress`} />
+            {!live && <><div className="pf-row pf-between pf-small" style={{ marginBottom: 5 }}><span className="pf-muted">Your progress</span><b className="pf-num">{l.progress}%</b></div><Progress value={l.progress} tone={l.progress === 100 ? 'leaf' : ''} label={`${l.title} progress`} /></>}
             {l.url ? <a className="pf-btn sm ghost" style={{ marginTop: 14 }} href={l.url} target="_blank" rel="noopener noreferrer"><Icon name="link" size={14} />Open {l.provider}</a> : <span className="pf-small pf-faint" style={{ marginTop: 14 }}>Set up with your mentor</span>}
           </Card>
         ))}

@@ -93,6 +93,12 @@ describe('student', () => {
     at('/platform/student/mentor');
     expect(await screen.findByText(/has not been assigned to you yet/)).toBeInTheDocument();
   });
+  it('the library is honest that it is not personalised yet, instead of showing a dead 0% progress bar', async () => {
+    routes['get /v2/platform/student'] = studentBundle();
+    at('/platform/student/library');
+    expect(await screen.findByText(/coming soon/i)).toBeInTheDocument();
+    expect(screen.queryByText('Your progress')).toBeNull();
+  });
   it('the weekly plan is honest that it is not built yet', async () => {
     routes['get /v2/platform/student'] = studentBundle();
     at('/platform/student/plan');

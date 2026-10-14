@@ -107,7 +107,7 @@ export default function PlatformApp() {
       {/* Real dashboards */}
       <Route path="student" element={<Gate role="student" />}>
         <Route index element={<LiveStudentOverview />} /><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /><Route path="tasks" element={<StudentTasks />} />
-        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
+        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
       </Route>
       <Route path="mentor" element={<Gate role="mentor" />}>
         <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="insights" element={<LiveInsights />} />

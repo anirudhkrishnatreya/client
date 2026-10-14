@@ -27,7 +27,7 @@ export default function LiveGoal() {
           <p style={{ margin: '8px 0 10px' }}>The career assessment shows which fields fit your interests, personality and strengths. Many students find their goal there.</p>
           <Link to={data.assessment.state === 'submitted' ? '../reports' : '/v4'} className="pf-btn sm">{data.assessment.state === 'submitted' ? 'See my report' : 'Take the career assessment'}</Link></Card>
       </div>
-      <p className="pf-small pf-faint" style={{ marginTop: 18 }}>A step-by-step roadmap and a weekly study plan built around your goal are being added next.</p>
+      <div className="pf-note" role="note" style={{ marginTop: 18 }}>A step-by-step roadmap and a weekly study plan built around your goal are coming soon.</div>
     </>
   );
 }

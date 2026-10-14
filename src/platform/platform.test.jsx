@@ -15,6 +15,10 @@ const ROUTES = {
 };
 
 describe('platform dashboards', () => {
+  it('the preview library still shows its sample progress bars (only the live dashboard hides them)', async () => {
+    go('student/library');
+    expect(await screen.findAllByText('Your progress')).not.toHaveLength(0);
+  });
   it('offers the three roles', () => {
     go('');
     for (const r of ['Student', 'Mentor', 'Parent']) expect(screen.getAllByText(r).length).toBeGreaterThan(0);
