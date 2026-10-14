@@ -40,6 +40,9 @@
 .au-pw button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font: 600 12px 'Montserrat', sans-serif; letter-spacing: .6px; color: #0f3ee4; cursor: pointer; }
 .au-pw button:hover { background: #eef1ff; }
 .au-error { margin: 0 0 18px; padding: 12px 14px; border-radius: 12px; background: #fff1ee; border: 1px solid #f8c8bd; color: #a93a22; font-size: 14.5px; }
+.au-link { margin: 0 0 18px; padding: 0; border: 0; background: none; color: #0f3ee4; font: 600 14.5px 'DM Sans', sans-serif; text-decoration: underline; cursor: pointer; }
+.au-link:disabled { opacity: .6; cursor: not-allowed; }
+.au-muted { margin: 0 0 18px; color: rgba(18, 18, 18, .62); font-size: 14.5px; }
 .au-btn, .au-body .v4-btn:not(.secondary):not(.danger) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 52px; padding: 0 24px; border: 0; border-radius: 14px; background: #0f3ee4; color: #fff; font: 600 16px 'DM Sans', sans-serif; cursor: pointer; box-shadow: 0 8px 18px -6px rgba(15, 62, 228, .5); transition: transform .18s, box-shadow .18s, background .18s; }
 .au-btn:hover, .au-body .v4-btn:not(.secondary):not(.danger):hover { transform: translateY(-2px); box-shadow: 0 14px 24px -8px rgba(15, 62, 228, .55); }
 .au-btn:disabled, .au-body .v4-btn:disabled { opacity: .55; transform: none; box-shadow: none; cursor: not-allowed; }

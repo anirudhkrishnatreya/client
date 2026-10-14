@@ -5,6 +5,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
 import V4Register, { ageFrom } from './V4Register';
 import GuardianConsent from './GuardianConsent';
+import VerifyEmail from './VerifyEmail';
 import V4Dashboard, { PdfCell } from './V4Dashboard';
 import V4Results from './V4Results';
 
@@ -32,8 +33,8 @@ describe('V4Register', () => {
     await user.type(screen.getByLabelText('Date of birth'), v.dob);
   };
 
-  it('an adult sees no guardian section and registers with a grade; the account is saved and they go to the dashboard', async () => {
-    const api = { register: vi.fn(() => ok({ token: 'TOKEN', user: { id: 'u1', fullName: 'Asha Verma', track: 'college' } })) };
+  it('an adult sees no guardian section and registers with a grade; a confirmation email is then shown', async () => {
+    const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u1', fullName: 'Asha Verma', email: 'asha@example.com', isVerified: false } })) };
     const user = userEvent.setup();
     mount(<V4Register api={api} today={TODAY} />);
     await fill(user);
@@ -41,13 +42,14 @@ describe('V4Register', () => {
     await user.selectOptions(screen.getByLabelText('Your class or year'), 'ug2');
     await user.click(screen.getByLabelText(/I have read the summary/));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
-    await screen.findByText('DASHBOARD');
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
+    expect(screen.getByText('asha@example.com')).toBeInTheDocument();
     expect(api.register).toHaveBeenCalledWith({ fullName: 'Asha Verma', email: 'asha@example.com', password: 'Passw0rdOK', dateOfBirth: '2000-01-01', acceptTerms: true, grade: 'ug2' });
-    expect(localStorage.getItem('im_user_token')).toBe('TOKEN');
+    expect(localStorage.getItem('im_user_token')).toBeNull();     // registering no longer signs anyone in
   });
 
   it('a minor must give a guardian, and the guardian details are sent', async () => {
-    const api = { register: vi.fn(() => ok({ token: 'T', user: { id: 'u', fullName: 'Kid', track: 'junior' } })) };
+    const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u', fullName: 'Kid', email: 'kid@example.com', isVerified: false } })) };
     const user = userEvent.setup();
     mount(<V4Register api={api} today={TODAY} />);
     await fill(user, { dob: '2013-06-01' });
@@ -57,13 +59,13 @@ describe('V4Register', () => {
     await user.type(screen.getByLabelText(/Their email/), 'meera@example.com');
     await user.click(screen.getByLabelText(/I have read the summary/));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
-    await screen.findByText('DASHBOARD');
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
     expect(api.register.mock.calls[0][0].guardian).toEqual({ name: 'Meera Verma', email: 'meera@example.com', relationship: 'parent' });
     expect(api.register.mock.calls[0][0].grade).toBe('8');
   });
 
   it('a parent email is compulsory up to class 12, even for an adult, and not for college', async () => {
-    const api = { register: vi.fn(() => ok({ token: 'T', user: { id: 'u', fullName: 'A', track: 'senior' } })) };
+    const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u', fullName: 'A', email: 'asha@example.com', isVerified: false } })) };
     const user = userEvent.setup();
     mount(<V4Register api={api} today={TODAY} />);
     await fill(user, { dob: '2000-01-01' });
@@ -76,7 +78,7 @@ describe('V4Register', () => {
     await user.type(screen.getByLabelText(/Their email/), 'meera@example.com');
     await user.click(screen.getByLabelText(/I have read the summary/));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
-    await screen.findByText('DASHBOARD');
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
     expect(api.register.mock.calls[0][0].guardian.email).toBe('meera@example.com');
   });
 
@@ -89,7 +91,7 @@ describe('V4Register', () => {
   });
 
   it('a class code replaces the grade question, and the optional sharing choice appears for adults only', async () => {
-    const api = { register: vi.fn(() => ok({ token: 'T', user: { id: 'u', fullName: 'A', track: 'senior' } })) };
+    const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u', fullName: 'A', email: 'asha@example.com', isVerified: false } })) };
     const user = userEvent.setup();
     mount(<V4Register api={api} today={TODAY} />);
     await fill(user, { dob: '2000-01-01' });
@@ -99,7 +101,7 @@ describe('V4Register', () => {
     await user.click(screen.getByLabelText(/Let my school/));
     await user.click(screen.getByLabelText(/I have read the summary/));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
-    await screen.findByText('DASHBOARD');
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
     expect(api.register.mock.calls[0][0]).toMatchObject({ classCode: 'abcd2345', shareWithSchool: true });
     expect(api.register.mock.calls[0][0].grade).toBeUndefined();
   });
@@ -124,15 +126,6 @@ describe('V4Register', () => {
     await user.click(screen.getByRole('button', { name: 'Create account' }));
     expect(await screen.findByText(/could not create your account/i)).toBeInTheDocument();
     expect(screen.getByLabelText('Full name')).toHaveValue('Keep Me');
-  });
-
-  it('cookie-only mode (no token in the reply) still signs the student in', async () => {
-    const api = { register: vi.fn(() => ok({ user: { id: 'u', fullName: 'Cookie Kid', track: 'senior' } })) };
-    const user = userEvent.setup();
-    mount(<V4Register api={api} today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: 'Create account' }));
-    await screen.findByText('DASHBOARD');
-    expect(localStorage.getItem('im_user_token')).toBe('cookie');
   });
 
   it('the privacy summary says only what the system really does, and that the full terms are still coming', async () => {
@@ -254,6 +247,34 @@ describe('GuardianConsent', () => {
     page({ guardianLookup: vi.fn(() => ok({ ...info, emailInUse: true })) });
     expect(await screen.findByText(/different kind of iMenteo account/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Confirm and create my account' })).toBeDisabled();
+  });
+});
+
+describe('VerifyEmail', () => {
+  const verifyPage = api => mount(<VerifyEmail api={api} />, { route: '/verify-email/tok123', path: '/verify-email/:token' });
+
+  it('confirms the email, signs the student in, and continuing goes to their dashboard', async () => {
+    const user = { id: 'u1', fullName: 'Asha Verma', track: 'senior', grade: '11' };
+    const api = { verifyEmail: vi.fn(() => ok({ token: 'TOKEN', user })) };
+    const u = userEvent.setup();
+    verifyPage(api);
+    expect(await screen.findByText('Email confirmed')).toBeInTheDocument();
+    expect(api.verifyEmail).toHaveBeenCalledWith('tok123');
+    expect(localStorage.getItem('im_user_token')).toBe('TOKEN');
+    await u.click(screen.getByRole('button', { name: 'Continue' }));
+    await screen.findByText('DASHBOARD');
+  });
+
+  it('an expired or already-used link is explained, with a way back to sign in', async () => {
+    verifyPage({ verifyEmail: vi.fn(() => Promise.reject(apiErr(404, 'LINK_INVALID_OR_EXPIRED'))) });
+    expect(await screen.findByText(/expired or was already used/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'sign in' })).toBeInTheDocument();
+    expect(localStorage.getItem('im_user_token')).toBeNull();
+  });
+
+  it('a network failure is shown as a generic error, not a crash', async () => {
+    verifyPage({ verifyEmail: vi.fn(() => Promise.reject(new Error('Network Error'))) });
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
   });
 });
 

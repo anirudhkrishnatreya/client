@@ -1,8 +1,6 @@
-import { PLATFORM_ENABLED } from '../../platform/config';
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { v2 as defaultApi } from '../api';
-import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/AuthLayout';
 import PrivacySummary from './PrivacySummary';
 
@@ -24,12 +22,11 @@ export function ageFrom(dob, today = new Date()) {
 const fieldError = (errors, key) => errors[key] && <div className="v4-err" role="alert">{[].concat(errors[key]).join('. ')}</div>;
 
 export default function V4Register({ api = defaultApi, today = new Date() }) {
-  const nav = useNavigate();
-  const { saveSession } = useAuth();
   const [f, setF] = useState({ fullName: '', email: '', password: '', dateOfBirth: '', grade: '', phone: '', classCode: '', guardianName: '', guardianEmail: '', guardianRelationship: 'parent', acceptTerms: false, shareWithSchool: false });
   const [errors, setErrors] = useState({});
   const [general, setGeneral] = useState('');
   const [busy, setBusy] = useState(false);
+  const [sentTo, setSentTo] = useState('');      // set once registration succeeds: shows the "check your email" screen
   const set = k => e => setF(s => ({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const age = useMemo(() => ageFrom(f.dateOfBirth, today), [f.dateOfBirth, today]);
   const minor = age !== null && age < 18;
@@ -49,9 +46,8 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
     };
     setBusy(true);
     try {
-      const { data } = await api.register(body);
-      saveSession(data.token, data.user);
-      nav(PLATFORM_ENABLED ? '/platform/student' : '/v4');
+      await api.register(body);
+      setSentTo(body.email);
     } catch (err) {
       const d = err.response && err.response.data;
       if (d && d.code === 'VALIDATION_FAILED') { setErrors(d.details || {}); if (d.details && (d.details.guardianEmail || d.details.guardianName)) setForceParent(true); }
@@ -61,6 +57,13 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
       else setGeneral('We could not create your account. Please check your connection and try again.');
     } finally { setBusy(false); }
   };
+
+  if (sentTo) return (
+    <AuthLayout wide title="Check your email">
+      <div className="v4-alert ok" role="status">We have sent a confirmation link to <strong>{sentTo}</strong>. Open it to finish creating your account and sign in.</div>
+      <p className="v4-muted" style={{ marginTop: 16 }}>Didn't get it? Check your spam folder, or <Link to="/login">sign in</Link> to resend the link.</p>
+    </AuthLayout>
+  );
 
   return (
     <AuthLayout wide title="Create your account" subtitle="You can use any email address. It takes about two minutes.">

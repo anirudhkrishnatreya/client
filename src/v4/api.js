@@ -3,6 +3,8 @@ import api from '../api';
 
 export const v2 = {
   register: body => api.post('/v2/auth/register', body),
+  verifyEmail: token => api.get(`/v2/auth/verify/${token}`),
+  resendVerification: email => api.post('/v2/auth/verify/resend', { email }),
   completeProfile: body => api.post('/v2/account/complete-profile', body),
   setProfile: body => api.put('/v2/profile', body),
   consent: () => api.get('/v2/consent'),
@@ -26,7 +28,8 @@ export const v2 = {
   report: id => api.get(`/v2/report/${id}`),
   fullReport: id => api.get(`/v2/report/${id}/full`),
   pdf: id => api.get(`/v2/reports/${id}/pdf`, { responseType: 'blob' }),   // when the dashboard says status 'ready'
-  requestPdf: id => api.post(`/v2/reports/${id}/pdf`)
+  requestPdf: id => api.post(`/v2/reports/${id}/pdf`),
+  emailPdf: id => api.post(`/v2/reports/${id}/pdf/email`)
 };
 
 // Counsellor (their own organization only)

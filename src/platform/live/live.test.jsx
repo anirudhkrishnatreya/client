@@ -48,6 +48,48 @@ describe('real dashboards: who may enter', () => {
   });
 });
 
+describe('student: reports', () => {
+  beforeEach(() => signIn({ id: 's1', fullName: 'Asha Verma', role: 'student', grade: '9' }));
+
+  const bundleWith = reports => studentBundle({ reports });
+  const report = (over = {}) => ({ assessmentId: 'a1', track: 'senior', grade: '11', completedAt: new Date().toISOString(), hollandCode: 'IRC', provisional: false, pdf: { status: 'ready' }, ...over });
+
+  it('emails the report right away when it is ready', async () => {
+    routes['get /v2/platform/student'] = bundleWith([report()]);
+    routes['post /v2/reports/a1/pdf/email'] = { success: true, status: 'sent' };
+    const user = userEvent.setup();
+    at('/platform/student/reports');
+    await user.click(await screen.findByRole('button', { name: 'Email me this report' }));
+    expect(await screen.findByText('Emailed to you.')).toBeInTheDocument();
+    expect(calls.some(c => c.method === 'post' && c.url === '/v2/reports/a1/pdf/email')).toBe(true);
+  });
+
+  it('says it will email it once it is ready, when the PDF is still preparing', async () => {
+    routes['get /v2/platform/student'] = bundleWith([report({ pdf: { status: 'preparing' } })]);
+    routes['post /v2/reports/a1/pdf/email'] = { success: true, status: 'queued' };
+    const user = userEvent.setup();
+    at('/platform/student/reports');
+    await user.click(await screen.findByRole('button', { name: 'Email me this report' }));
+    expect(await screen.findByText(/we'll email it the moment it's ready/i)).toBeInTheDocument();
+  });
+
+  it('shows an error and lets the student try again if sending fails', async () => {
+    routes['get /v2/platform/student'] = bundleWith([report()]);
+    routes['post /v2/reports/a1/pdf/email'] = Object.assign(new Error('fail'), { response: { status: 500, data: { error: 'SERVER_ERROR' } } });
+    const user = userEvent.setup();
+    at('/platform/student/reports');
+    await user.click(await screen.findByRole('button', { name: 'Email me this report' }));
+    expect(await screen.findByText(/could not send it/i)).toBeInTheDocument();
+  });
+
+  it('offers no email action for a report with no PDF at all', async () => {
+    routes['get /v2/platform/student'] = bundleWith([report({ pdf: { status: 'unavailable' } })]);
+    at('/platform/student/reports');
+    await screen.findByText('Career Discovery Report');
+    expect(screen.queryByRole('button', { name: 'Email me this report' })).toBeNull();
+  });
+});
+
 describe('student', () => {
   beforeEach(() => signIn({ id: 's1', fullName: 'Asha Verma', role: 'student', grade: '9' }));
 

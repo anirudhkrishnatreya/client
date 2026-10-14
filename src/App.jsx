@@ -21,6 +21,7 @@ import V4Dashboard     from './v4/pages/V4Dashboard';
 import V4Assessment    from './v4/pages/V4Assessment';
 import V4Results       from './v4/pages/V4Results';
 import GuardianConsent from './v4/pages/GuardianConsent';
+import VerifyEmail      from './v4/pages/VerifyEmail';
 import SchoolHome      from './v4/pages/SchoolHome';
 import SchoolClass     from './v4/pages/SchoolClass';
 import SchoolStudent   from './v4/pages/SchoolStudent';
@@ -92,6 +93,7 @@ function AppRoutes() {
         <>
           <Route path="/v4/register"           element={<GuestOnlyV4><V4Register /></GuestOnlyV4>} />
           <Route path="/guardian-consent/:token" element={<GuardianConsent />} />
+          <Route path="/verify-email/:token"   element={<VerifyEmail />} />
           <Route path="/v4"                    element={<RequireUser><V4Dashboard /></RequireUser>} />
           <Route path="/v4/test"               element={<RequireUser><V4Assessment /></RequireUser>} />
           <Route path="/v4/results/:id"        element={<RequireUser><V4Results /></RequireUser>} />

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authLogin } from '../api';
+import { v2 } from '../v4/api';
 import { useAuth } from '../context/AuthContext';
 import { useAssessment } from '../context/AssessmentContext';
 import { V4_ENABLED } from '../v4/config';
@@ -17,10 +18,12 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendState, setResendState] = useState('idle');     // idle | sending | sent
 
   const handleLogin = async (e) => {
     e?.preventDefault();
-    setError('');
+    setError(''); setNeedsVerification(false); setResendState('idle');
     if (!identifier.trim() || !password) return setError('Username/email and password are required');
 
     setLoading(true);
@@ -37,8 +40,19 @@ export default function Login() {
       if (data.resumeState?.hasProgress) { nav('/assessment'); return; }
       nav('/assessment');
     } catch (e) {
-      setError(e.response?.data?.error || 'Login failed. Please check your credentials.');
+      if (e.response?.data?.code === 'NOT_VERIFIED') {
+        setError('Please confirm your email address before signing in. Check your inbox for the link we sent when you registered.');
+        setNeedsVerification(true);
+      } else {
+        setError(e.response?.data?.error || 'Login failed. Please check your credentials.');
+      }
     } finally { setLoading(false); }
+  };
+
+  const resend = async () => {
+    setResendState('sending');
+    try { await v2.resendVerification(identifier.trim()); setResendState('sent'); }
+    catch { setResendState('sent'); }      // the endpoint never reveals whether the address exists
   };
 
   return (
@@ -48,6 +62,11 @@ export default function Login() {
       footer={<>New to iMenteo? <Link to={V4_ENABLED ? '/v4/register' : '/register'}>Create an account</Link></>}
     >
       {error && <div className="au-error" role="alert">{error}</div>}
+      {needsVerification && (
+        resendState === 'sent'
+          ? <p className="au-muted" role="status">If that address has an account, we have sent a new link.</p>
+          : <button type="button" className="au-link" onClick={resend} disabled={resendState === 'sending'}>{resendState === 'sending' ? 'Sending…' : 'Resend the confirmation email'}</button>
+      )}
       <form onSubmit={handleLogin} noValidate>
         <div className="au-field">
           <label htmlFor="login-id">Email or username</label>
