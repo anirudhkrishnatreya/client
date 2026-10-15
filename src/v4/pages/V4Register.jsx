@@ -1,8 +1,50 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { v2 as defaultApi } from '../api';
+import { useAuth } from '../../context/AuthContext';
+import { homeRouteFor } from '../../utils/homeRoute';
 import AuthLayout from '../../components/AuthLayout';
 import PrivacySummary from './PrivacySummary';
+
+const RESEND_COOLDOWN_S = 120;
+
+/** Shown after registering. Confirming the link in another tab signs this tab in too (AuthContext picks up the
+ * `storage` event), so this screen watches for that and moves on by itself — no need to come back and click anything. */
+function CheckEmail({ email, api }) {
+  const nav = useNavigate();
+  const { isLoggedIn, user } = useAuth();
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_S);
+  const [resendState, setResendState] = useState('idle');      // idle | sending | sent | error
+  const timer = useRef(null);
+
+  useEffect(() => {
+    if (isLoggedIn) nav(homeRouteFor(user), { replace: true });
+  }, [isLoggedIn, user, nav]);
+
+  useEffect(() => {
+    timer.current = setInterval(() => setCooldown(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(timer.current);
+  }, []);
+
+  const resend = async () => {
+    setResendState('sending');
+    try { await api.resendVerification(email); setResendState('sent'); setCooldown(RESEND_COOLDOWN_S); }
+    catch { setResendState('error'); }
+  };
+
+  return (
+    <AuthLayout wide title="Check your email">
+      <div className="v4-alert ok" role="status">We have sent a confirmation link to <strong>{email}</strong>. Open it to finish creating your account and sign in.</div>
+      <p className="v4-muted" style={{ marginTop: 16 }}>Didn't get it? Check your spam folder, then request a new one below.</p>
+      {resendState === 'sent' && <p className="v4-alert ok" role="status" style={{ marginTop: 12 }}>A new link is on its way.</p>}
+      {resendState === 'error' && <p className="v4-err" role="alert" style={{ marginTop: 12 }}>We could not resend it. Please check your connection and try again.</p>}
+      <button type="button" className="v4-btn secondary" style={{ marginTop: 12 }} disabled={cooldown > 0 || resendState === 'sending'} onClick={resend}>
+        {resendState === 'sending' ? 'Sending…' : cooldown > 0 ? `Resend email in ${cooldown}s` : 'Resend email'}
+      </button>
+      <p className="v4-muted" style={{ marginTop: 16, textAlign: 'center' }}>Wrong address? <Link to="/v4/register">Start again</Link></p>
+    </AuthLayout>
+  );
+}
 
 export const GRADE_OPTIONS = [
   ...['6', '7', '8', '9', '10', '11', '12'].map(g => [g, `Class ${g}`]),
@@ -58,12 +100,7 @@ export default function V4Register({ api = defaultApi, today = new Date() }) {
     } finally { setBusy(false); }
   };
 
-  if (sentTo) return (
-    <AuthLayout wide title="Check your email">
-      <div className="v4-alert ok" role="status">We have sent a confirmation link to <strong>{sentTo}</strong>. Open it to finish creating your account and sign in.</div>
-      <p className="v4-muted" style={{ marginTop: 16 }}>Didn't get it? Check your spam folder, or <Link to="/login">sign in</Link> to resend the link.</p>
-    </AuthLayout>
-  );
+  if (sentTo) return <CheckEmail email={sentTo} api={api} />;
 
   return (
     <AuthLayout wide title="Create your account" subtitle="You can use any email address. It takes about two minutes.">

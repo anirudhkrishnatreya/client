@@ -38,6 +38,20 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
+  // ── Pick up a sign-in (or sign-out) that happened in another tab — the `storage` event only fires in tabs
+  // other than the one that made the change, which is exactly the case this is for: a student opens the
+  // "check your email" screen, clicks the confirmation link in a new tab, and this tab should notice.
+  useEffect(() => {
+    const onStorage = e => {
+      if (e.key !== null && e.key !== TOKEN_KEY && e.key !== USER_KEY) return;
+      const tok = localStorage.getItem(TOKEN_KEY);
+      if (!tok) { setToken(null); setUser(null); return; }
+      try { setUser(JSON.parse(localStorage.getItem(USER_KEY))); setToken(tok); } catch { /* ignore */ }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   // ── Persist session
   const saveSession = useCallback((tok, userData) => {
     // in cookie-only mode the server returns no token: remember that the session is the cookie

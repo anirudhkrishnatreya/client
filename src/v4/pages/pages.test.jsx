@@ -133,6 +133,58 @@ describe('V4Register', () => {
     expect(screen.getByText(/The default is no/)).toBeInTheDocument();
     expect(screen.getByText(/full terms are being finalised/i)).toBeInTheDocument();
   });
+
+  describe('the "check your email" screen', () => {
+    const open = async api => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      mount(<V4Register api={api} today={TODAY} />);
+      await fill(user);
+      await user.selectOptions(screen.getByLabelText('Your class or year'), 'ug2');
+      await user.click(screen.getByLabelText(/I have read the summary/));
+      await user.click(screen.getByRole('button', { name: 'Create account' }));
+      await screen.findByText('Check your email');
+      return user;
+    };
+
+    beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
+    afterEach(() => vi.useRealTimers());
+
+    it('starts a 120-second cooldown; resend is disabled until it elapses, then sends and restarts it', async () => {
+      const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u1', fullName: 'Asha Verma', email: 'asha@example.com', isVerified: false } })), resendVerification: vi.fn(() => ok({ success: true })) };
+      await open(api);
+      expect(screen.getByRole('button', { name: 'Resend email in 120s' })).toBeDisabled();
+      await vi.advanceTimersByTimeAsync(119000);
+      expect(screen.getByRole('button', { name: 'Resend email in 1s' })).toBeDisabled();
+      await vi.advanceTimersByTimeAsync(1000);
+      const btn = screen.getByRole('button', { name: 'Resend email' });
+      expect(btn).toBeEnabled();
+
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      await user.click(btn);
+      expect(api.resendVerification).toHaveBeenCalledWith('asha@example.com');
+      expect(await screen.findByText('A new link is on its way.')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Resend email in 120s' })).toBeDisabled();
+    });
+
+    it('shows an error and keeps the cooldown running if the resend request fails', async () => {
+      const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u1', fullName: 'Asha Verma', email: 'asha@example.com', isVerified: false } })), resendVerification: vi.fn(() => Promise.reject(new Error('network'))) };
+      await open(api);
+      await vi.advanceTimersByTimeAsync(120000);
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      await user.click(screen.getByRole('button', { name: 'Resend email' }));
+      expect(await screen.findByText(/could not resend it/i)).toBeInTheDocument();
+    });
+
+    it('confirming the link in another tab is picked up automatically, with no click needed here', async () => {
+      const api = { register: vi.fn(() => ok({ success: true, verificationRequired: true, user: { id: 'u1', fullName: 'Asha Verma', email: 'asha@example.com', isVerified: false } })) };
+      await open(api);
+      expect(screen.queryByText('DASHBOARD')).toBeNull();
+      localStorage.setItem('im_user_token', 'TOKEN');
+      localStorage.setItem('im_user', JSON.stringify({ id: 'u1', fullName: 'Asha Verma', track: 'college' }));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'im_user_token', newValue: 'TOKEN' }));
+      await waitFor(() => expect(screen.getByText('DASHBOARD')).toBeInTheDocument());
+    });
+  });
 });
 
 describe('GuardianConsent', () => {
