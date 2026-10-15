@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { homeRouteFor } from '../../utils/homeRoute';
 import { v2 as defaultApi, errorCode } from '../api';
 import Frame from './Frame';
 import FullReport from './FullReport';
@@ -13,6 +15,8 @@ const BAND = { developing: 'Developing', moderate: 'Moderate', strong: 'Strong' 
 // being reviewed the server says "not ready", and the student sees the plain scores instead, with a short explanation.
 export default function V4Results({ api = defaultApi }) {
   const { id } = useParams();
+  const { user } = useAuth();
+  const home = homeRouteFor(user);
   const [report, setReport] = useState(null);
   const [plain, setPlain] = useState(null);
   const [state, setState] = useState('loading');
@@ -26,14 +30,15 @@ export default function V4Results({ api = defaultApi }) {
   }, [api, id]);
 
   if (state === 'loading') return <Frame><p role="status">Loading your results…</p></Frame>;
-  if (state === 'missing') return <Frame title="Results not found"><p>We could not find those results.</p><Link className="v4-btn" to="/v4">Back to your page</Link></Frame>;
+  if (state === 'missing') return <Frame title="Results not found"><p>We could not find those results.</p><Link className="v4-btn" to={home}>Back to your dashboard</Link></Frame>;
   if (state === 'error') return <Frame><div className="v4-alert error" role="alert">We could not load your results.</div></Frame>;
 
   if (state === 'full') {
     return (
       <Frame bare>
+        <p style={{ padding: '12px clamp(16px, 3vw, 40px) 0' }}><Link className="v4-btn secondary" to={home}>← Back to dashboard</Link></p>
         <FullReport report={report} />
-        <p style={{ textAlign: 'center', padding: '0 16px 64px' }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
+        <p style={{ textAlign: 'center', padding: '0 16px 64px' }}><Link className="v4-btn" to={home}>Back to your dashboard</Link></p>
       </Frame>
     );
   }
@@ -45,7 +50,7 @@ export default function V4Results({ api = defaultApi }) {
           <ReportView r={plain} />
         </>
       )}
-      <p style={{ marginTop: 16 }}><Link className="v4-btn secondary" to="/v4">Back to your page</Link></p>
+      <p style={{ marginTop: 16 }}><Link className="v4-btn secondary" to={home}>Back to your dashboard</Link></p>
     </Frame>
   );
 }

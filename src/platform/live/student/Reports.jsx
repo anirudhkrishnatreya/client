@@ -4,6 +4,7 @@ import { usePlatform } from '../../data/store';
 import { Card, Empty, Icon, PageHead, Pill } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
 import { v2 } from '../../../v4/api';
+import FinishedBanner from '../../../v4/pages/FinishedBanner';
 
 export default function LiveReports() {
   const { data } = usePlatform();
@@ -15,6 +16,7 @@ export default function LiveReports() {
   };
   return (
     <>
+      <FinishedBanner className="pf-note" />
       <PageHead eyebrow="Reports" title="Your reports">Your Career Discovery Report, and the weekly and monthly progress reports as they are added.</PageHead>
       {data.reports.length === 0 ? <Card><Empty icon="file" title="No reports yet">Finish the career assessment and your first report will appear here.</Empty><p style={{ textAlign: 'center' }}><Link to="/v4" className="pf-btn sm">Go to the career assessment</Link></p></Card> :
         <div className="pf-grid">{data.reports.map(r => (

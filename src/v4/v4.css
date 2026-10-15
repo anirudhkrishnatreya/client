@@ -77,3 +77,4 @@ table th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; co
 .v4-plan h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
 .v4-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
 @media (max-width: 520px) { .v4-cols { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .v4-hide-sm { display: none; } }

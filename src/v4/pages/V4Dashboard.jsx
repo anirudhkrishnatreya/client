@@ -4,6 +4,7 @@ import { v2 as defaultApi, errorCode } from '../api';
 import { useAuth } from '../../context/AuthContext';
 import Frame from './Frame';
 import PrivacySummary from './PrivacySummary';
+import FinishedBanner from './FinishedBanner';
 import { GRADE_OPTIONS, ageFrom } from './V4Register';
 
 const TRACK_OF = g => (['6', '7', '8', '9'].includes(g) ? 'junior' : ['10', '11', '12'].includes(g) ? 'senior' : 'college');
@@ -43,6 +44,7 @@ export default function V4Dashboard({ api = defaultApi, today = new Date() }) {
 
   return (
     <Frame title={`Welcome, ${(user && user.fullName || '').split(' ')[0]}`}>
+      <FinishedBanner />
       {msg && <div className="v4-alert info" role="status">{msg}</div>}
 
       {needsProfile && <CompleteProfile api={api} user={user} consent={consent} today={today} onDone={async () => { refreshUser && refreshUser({}); await load(); }} />}

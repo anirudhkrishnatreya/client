@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { homeRouteFor } from '../../utils/homeRoute';
 import logoImg from '../../assets/landing/logo.png';
 import '../v4.css';
 
@@ -11,10 +12,11 @@ export default function Frame({ children, title, narrow = false, bare = false })
   return (
     <div className="v4-shell">
       <header className="v4-top">
-        <Link to={user ? '/v4' : '/'} aria-label="iMenteo home"><img src={logoImg} alt="iMenteo" /></Link>
+        <Link to={user ? homeRouteFor(user) : '/'} aria-label="iMenteo home"><img src={logoImg} alt="iMenteo" /></Link>
         {user && (
           <div className="v4-row" style={{ gap: 12 }}>
-            <span className="v4-muted">{user.fullName}</span>
+            <Link className="v4-btn secondary" style={{ padding: '6px 14px', minHeight: 36 }} to={homeRouteFor(user)}>Dashboard</Link>
+            <span className="v4-muted v4-hide-sm">{user.fullName}</span>
             <button className="v4-btn secondary" style={{ padding: '6px 14px', minHeight: 36 }} onClick={() => { auth.clearSession(); nav('/login'); }}>Sign out</button>
           </div>
         )}
