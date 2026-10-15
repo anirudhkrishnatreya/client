@@ -25,25 +25,25 @@ export const LINE_ICONS = {
 };
 
 export const WEEKS = [
-  { n: 1, title: 'Know where you fit', items: [
-    { img: iconSurvey, title: 'Your starting point', text: 'Your background, your strengths and what you want to do.' },
-    { img: iconGauge, title: 'A quick assessment', text: 'Answer at your own pace. Your results are ready as soon as you finish.' },
+  { n: 1, title: 'Start where you are', items: [
+    { img: iconSurvey, title: 'Name your dream', text: 'Say what you want to become, even if it is only a rough idea.' },
+    { img: iconGauge, title: 'Find your level', text: 'A short assessment shows what you know, what you enjoy and where to begin.' },
     { img: iconReport, title: 'Your career fit report', text: 'The paths that suit you best, your strengths, and the skills to build first.' }
   ],
   emojis: ['sparkles', 'target', 'heart', 'bulb', 'bolt', 'flag', 'award'],
   art: { cardA: card1, captionA: 'Tell us about you: background, strengths, goals.', cardB: card2, captionB: 'Tell us about you: background, strengths, goals.', blob: blob1, blobSize: [174, 174], round: PHOTO.p10638081 } },
-  { n: 2, title: 'Your mentor, ready', items: [
-    { icon: 'match', title: 'It learns your goals', text: 'Your AI mentor starts from your report, your goals and your marks.' },
-    { icon: 'session', title: 'A real mentor joins in', text: 'A person checks the fit, goes through your report with you and sets your goals.' },
-    { icon: 'plan', title: 'Your plan for the week', text: 'A simple plan you can start on today, built around your goal.' }
+  { n: 2, title: 'Learn at your pace', items: [
+    { icon: 'match', title: 'A path made for you', text: 'Your goal becomes a step-by-step path, sized to the time you have.' },
+    { icon: 'session', title: 'The right things to study', text: 'Lessons, practice and sources picked for your level, not a pile of links.' },
+    { icon: 'plan', title: 'Doubts cleared, any hour', text: 'Stuck on something? Ask. You get a plain answer, and your plan adjusts.' }
   ],
   emojis: ['users', 'target', 'message', 'heart', 'star', 'calendar', 'flag'],
-  art: { cardA: PHOTO.p8419640, captionA: 'A mentor that already knows your goals.', cardB: PHOTO.p4308097, captionB: 'Your first session, set up for you.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
-  { n: 3, title: 'Keep moving', items: [
-    { icon: 'week', title: 'Check-ins, any hour', text: 'Ask for help, get a nudge, or change your plan whenever you need to.' },
-    { icon: 'check', title: 'A plan that adjusts', text: 'Fall behind or get ahead and your week changes with you. Your mentor reviews the big moves.' },
-    { icon: 'growth', title: 'Progress you can see', text: 'You and your parents can follow your growth through reports and mentor notes.' }
+  art: { cardA: PHOTO.p8419640, captionA: 'A path made for your goal.', cardB: PHOTO.p4308097, captionB: 'Lessons picked for your level.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
+  { n: 3, title: 'Keep growing', items: [
+    { icon: 'week', title: 'Levels that rise with you', text: 'As you master things, your path moves from the basics toward advanced work.' },
+    { icon: 'check', title: 'Quizzes that find the gaps', text: 'Short checks show what to revisit, and the platform fixes your plan for you.' },
+    { icon: 'growth', title: 'Progress everyone can see', text: 'You and your parents can follow how far you have come. Mentors step in for the big calls.' }
   ],
   emojis: ['trend', 'award', 'book', 'bolt', 'check', 'cap', 'star'],
-  art: { cardA: PHOTO.p7683820, captionA: 'Clear next steps after every check-in.', cardB: PHOTO.p30858451, captionB: 'Progress that shows up week by week.', blobPhoto: PHOTO.p7129712, blobMask: hero2, blobSize: [158, 174], round: PHOTO.p21006242 } }
+  art: { cardA: PHOTO.p7683820, captionA: 'Gaps found early, fixed early.', cardB: PHOTO.p30858451, captionB: 'Progress that shows up week by week.', blobPhoto: PHOTO.p7129712, blobMask: hero2, blobSize: [158, 174], round: PHOTO.p21006242 } }
 ];

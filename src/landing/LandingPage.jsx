@@ -57,7 +57,7 @@ function HeroDesktop() {
         <nav aria-label="Main" className="lp-hlinks">
           <a href="#top" className="lp-hpill" onClick={toTop}>Home</a>
           <button type="button" className="lp-hlink" onClick={() => goTo('how-it-works')}>How it works<img src={chevron} alt="" /></button>
-          <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>AI mentor<img src={chevron} alt="" /></button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>The platform<img src={chevron} alt="" /></button>
           <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About</button>
           <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact</button>
         </nav>
@@ -75,9 +75,9 @@ function HeroDesktop() {
       </div>
 
       <div className="lp-hbody">
-        <h1 className="lp-hh1"><span className="l1">Your 24/7</span><span className="l2">AI mentor</span><span className="l3">for <i>what’s next</i></span></h1>
+        <h1 className="lp-hh1"><span className="l1">From zero</span><span className="l2">to your dream,</span><span className="l3">at <i>your pace</i></span></h1>
         <div className="lp-hside">
-          <p>iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
+          <p>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
           <div className="lp-hcta">
             <Link to={acct.label === 'My dashboard' ? acct.to : SIGNUP} className="lp-btn lp-herobtn">{acct.label === 'My dashboard' ? 'Open my dashboard' : 'Take the career assessment'}</Link>
             <button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button>
@@ -103,7 +103,7 @@ function HeroMobile() {
           <nav id="lp-menu" className="lp-menu" aria-label="Main">
             <a href="#top" onClick={e => { toTop(e); setOpen(false); }}>Home</a>
             <button type="button" onClick={() => { setOpen(false); goTo('how-it-works'); }}>How it works</button>
-            <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>AI mentor</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>The platform</button>
             <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About</button>
             <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact</button>
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
@@ -111,8 +111,8 @@ function HeroMobile() {
         )}
       </header>
       <div className="lp-strip" aria-hidden="true"><div className="lp-strip-in">{[...strip, ...strip].map(([src, cls], i) => <img key={i} src={src} alt="" className={`lp-sp ${cls}`} />)}</div></div>
-      <h1 className="lp-mh1">YOUR 24/7<br />AI MENTOR<br />FOR <i>WHAT’S NEXT</i></h1>
-      <p className="lp-mlede">iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
+      <h1 className="lp-mh1">FROM ZERO<br />TO YOUR DREAM,<br />AT <i>YOUR PACE</i></h1>
+      <p className="lp-mlede">iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
       <div className="lp-mcta"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link><button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button></div>
       <div className="lp-mtagrow" aria-hidden="true">{TAGS.map((t, i) => <span key={t} className={`lp-chip m c${i % 4}`} style={{ transform: `rotate(${[-4, 3, -2, 5][i % 4]}deg)` }}>{t}</span>)}</div>
     </div>

@@ -29,22 +29,22 @@ import upArrow from '../assets/landing/p-arrow.svg';
 const at = (left, top, extra = {}) => ({ position: 'absolute', left, top, ...extra });
 const signUp = V4_ENABLED ? '/v4/register' : '/register';
 const MENTOR_CARDS = [
-  [653, 830, 'user', 'Tell us about you', 'Your goals, your interests and where you need help.'],
+  [653, 830, 'user', 'Tell us your dream', 'Your goal, your interests and where you are today.'],
   [653, 980, 'clipboard', 'Take the assessment', 'A few short sittings you can pause. Answers save as you go.'],
-  [883, 870, 'users', 'Meet your AI mentor', 'It builds your plan from your results and your goals.'],
-  [883, 1020, 'flag', 'Start your first week', 'Get clear tasks, with a real mentor checking in.']
+  [883, 870, 'users', 'Get your path', 'A plan to learn step by step, at your pace.'],
+  [883, 1020, 'flag', 'Start learning', 'Lessons, practice and answers to your doubts in one place.']
 ];
-const PROFILE_CARDS = [[737, 1620, 'calendar', 'Weekly plan'], [737, 1730, 'tasks', 'Daily tasks'], [973, 1620, 'chart', 'Progress reports'], [973, 1730, 'heart', 'Parent view']];
+const PROFILE_CARDS = [[737, 1620, 'calendar', 'Learning path'], [737, 1730, 'tasks', 'Daily practice'], [973, 1620, 'chart', 'Progress reports'], [973, 1730, 'heart', 'Parent view']];
 const TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
-const BULLETS = ['An AI mentor that knows your goals', 'A weekly plan that adjusts as you go', 'A real mentor for the big decisions', 'Progress your parents can follow'];
+const BULLETS = ['A path that starts at your level', 'Resources picked for what you need', 'Doubts answered any time you ask', 'Progress your parents can follow'];
 
 /** An example mentor-session card, drawn in code (the Figma picture of one named a real-looking person). */
 function SessionExample({ style }) {
   return (
     <div className="lp-sess" style={style}>
       <span className="lp-sess-tag">Example</span>
-      <div className="lp-sess-top"><span className="lp-sess-av">AI</span><div><b>Daily check-in</b><small>Today · 7:30 pm</small></div></div>
-      <p>You finished 3 of 4 tasks. Want to move the maths revision to tomorrow?</p>
+      <div className="lp-sess-top"><span className="lp-sess-av">AI</span><div><b>Doubt cleared</b><small>Today · 7:30 pm</small></div></div>
+      <p>Why do vectors have direction? Here is a two-minute explanation.</p>
     </div>
   );
 }
@@ -71,8 +71,8 @@ function GetStartedDesktop() {
   return (
     <Fit w={1280} h={1985} className="lp-s6">
       <img src={burstRed} alt="" aria-hidden="true" style={at(352, 26, { width: 120, height: 120 })} />
-      <h2 className="lp-s6h" style={at(0, 68, { width: 1280 })}>Get Started on<br />Your Future</h2>
-      <p className="lp-s6p" style={at(305, 174, { width: 610 })}>iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
+      <h2 className="lp-s6h" style={at(0, 68, { width: 1280 })}>Your Whole Journey,<br />One Platform</h2>
+      <p className="lp-s6p" style={at(305, 174, { width: 610 })}>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
       <Link to={signUp} className="lp-btn" style={at(565, 243, { width: 150 })}>Start now</Link>
 
       {/* three tiles */}
@@ -80,7 +80,7 @@ function GetStartedDesktop() {
       <div style={at(120, 322, { width: 314, height: 380, overflow: 'hidden' })}>
         <img src={blob} alt="" style={at(-12.46, 35, { width: 336.911, height: 362 })} />
         <img src={woman} alt="" style={at(-63, 91, { width: 432, height: 288, objectFit: 'cover' })} />
-        <p className="lp-create" style={at(22, 33)}>Ask.<br />Plan. Do.</p>
+        <p className="lp-create" style={at(22, 33)}>Learn.<br />Grow.</p>
         <img src={star} alt="" style={at(208, 10, { width: 101, height: 101 })} />
         <div style={at(46, 111, { width: 41, height: 41 })}><img src={emojiA} alt="" style={{ width: 41, height: 41 }} /></div>
         <span className="lp-e" style={at(46, 111, { width: 41, height: 38, color: '#0f3ee4' })}><Icon name="users" size={22} stroke={2} /></span>
@@ -95,7 +95,7 @@ function GetStartedDesktop() {
       {/* find your perfect mentor */}
       <div style={at(119, 761, { width: 1043, height: 426, borderRadius: 20, background: 'linear-gradient(to bottom, rgba(32,81,253,.2), rgba(32,81,253,.06))' })} />
       <div className="lp-tag" style={at(168, 810, { width: 200 })}><Icon name="sparkles" size={16} stroke={2.2} />FOR STUDENTS</div>
-      <h2 className="lp-s6big" style={at(168, 879)}>Meet Your<br />AI Mentor<br />in <i>4 Steps</i></h2>
+      <h2 className="lp-s6big" style={at(168, 879)}>Begin Your<br />Journey<br />in <i>4 Steps</i></h2>
       <img src={ringMinutes} alt="" aria-hidden="true" style={at(212, 964.9, { width: 262, height: 137 })} />
       <Link to={signUp} className="lp-btn lp-btn-arrow" style={at(172, 1091, { width: 182 })}>Set up now<img src={arrow} alt="" style={{ width: 20, height: 14.7 }} /></Link>
       <div className="lp-dash" style={at(797, 813, { width: 192, height: 94, borderBottom: 0 })} />
@@ -146,17 +146,17 @@ function GetStartedDesktop() {
 function GetStartedMobile() {
   return (
     <div className="lp-m6">
-      <div className="lp-m6head"><img src={burstRed} alt="" aria-hidden="true" className="lp-m6burst" /><h2>Get Started on Your Future</h2></div>
-      <p className="lp-m6lead">iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
+      <div className="lp-m6head"><img src={burstRed} alt="" aria-hidden="true" className="lp-m6burst" /><h2>Your Whole Journey, One Platform</h2></div>
+      <p className="lp-m6lead">iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
       <Link to={signUp} className="lp-btn static">Start now</Link>
       <div className="lp-m6tiles">
-        <div className="lp-m6tile blue"><img src={blob} alt="" className="blob" /><img src={woman} alt="" className="woman" /><p>Ask.<br />Plan. Do.</p><img src={star} alt="" className="star" /></div>
+        <div className="lp-m6tile blue"><img src={blob} alt="" className="blob" /><img src={woman} alt="" className="woman" /><p>Learn.<br />Grow.</p><img src={star} alt="" className="star" /></div>
         <div className="lp-m6tile grey"><SessionExample style={{ position: 'relative', width: '86%', height: 'auto', padding: '16px 18px' }} /></div>
         <div className="lp-m6tile photo"><img src={laptopMan} alt="A student working on a laptop" /></div>
       </div>
       <div className="lp-m6panel">
         <span className="lp-tag static"><Icon name="sparkles" size={16} stroke={2.2} />FOR STUDENTS</span>
-        <h2 className="lp-m6big">Meet Your AI Mentor in <i>4 Steps</i></h2>
+        <h2 className="lp-m6big">Begin Your Journey in <i>4 Steps</i></h2>
         <Link to={signUp} className="lp-btn lp-btn-arrow static">Set up now<img src={arrow} alt="" style={{ width: 20, height: 14.7 }} /></Link>
         <div className="lp-m6cards">{MENTOR_CARDS.map(([, , e, t, d]) => <div key={t} className="lp-mcard"><span className="lp-m6e"><Icon name={e} size={16} stroke={2} /></span><b>{t}</b><p>{d}</p></div>)}</div>
       </div>
@@ -188,11 +188,11 @@ function PracticeDesktop() {
       <div className="lp-s7card" style={at(119, 20, { width: 1043, height: 694 })} />
       <div style={at(123, 21, { width: 1039, height: 686, overflow: 'hidden' })}>
         <img src={waves} alt="" aria-hidden="true" style={at(-944.91, -270.11, { width: 1539.82, height: 1174.227 })} />
-        <div className="lp-tag shadow wide" style={at(410, 31, { width: 220 })}><Icon name="calendar" size={16} stroke={2.2} />YOUR WEEK</div>
+        <div className="lp-tag shadow wide" style={at(410, 31, { width: 220 })}><Icon name="calendar" size={16} stroke={2.2} />AT YOUR PACE</div>
         <img src={burstRed} alt="" aria-hidden="true" style={at(771, 12, { width: 120, height: 120 })} />
-        <h2 className="lp-s7h" style={at(0, 104, { width: 1034 })}>Plan Your Week &amp;<br />Make It Count</h2>
-        <p className="lp-s6p" style={at(212, 223, { width: 610 })}>iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
-        <div style={at(0, 0)}>{card(147, 324.5, true, 'clock', 'Plan Your Week', 'Your mentor builds the week with you, and moves things around when life gets busy.')}{card(537, 714.5, false, 'file', 'Track Progress', 'Every session and task is logged with clear next steps, so nothing gets lost.')}</div>
+        <h2 className="lp-s7h" style={at(0, 104, { width: 1034 })}>Learn at Your Pace &amp;<br />Make It Stick</h2>
+        <p className="lp-s6p" style={at(212, 223, { width: 610 })}>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+        <div style={at(0, 0)}>{card(147, 324.5, true, 'clock', 'A Path Made for You', 'Your goal becomes a plan sized to your time, and it changes when life gets busy.')}{card(537, 714.5, false, 'file', 'Always on Track', 'Every lesson and quiz is tracked, so the next step is always clear.')}</div>
       </div>
     </Fit>
   );
@@ -201,10 +201,10 @@ function PracticeDesktop() {
 function PracticeMobile() {
   return (
     <div className="lp-m7">
-      <span className="lp-tag static shadow"><Icon name="calendar" size={16} stroke={2.2} />YOUR WEEK</span>
-      <h2>Plan Your Week &amp; Make It Count</h2>
-      <p>iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
-      <div className="lp-m7cards">{[['clock', 'Plan Your Week', 'Your mentor builds the week with you, and moves things around when life gets busy.', true], ['file', 'Track Progress', 'Every session and task is logged with clear next steps, so nothing gets lost.', false]].map(([e, t, d, arrow]) => (
+      <span className="lp-tag static shadow"><Icon name="calendar" size={16} stroke={2.2} />AT YOUR PACE</span>
+      <h2>Learn at Your Pace &amp; Make It Stick</h2>
+      <p>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+      <div className="lp-m7cards">{[['clock', 'A Path Made for You', 'Your goal becomes a plan sized to your time, and it changes when life gets busy.', true], ['file', 'Always on Track', 'Every lesson and quiz is tracked, so the next step is always clear.', false]].map(([e, t, d, arrow]) => (
         <div key={t} className="lp-pc"><span className="lp-m7clock"><Icon name={e} size={26} stroke={1.9} /></span><h3>{t}</h3><i /><p>{d}</p><button type="button" className="lp-btn lp-btn-arrow static" onClick={() => { const el = document.getElementById('who'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>Know more{arrow && <img src={upArrow} alt="" style={{ width: 19.8, height: 13.3, transform: 'rotate(-40.91deg)' }} />}</button></div>
       ))}</div>
     </div>
@@ -212,4 +212,4 @@ function PracticeMobile() {
 }
 
 export function GetStarted() { const wide = useMedia('(min-width: 1024px)', true); return <section id="get-started" aria-label="Get started" className="lp-lower">{wide ? <GetStartedDesktop /> : <GetStartedMobile />}</section>; }
-export function Practice() { const wide = useMedia('(min-width: 1024px)', true); return <section id="practice" aria-label="Plan your week" className="lp-lower lp-lower7">{wide ? <PracticeDesktop /> : <PracticeMobile />}</section>; }
+export function Practice() { const wide = useMedia('(min-width: 1024px)', true); return <section id="practice" aria-label="Learn at your pace" className="lp-lower lp-lower7">{wide ? <PracticeDesktop /> : <PracticeMobile />}</section>; }

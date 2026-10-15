@@ -45,16 +45,16 @@ const Example = () => <span className="lpx-eg">Example</span>;
 
 /* ── Why iMenteo ───────────────────────────────────────── */
 const WHY = [
-  ['target', 'It gets to know you', 'A career assessment looks at your interests, personality, abilities, emotional intelligence and values. Then our AI engine turns that into careers worth exploring, with the reasons why.'],
-  ['users', 'It acts, it does not just answer', 'Your AI mentor plans your week, sets tasks, checks in and adjusts when you fall behind. You never have to remember to ask.'],
-  ['trend', 'A real mentor for the big calls', 'A person is matched to you, checks the fit and steps in when the decision matters. Parents can follow along too.']
+  ['target', 'It starts where you are', 'A short assessment finds your level, your interests and your strengths. Nobody begins somewhere too easy or too hard.'],
+  ['trend', 'It grows with you', 'Your path rises from the basics to advanced work as you improve. It speeds up when you are ready and slows down when you need time.'],
+  ['users', 'It handles the rest', 'It picks what to study, gives you the resources, clears your doubts and keeps you on track. Real mentors and parents stay in the loop.']
 ];
-const FACTS = [['24/7', 'an AI mentor that checks in on you'], ['480+', 'careers you can explore'], ['5', 'things the assessment looks at'], ['Parent', 'view for every school student']];
+const FACTS = [['Level 0', 'to advanced, on one path'], ['480+', 'careers you can aim for'], ['5', 'things the assessment looks at'], ['Parent', 'view for every school student']];
 export function Why() {
   return (
     <section id="about" className="lpx lpx-why" aria-label="Why iMenteo">
       <img src={burst} alt="" aria-hidden="true" className="lpx-burst" style={{ left: 'calc(50% - 360px)', top: 8 }} />
-      <Reveal className="lpx-head"><Tag icon="bulb">WHY IMENTEO</Tag><h2>Advice is easy to find.<br />Follow-through is <Circled>hard</Circled>.</h2><p>Most students get advice once and then lose the thread. iMenteo is an AI mentor that stays with you after the advice: it plans, nudges and keeps score.</p></Reveal>
+      <Reveal className="lpx-head"><Tag icon="bulb">WHY IMENTEO</Tag><h2>Not another app.<br />A system that <Circled>grows</Circled> with you.</h2><p>Most students jump between videos, tuition and advice with no plan. iMenteo is one platform that walks with a student from the first step to advanced work, at their own pace, with everything in one place.</p></Reveal>
       <div className="lpx-cards3">{WHY.map(([e, t, d], i) => <Reveal key={t} className="lpx-card" delay={i * 90}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
       <Reveal className="lpx-facts">{FACTS.map(([n, t]) => <div key={n}><b>{n}</b><span>{t}</span></div>)}</Reveal>
     </section>
@@ -72,7 +72,7 @@ export function Assessment() {
         <Reveal className="lpx-panel-copy">
           <Tag icon="target">THE CAREER ASSESSMENT</Tag>
           <h2 className="lpx-h">Find out what <Circled>fits</Circled> you.</h2>
-          <p>Take it at your own pace, over a few sittings. Your answers save as you go. You get a clear report to keep, and an AI mentor that starts from it.</p>
+          <p>Take it at your own pace, over a few sittings. It shows where you stand today and what suits you, and it becomes the starting point of your learning path.</p>
           <div className="lpx-chips">{DIMS.map(([c, t]) => <span key={t} className={`lpx-chip ${c}`}>{t}</span>)}</div>
           <p className="lpx-small">Three tracks, so the questions fit your age: <b>Class 6 to 9</b>, <b>Class 10 to 12</b> and <b>College</b>.</p>
           <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
@@ -90,7 +90,7 @@ export function Assessment() {
 
 /* ── For everyone ──────────────────────────────────────── */
 const ROLES = {
-  students: { label: 'Students', icon: 'cap', title: 'Know what you are good at, and what to do next.', points: ['Take the career assessment at your own pace and keep your report.', 'Get an AI mentor that plans your week and checks in on you.', 'Meet your real mentor for the big decisions.', 'Set a goal, even a rough one, and let it shape your weeks.'], cta: 'Start as a student', preview: 'student' },
+  students: { label: 'Students', icon: 'cap', title: 'Learn what you need, at your own pace.', points: ['Start from where you are, whatever your level.', 'Get resources picked for you, and a path that grows as you do.', 'Ask your doubts any time and get clear answers.', 'Aim at one dream and see how far you have come.'], cta: 'Start as a student', preview: 'student' },
   mentors: { label: 'Mentors', icon: 'users', title: 'Spend your time on the conversation, not the admin.', points: ['See your students, their reports and their tasks in one place.', 'Get AI-written summaries before you meet, and fix anything before it is shared.', 'Record notes, set action items and choose what parents can see.', 'Spot who needs you most this week.'], cta: 'Mentor sign-in', to: '/login', preview: 'mentor' },
   parents: { label: 'Parents', icon: 'heart', title: 'Stay in the loop without having to ask.', points: ['Your own parent account, linked from the email your child gives at sign-up.', 'See tasks, mentor session notes and career reports.', 'Confirm consent for under-18s before they begin.', 'Follow more than one child with the same login.'], cta: 'Parent sign-in', to: '/login', preview: 'parent' },
   schools: { label: 'Schools', icon: 'layers', title: 'See how a class is doing, with privacy kept first.', points: ['Join with a class code, so students land in the right group.', 'Counsellors see who has started and finished, class by class.', 'Individual reports are shared only when the parent (or an adult student) agrees.', 'Class summaries appear only once enough students have finished, so no one can be singled out.'], cta: 'School sign-in', to: '/login', preview: 'school' }
@@ -119,7 +119,7 @@ export function Who() {
   const r = ROLES[tab];
   return (
     <section id="who" className="lpx" aria-label="Who it is for">
-      <Reveal className="lpx-head"><Tag icon="users">FOR EVERYONE</Tag><h2>One product for everyone who helps a student grow.</h2></Reveal>
+      <Reveal className="lpx-head"><Tag icon="users">FOR EVERYONE</Tag><h2>Made for students, and for the people who care about them.</h2></Reveal>
       <div className="lpx-tabs" role="tablist" aria-label="Choose a role">
         {Object.entries(ROLES).map(([k, v]) => <button key={k} type="button" role="tab" id={`lpx-tab-${k}`} aria-selected={tab === k} aria-controls="lpx-who-panel" className={tab === k ? 'on' : ''} onClick={() => setTab(k)}><Icon name={v.icon} size={18} />{v.label}</button>)}
       </div>
@@ -148,8 +148,8 @@ export function AiSection() {
       <div className="lpx-panel-in">
         <Reveal className="lpx-panel-copy">
           <Tag icon="sparkles">AGENTIC AI</Tag>
-          <h2 className="lpx-h">AI does the legwork.<br /><Circled>People</Circled> make the calls.</h2>
-          <p>Our AI mentor plans, reminds, summarises and follows up, at any hour. That frees real mentors to spend their time on the student. For the big decisions, a person is always in the loop.</p>
+          <h2 className="lpx-h">The platform does the legwork.<br /><Circled>People</Circled> make the calls.</h2>
+          <p>Agentic AI plans your learning, finds the right material, answers doubts and follows up, at any hour. Real mentors and parents step in for the big decisions.</p>
           <span className="lpx-note"><Icon name="info" size={15} />AI insights are being rolled out step by step</span>
         </Reveal>
         <div className="lpx-rules">{RULES.map(([e, t, d], i) => <Reveal key={t} className="lpx-rule" delay={i * 80}><Emoji tone={i}>{e}</Emoji><div><h3>{t}</h3><p>{d}</p></div></Reveal>)}</div>
@@ -176,13 +176,13 @@ export function Safety() {
 
 /* ── FAQ ───────────────────────────────────────────────── */
 const FAQ = [
-  ['What is iMenteo?', 'iMenteo is an AI mentor for students. It learns what you are good at, builds a plan for your week and checks in on you. A real mentor is matched to you for the big decisions.'],
-  ['Is the AI mentor really available all day?', 'Your career assessment, your report and your plan are there whenever you open the app. The conversational AI mentor is rolling out in stages, so you may see parts of it before others.'],
+  ['What is iMenteo?', 'iMenteo is a learning platform that grows with a student, from the very basics to advanced work. It finds their level, builds a path to their dream, shares what to study, clears doubts and tracks progress.'],
+  ['Does it really handle everything?', 'Your assessment, report, goal, tasks and starting library are there today. Learning paths, doubt answering and adaptive practice are rolling out in stages, so you may see parts of it before others.'],
   ['Who is it for?', 'Students from Class 6 to college. The assessment has three tracks: Class 6 to 9, Class 10 to 12 and college, so the questions fit the age.'],
   ['How long does the assessment take?', 'It takes a few sittings, depending on the track. You can pause and carry on later, and your answers are saved as you go.'],
   ['Why do you ask for a parent’s email?', 'Up to Class 12, a parent gets their own account so they can follow progress and reports. For under-18s, a parent’s consent is also needed before the student starts.'],
   ['Who sees my results?', 'You do. Your mentor and your parent can see your report and progress. Your school only sees an individual report if your parent agrees.'],
-  ['Will AI replace my mentor?', 'No. The AI handles planning, reminders and follow-up. A real person guides the big decisions and reviews what the AI writes.'],
+  ['Will AI replace teachers and mentors?', 'No. The platform handles the daily work of planning, practice and doubts. People guide the big decisions and review what the AI writes.'],
   ['How much does it cost?', 'Pricing is still being finalised. Take the assessment first and see how it works.']
 ];
 export function Faq() {
@@ -209,7 +209,7 @@ export function FinalCta() {
         <img src={burst} alt="" aria-hidden="true" className="lpx-final-burst" />
         <img src={PHOTO.p5905709} alt="" aria-hidden="true" className="lpx-final-photo" />
         <h2>Start with the<br />career assessment.</h2>
-        <p>Find out what fits you. Your AI mentor takes it from there.</p>
+        <p>Find your level and your fit. The platform builds your path from there.</p>
         <div className="lpx-ctas"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn white">{acct.signedIn ? 'Open my dashboard' : 'Get started'}<Icon name="chevronRight" size={18} /></Link>{!acct.signedIn && <Link to="/login" className="lpx-btn outline">I already have an account</Link>}</div>
       </Reveal>
     </section>
@@ -223,8 +223,8 @@ export function Footer() {
       <div className="lpx-foot-hero">
         <div className="lpx-foot-copy">
           <Tag icon="sparkles">MEET IMENTEO</Tag>
-          <h2>Meet the mentor<br />that never<br />logs <i>off</i></h2>
-          <p>A career assessment to know yourself, an AI mentor to plan your week, and a real mentor for the big calls. That is iMenteo.</p>
+          <h2>One platform.<br />Zero to<br /><i>advanced</i>.</h2>
+          <p>An assessment to find your level, a learning path built for your pace, and a platform that keeps you on track toward your dream. That is iMenteo.</p>
         </div>
         <div className="lpx-foot-art" aria-hidden="true">
           <Shaped photo={PHOTO.p16461275} mask={hero4} className="a" /><div className="b"><img src={PHOTO.p4126695} alt="" /></div><Shaped photo={PHOTO.p8199167} mask={hero2} className="c" position="center 30%" /><img src={PHOTO.p7972949} alt="" className="d" />
@@ -236,8 +236,8 @@ export function Footer() {
       <div className="lpx-foot-grid">
         <div className="lpx-foot-brand">
           <img src={logo} alt="iMenteo" className="lpx-foot-logo" />
-          <p>An AI mentor that is always on, backed by real mentors, for students who want to turn goals into progress.</p>
-          <ul className="lpx-trust"><li><Icon name="sparkles" size={15} />AI mentor</li><li><Icon name="users" size={15} />Real mentors</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
+          <p>A learning platform that grows with every student, from level zero to advanced, at their own pace.</p>
+          <ul className="lpx-trust"><li><Icon name="sparkles" size={15} />AI-powered</li><li><Icon name="users" size={15} />Real mentors</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
         </div>
         <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
         <nav aria-label="For you"><b>For you</b><button type="button" onClick={to('who')}>Students</button><button type="button" onClick={to('who')}>Mentors</button><button type="button" onClick={to('who')}>Parents</button><button type="button" onClick={to('who')}>Schools</button></nav>
