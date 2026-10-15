@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Landing       from './pages/Landing';
 import LandingPage   from './landing/LandingPage';
 import LandingV2     from './landing/LandingV2';
+import MissionControl from './landing/MissionControl';
 import Register      from './pages/Register';
 import Login         from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
@@ -75,6 +76,7 @@ function AppRoutes() {
       <Route path="/"         element={<LandingPage />} />
       <Route path="/landing-v2" element={<LandingV2 />} />
       <Route path="/classic"  element={<Landing />} />
+      <Route path="/mission-control" element={<MissionControl />} />
 
       {/* Registration / onboarding */}
       <Route path="/register" element={<RegisterOnly><Register /></RegisterOnly>} />

@@ -24,7 +24,7 @@ function useAccount() {
 }
 
 /** Fades a block in once, the first time it scrolls into view. Shows at once if motion is reduced or unsupported. */
-function Reveal({ className = '', delay = 0, children, ...rest }) {
+export function Reveal({ className = '', delay = 0, children, ...rest }) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current; if (!el) return undefined;
@@ -36,12 +36,12 @@ function Reveal({ className = '', delay = 0, children, ...rest }) {
   return <div ref={ref} className={`lpx-rv ${className}`} style={{ transitionDelay: `${delay}ms` }} {...rest}>{children}</div>;
 }
 
-const Tag = ({ children, icon, shadow = true }) => <span className={`lpx-tag${shadow ? ' shadow' : ''}`}>{icon && <Icon name={icon} size={16} stroke={2.2} />}{children}</span>;
+export const Tag = ({ children, icon, shadow = true }) => <span className={`lpx-tag${shadow ? ' shadow' : ''}`}>{icon && <Icon name={icon} size={16} stroke={2.2} />}{children}</span>;
 /** A word circled by hand, as in the design. */
-const Circled = ({ children }) => <i className="lpx-circ"><img src={ringWord} alt="" aria-hidden="true" />{children}</i>;
-const TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
-const Emoji = ({ children, tone = 0 }) => <span className="lpx-emoji" aria-hidden="true"><img src={emojiBg} alt="" /><b style={{ color: TONES[tone % 4] }}><Icon name={children} size={22} stroke={2} /></b></span>;
-const Example = () => <span className="lpx-eg">Example</span>;
+export const Circled = ({ children }) => <i className="lpx-circ"><img src={ringWord} alt="" aria-hidden="true" />{children}</i>;
+export const TONES = ['#0f3ee4', '#d9654a', '#c98a14', '#3f8a64'];
+export const Emoji = ({ children, tone = 0 }) => <span className="lpx-emoji" aria-hidden="true"><img src={emojiBg} alt="" /><b style={{ color: TONES[tone % 4] }}><Icon name={children} size={22} stroke={2} /></b></span>;
+export const Example = () => <span className="lpx-eg">Example</span>;
 
 /* ── Why iMenteo ───────────────────────────────────────── */
 const WHY = [
@@ -75,7 +75,7 @@ export function Assessment() {
           <p>Take it at your own pace, over a few sittings. It shows where you stand today and what suits you, and it becomes the starting point of your learning path.</p>
           <div className="lpx-chips">{DIMS.map(([c, t]) => <span key={t} className={`lpx-chip ${c}`}>{t}</span>)}</div>
           <p className="lpx-small">Three tracks, so the questions fit your age: <b>Class 6 to 9</b>, <b>Class 10 to 12</b> and <b>College</b>.</p>
-          <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
+          <div className="lpx-ctas"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link><Link to="/mission-control" className="lpx-btn outline-light">See the science<Icon name="chevronRight" size={18} /></Link></div>
         </Reveal>
         <Reveal className="lpx-report" delay={120} aria-label="An example report">
           <Example />
@@ -239,7 +239,7 @@ export function Footer() {
           <p>An orbit charted fresh for every student, from the first step to the hardest one, at their own pace.</p>
           <ul className="lpx-trust"><li><Icon name="sparkles" size={15} />AI-powered</li><li><Icon name="users" size={15} />Real mentors</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
         </div>
-        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
+        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><Link to="/mission-control">Mission Control</Link><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
         <nav aria-label="For you"><b>For you</b><button type="button" onClick={to('who')}>Students</button><button type="button" onClick={to('who')}>Mentors</button><button type="button" onClick={to('who')}>Parents</button><button type="button" onClick={to('who')}>Schools</button></nav>
         <nav aria-label="Account"><b>Account</b><Link to="/login">Log in</Link><Link to={SIGNUP}>Create an account</Link>
           {CONTACT_EMAIL ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> : <button type="button" onClick={to('faq')}>Questions? Read the FAQ</button>}</nav>
