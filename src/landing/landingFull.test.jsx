@@ -19,7 +19,7 @@ describe('the full landing page', () => {
   });
   it('keeps the designed hero and its first step', () => {
     page();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/EVERY EXPERT.*STARTS AT ZERO.*WE BUILD THE CLIMB/is);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/EVERY DREAM.*HAS ITS OWN.*ORBIT/is);
     expect(screen.getAllByRole('link', { name: /Take the career assessment/ })[0].getAttribute('href')).toMatch(/register/);
   });
   it('has a slim bar with a link to each main section, for after the first screen has scrolled away', () => {
@@ -68,7 +68,7 @@ describe('the full landing page', () => {
     const text = container.textContent;
     expect(text).not.toMatch(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B50}]/u);
     expect(text).not.toMatch(/#Education/);
-    expect(text).toMatch(/#TheClimb/); expect(text).toMatch(/#ZeroToDream/);
+    expect(text).toMatch(/#YourOrbit/); expect(text).toMatch(/#ZeroToDream/);
   });
   it('the first screen is built to fill the window, not to be a scaled picture', () => {
     const { container } = page();

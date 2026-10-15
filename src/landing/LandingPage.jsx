@@ -75,9 +75,9 @@ function HeroDesktop() {
       </div>
 
       <div className="lp-hbody">
-        <h1 className="lp-hh1"><span className="l1">Every expert</span><span className="l2">starts at zero.</span><span className="l3">We build the <i>climb</i></span></h1>
+        <h1 className="lp-hh1"><span className="l1">Every dream</span><span className="l2">has its own</span><span className="l3"><i>orbit</i></span></h1>
         <div className="lp-hside">
-          <p>iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
+          <p>iMenteo charts your orbit. It finds exactly where you stand, builds the course to where you're headed, and stays with you for every lesson, every doubt and every step up.</p>
           <div className="lp-hcta">
             <Link to={acct.label === 'My dashboard' ? acct.to : SIGNUP} className="lp-btn lp-herobtn">{acct.label === 'My dashboard' ? 'Open my dashboard' : 'Take the career assessment'}</Link>
             <button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button>
@@ -111,8 +111,8 @@ function HeroMobile() {
         )}
       </header>
       <div className="lp-strip" aria-hidden="true"><div className="lp-strip-in">{[...strip, ...strip].map(([src, cls], i) => <img key={i} src={src} alt="" className={`lp-sp ${cls}`} />)}</div></div>
-      <h1 className="lp-mh1">EVERY EXPERT<br />STARTS AT ZERO.<br />WE BUILD THE <i>CLIMB</i></h1>
-      <p className="lp-mlede">iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
+      <h1 className="lp-mh1">EVERY DREAM<br />HAS ITS OWN<br /><i>ORBIT</i></h1>
+      <p className="lp-mlede">iMenteo charts your orbit. It finds exactly where you stand, builds the course to where you're headed, and stays with you for every lesson, every doubt and every step up.</p>
       <div className="lp-mcta"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link><button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button></div>
       <div className="lp-mtagrow" aria-hidden="true">{TAGS.map((t, i) => <span key={t} className={`lp-chip m c${i % 4}`} style={{ transform: `rotate(${[-4, 3, -2, 5][i % 4]}deg)` }}>{t}</span>)}</div>
     </div>

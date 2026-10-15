@@ -39,7 +39,7 @@ export const WEEKS = [
   ],
   emojis: ['users', 'target', 'message', 'heart', 'star', 'calendar', 'flag'],
   art: { cardA: PHOTO.p8419640, captionA: 'A path made for your goal.', cardB: PHOTO.p4308097, captionB: 'Lessons picked for your level.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
-  { n: 3, title: 'Keep climbing', items: [
+  { n: 3, title: 'Keep rising', items: [
     { icon: 'week', title: 'Levels that rise with you', text: 'As you master things, your path moves from the basics toward advanced work.' },
     { icon: 'check', title: 'Quizzes that find the gaps', text: 'Short checks show what to revisit, and the platform fixes your plan for you.' },
     { icon: 'growth', title: 'Progress everyone can see', text: 'You and your parents can follow how far you have come. Mentors step in for the big calls.' }
