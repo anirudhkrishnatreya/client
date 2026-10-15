@@ -71,8 +71,8 @@ function GetStartedDesktop() {
   return (
     <Fit w={1280} h={1985} className="lp-s6">
       <img src={burstRed} alt="" aria-hidden="true" style={at(352, 26, { width: 120, height: 120 })} />
-      <h2 className="lp-s6h" style={at(0, 68, { width: 1280 })}>Your Whole Journey,<br />One Platform</h2>
-      <p className="lp-s6p" style={at(305, 174, { width: 610 })}>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+      <h2 className="lp-s6h" style={at(0, 68, { width: 1280 })}>Your Climb<br />Starts Here</h2>
+      <p className="lp-s6p" style={at(305, 174, { width: 610 })}>iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
       <Link to={signUp} className="lp-btn" style={at(565, 243, { width: 150 })}>Start now</Link>
 
       {/* three tiles */}
@@ -146,8 +146,8 @@ function GetStartedDesktop() {
 function GetStartedMobile() {
   return (
     <div className="lp-m6">
-      <div className="lp-m6head"><img src={burstRed} alt="" aria-hidden="true" className="lp-m6burst" /><h2>Your Whole Journey, One Platform</h2></div>
-      <p className="lp-m6lead">iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+      <div className="lp-m6head"><img src={burstRed} alt="" aria-hidden="true" className="lp-m6burst" /><h2>Your Climb Starts Here</h2></div>
+      <p className="lp-m6lead">iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
       <Link to={signUp} className="lp-btn static">Start now</Link>
       <div className="lp-m6tiles">
         <div className="lp-m6tile blue"><img src={blob} alt="" className="blob" /><img src={woman} alt="" className="woman" /><p>Learn.<br />Grow.</p><img src={star} alt="" className="star" /></div>
@@ -190,8 +190,8 @@ function PracticeDesktop() {
         <img src={waves} alt="" aria-hidden="true" style={at(-944.91, -270.11, { width: 1539.82, height: 1174.227 })} />
         <div className="lp-tag shadow wide" style={at(410, 31, { width: 220 })}><Icon name="calendar" size={16} stroke={2.2} />AT YOUR PACE</div>
         <img src={burstRed} alt="" aria-hidden="true" style={at(771, 12, { width: 120, height: 120 })} />
-        <h2 className="lp-s7h" style={at(0, 104, { width: 1034 })}>Learn at Your Pace &amp;<br />Make It Stick</h2>
-        <p className="lp-s6p" style={at(212, 223, { width: 610 })}>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+        <h2 className="lp-s7h" style={at(0, 104, { width: 1034 })}>Climb at Your Pace &amp;<br />Make It Stick</h2>
+        <p className="lp-s6p" style={at(212, 223, { width: 610 })}>iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
         <div style={at(0, 0)}>{card(147, 324.5, true, 'clock', 'A Path Made for You', 'Your goal becomes a plan sized to your time, and it changes when life gets busy.')}{card(537, 714.5, false, 'file', 'Always on Track', 'Every lesson and quiz is tracked, so the next step is always clear.')}</div>
       </div>
     </Fit>
@@ -202,8 +202,8 @@ function PracticeMobile() {
   return (
     <div className="lp-m7">
       <span className="lp-tag static shadow"><Icon name="calendar" size={16} stroke={2.2} />AT YOUR PACE</span>
-      <h2>Learn at Your Pace &amp; Make It Stick</h2>
-      <p>iMenteo is a learning platform that grows with you. It starts where you are, teaches at your pace, shares what to study, clears your doubts and keeps you on track toward the goal you picked.</p>
+      <h2>Climb at Your Pace &amp; Make It Stick</h2>
+      <p>iMenteo finds exactly where you stand, draws the climb to where you're headed, and stays with you for every lesson, every doubt, every step up.</p>
       <div className="lp-m7cards">{[['clock', 'A Path Made for You', 'Your goal becomes a plan sized to your time, and it changes when life gets busy.', true], ['file', 'Always on Track', 'Every lesson and quiz is tracked, so the next step is always clear.', false]].map(([e, t, d, arrow]) => (
         <div key={t} className="lp-pc"><span className="lp-m7clock"><Icon name={e} size={26} stroke={1.9} /></span><h3>{t}</h3><i /><p>{d}</p><button type="button" className="lp-btn lp-btn-arrow static" onClick={() => { const el = document.getElementById('who'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>Know more{arrow && <img src={upArrow} alt="" style={{ width: 19.8, height: 13.3, transform: 'rotate(-40.91deg)' }} />}</button></div>
       ))}</div>

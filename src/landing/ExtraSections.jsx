@@ -49,12 +49,12 @@ const WHY = [
   ['trend', 'It grows with you', 'Your path rises from the basics to advanced work as you improve. It speeds up when you are ready and slows down when you need time.'],
   ['users', 'It handles the rest', 'It picks what to study, gives you the resources, clears your doubts and keeps you on track. Real mentors and parents stay in the loop.']
 ];
-const FACTS = [['Level 0', 'to advanced, on one path'], ['480+', 'careers you can aim for'], ['5', 'things the assessment looks at'], ['Parent', 'view for every school student']];
+const FACTS = [['Day 1', 'to your dream, one climb'], ['480+', 'careers you can aim for'], ['5', 'things the assessment looks at'], ['Parent', 'view for every school student']];
 export function Why() {
   return (
     <section id="about" className="lpx lpx-why" aria-label="Why iMenteo">
       <img src={burst} alt="" aria-hidden="true" className="lpx-burst" style={{ left: 'calc(50% - 360px)', top: 8 }} />
-      <Reveal className="lpx-head"><Tag icon="bulb">WHY IMENTEO</Tag><h2>Not another app.<br />A system that <Circled>grows</Circled> with you.</h2><p>Most students jump between videos, tuition and advice with no plan. iMenteo is one platform that walks with a student from the first step to advanced work, at their own pace, with everything in one place.</p></Reveal>
+      <Reveal className="lpx-head"><Tag icon="bulb">WHY IMENTEO</Tag><h2>Not another app.<br />A <Circled>climb</Circled> built just for you.</h2><p>Most students jump between videos, tuition and advice with no plan stitching it together. iMenteo is the one place that carries a student from their first step to their hardest challenge: one climb, paced to them, not to a syllabus.</p></Reveal>
       <div className="lpx-cards3">{WHY.map(([e, t, d], i) => <Reveal key={t} className="lpx-card" delay={i * 90}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
       <Reveal className="lpx-facts">{FACTS.map(([n, t]) => <div key={n}><b>{n}</b><span>{t}</span></div>)}</Reveal>
     </section>
@@ -176,7 +176,7 @@ export function Safety() {
 
 /* ── FAQ ───────────────────────────────────────────────── */
 const FAQ = [
-  ['What is iMenteo?', 'iMenteo is a learning platform that grows with a student, from the very basics to advanced work. It finds their level, builds a path to their dream, shares what to study, clears doubts and tracks progress.'],
+  ['What is iMenteo?', 'iMenteo is the climb from where you are to where you want to be. It finds your starting point, builds the path up, hands you what to study, answers your doubts, and tracks every step on the way.'],
   ['Does it really handle everything?', 'Your assessment, report, goal, tasks and starting library are there today. Learning paths, doubt answering and adaptive practice are rolling out in stages, so you may see parts of it before others.'],
   ['Who is it for?', 'Students from Class 6 to college. The assessment has three tracks: Class 6 to 9, Class 10 to 12 and college, so the questions fit the age.'],
   ['How long does the assessment take?', 'It takes a few sittings, depending on the track. You can pause and carry on later, and your answers are saved as you go.'],
@@ -222,8 +222,8 @@ export function Footer() {
     <footer id="footer" className="lpx-foot">
       <div className="lpx-foot-hero">
         <div className="lpx-foot-copy">
-          <Tag icon="sparkles">MEET IMENTEO</Tag>
-          <h2>One platform.<br />Zero to<br /><i>advanced</i>.</h2>
+          <Tag icon="sparkles">THE CLIMB</Tag>
+          <h2>One climb.<br />Zero to<br /><i>dream</i>.</h2>
           <p>An assessment to find your level, a learning path built for your pace, and a platform that keeps you on track toward your dream. That is iMenteo.</p>
         </div>
         <div className="lpx-foot-art" aria-hidden="true">
@@ -236,7 +236,7 @@ export function Footer() {
       <div className="lpx-foot-grid">
         <div className="lpx-foot-brand">
           <img src={logo} alt="iMenteo" className="lpx-foot-logo" />
-          <p>A learning platform that grows with every student, from level zero to advanced, at their own pace.</p>
+          <p>A climb built fresh for every student, from the first step to the hardest one, at their own pace.</p>
           <ul className="lpx-trust"><li><Icon name="sparkles" size={15} />AI-powered</li><li><Icon name="users" size={15} />Real mentors</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
         </div>
         <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
