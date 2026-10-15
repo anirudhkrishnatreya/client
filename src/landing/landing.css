@@ -505,3 +505,29 @@ button.lp-btn { cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .lpx-xr-photo-row { grid-template-columns: 1fr; }
   .lpx-xr-photo-row img { height: 220px; }
 }
+
+/* ---- Career X-Ray: full-bleed layout fixes ---- */
+/* The quick-nav header sits above the hero at all times on this page (not scroll-revealed like the landing's StickyBar),
+   so it is pinned with position:fixed the same as .lp-bar.show already does — .xr-bar needs no override, it only
+   exists so a stray earlier bug (an inline position:sticky with no offset, which silently cancelled the fixed pin) can
+   never come back unnoticed. */
+.xr-bar { position: fixed; }
+.xr-page { padding-top: 60px; }  /* room for the fixed header before the hero begins */
+
+/* On a wide monitor the default 1043px reading column leaves large plain gutters either side; this page widens its
+   column and fills those gutters with full-bleed tinted bands instead of flat white, so nothing feels like empty space. */
+.xr-page .lpx { width: min(1180px, 100% - 40px); }
+.xr-page .lpx-panel-in { padding: 56px; }
+
+.lpx-xr-herowrap { position: relative; width: 100%; padding: 56px clamp(20px, 5vw, 80px) 72px; background: radial-gradient(130% 160% at 100% 0%, #3b66ff, transparent 55%), linear-gradient(135deg, #0b2bb3, #0f3ee4); }
+.lpx-xr-herowrap .lpx-mc-hero { max-width: 1240px; margin: 0 auto; padding: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible; }
+.lpx-xr-herowrap .lpx-facts.lpx-mc-facts { max-width: 1240px; margin: -34px auto 0; }
+.lpx-xr-herowrap .lpx-mc-quick { max-width: 1240px; margin: 30px auto 0; }
+
+.xr-band { width: 100%; }
+.xr-band .lpx { padding-top: 88px; padding-bottom: 8px; }
+.xr-band-cream { background: linear-gradient(180deg, #fff 0%, #fff8ec 45%, #fff 100%); }
+.xr-band-pink { background: linear-gradient(180deg, #fff 0%, #fff2ef 45%, #fff 100%); }
+.xr-band-grey { background: linear-gradient(180deg, #fff 0%, #f5f6fb 45%, #fff 100%); }
+
+@media (max-width: 900px) { .lpx-xr-herowrap { padding: 40px 20px 56px; } }

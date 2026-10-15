@@ -40,7 +40,7 @@ const QUICK = [['preview', 'See a report'], ['dimensions', 'The five dimensions'
 function Header() {
   const acct = useAccount();
   return (
-    <header className="lp-bar show" style={{ position: 'sticky' }}>
+    <header className="lp-bar show xr-bar">
       <div className="lp-bar-in">
         <Link to="/" className="lp-bar-logo" aria-label="iMenteo home"><img src={logo} alt="iMenteo" /></Link>
         <nav className="lp-bar-links" aria-label="Sections">
@@ -73,7 +73,7 @@ function HeroPreview() {
 function Hero() {
   const acct = useAccount();
   return (
-    <section className="lpx" style={{ paddingTop: 48 }} aria-label="Career X-Ray">
+    <section className="lpx-xr-herowrap" aria-label="Career X-Ray">
       <div className="lpx-mc-hero lpx-xr-hero">
         <div>
           <Tag icon="sparkles">CAREER X-RAY</Tag>
@@ -100,7 +100,7 @@ function Hero() {
 function Preview() {
   const acct = useAccount();
   return (
-    <section id="preview" className="lpx" aria-label="What your report looks like">
+    <div className="xr-band xr-band-cream"><section id="preview" className="lpx" aria-label="What your report looks like">
       <Reveal className="lpx-head"><Tag icon="file">SEE A REPORT</Tag><h2>What your report<br />actually looks <Circled>like</Circled>.</h2><p>These are the real charts your report uses, drawn here with made-up sample numbers so you can see the shape of the thing before you take it.</p></Reveal>
       <div className="lpx-xr-spread">
         <Reveal className="lpx-xr-page">
@@ -128,7 +128,7 @@ function Preview() {
           <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
         </div>
       </Reveal>
-    </section>
+    </section></div>
   );
 }
 
@@ -142,10 +142,10 @@ const DIMENSIONS = [
 ];
 function Dimensions() {
   return (
-    <section id="dimensions" className="lpx" aria-label="The five dimensions">
+    <div className="xr-band xr-band-pink"><section id="dimensions" className="lpx" aria-label="The five dimensions">
       <Reveal className="lpx-head"><Tag icon="target">THE INSTRUMENT</Tag><h2>Five dimensions.<br />One honest <Circled>picture</Circled>.</h2><p>Most career quizzes ask what you like and stop there. iMenteo reads five, because none of them alone explains a person.</p></Reveal>
       <div className="lpx-cards5">{DIMENSIONS.map(([e, t, d], i) => <Reveal key={t} className="lpx-card sm" delay={i * 70}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
-    </section>
+    </section></div>
   );
 }
 
@@ -202,10 +202,10 @@ const CHECKS = [
 ];
 function Checks() {
   return (
-    <section id="checks" className="lpx lpx-safe" aria-label="Checks and balances">
+    <div className="xr-band xr-band-grey"><section id="checks" className="lpx lpx-safe" aria-label="Checks and balances">
       <Reveal className="lpx-head"><Tag icon="shield">CHECKS AND BALANCES</Tag><h2>Built to be honest,<br />even when that is less flattering.</h2><p>A system that only ever tells a student good news is not useful. These are the guardrails that keep ours from doing that.</p></Reveal>
       <div className="lpx-cards4">{CHECKS.map(([e, t, d], i) => <Reveal key={t} className="lpx-card sm" delay={i * 70}><Emoji tone={i}>{e}</Emoji><h3>{t}</h3><p>{d}</p></Reveal>)}</div>
-    </section>
+    </section></div>
   );
 }
 
@@ -268,7 +268,7 @@ export default function CareerXray() {
     return () => { document.title = prev; };
   }, []);
   return (
-    <div className="lp" id="top">
+    <div className="lp xr-page" id="top">
       <Header />
       <Hero />
       <Preview />
