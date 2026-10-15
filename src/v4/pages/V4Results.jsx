@@ -117,12 +117,18 @@ function Matches({ matches, viewer }) {
       <ol style={{ listStyle: 'none' }}>
         {items.slice(0, n).map(m => (
           <li key={m.id} style={{ padding: '10px 0', borderTop: '1px solid var(--border)' }}>
-            <div className="v4-row"><strong className="v4-grow">{m.rank}. {m.label}</strong><span className="v4-pill">{m.overall}% match</span></div>
-            <div className="v4-muted" style={{ marginTop: 4 }}>{Object.entries(m.components).map(([k, c]) => `${k === 'ei' ? 'emotional intelligence' : k} ${c.pct}%`).join(' · ')}</div>
+            <div className="v4-row"><strong className="v4-grow">{m.rank}. {m.label}</strong><span className="v4-pill">{m.bandLabel}</span></div>
+            <div className="v4-muted" style={{ marginTop: 4 }}>{(m.parts || []).map(p => `${p.key === 'ei' ? 'emotional intelligence' : p.label.toLowerCase()}: ${p.bandLabel.toLowerCase()}`).join(' · ')}</div>
           </li>
         ))}
       </ol>
     </section>
   );
-  return <>{matches.streams && list(`Subject streams that may suit ${them ? 'them' : 'you'}`, matches.streams, 3)}{matches.fields && list(`Career fields that may suit ${them ? 'them' : 'you'}`, matches.fields, 5)}</>;
+  return (
+    <>
+      {matches.streams && matches.streams.length > 0 && list(`Subject streams that may suit ${them ? 'them' : 'you'}`, matches.streams, 2)}
+      {matches.fields && matches.fields.length > 0 && list(`Career fields that may suit ${them ? 'them' : 'you'}`, matches.fields, 5)}
+      {matches.note && <p className="v4-muted" style={{ margin: '4px 2px 0' }}>{matches.note}</p>}
+    </>
+  );
 }

@@ -85,7 +85,6 @@
 .rp-field .hd { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
 .rp-field .no { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 42px; color: var(--marigold); width: 36px; line-height: 1; }
 .rp-field h3 { flex: 1; font-size: 26px; font-weight: 400; }
-.rp-ring { flex: none; }
 .rp-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 8px; }
 .rp-cols h4 { font-style: italic; font-weight: 400; font-size: 18px; color: var(--coral); margin-bottom: 4px; }
 .rp-cols ul { margin: 0; padding-left: 18px; } .rp-cols li { margin-bottom: 3px; font-size: 17px; }
@@ -96,9 +95,8 @@
 .rp-fitrow { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px dashed var(--line); }
 .rp-fitrow:first-child { border-top: 0; }
 .rp-fitrow .no { width: 24px; font-family: Fraunces, Georgia, serif; font-style: italic; color: var(--coral); font-size: 19px; } .rp-fitrow .t { flex: 1; }
-.rp-fitrow .pct { font-family: Fraunces, Georgia, serif; font-weight: 600; color: var(--indigo); width: 48px; text-align: right; }
-.rp-fitbar { width: 110px; height: 8px; border-radius: 4px; background: #E7EBF2; } .rp-fitbar i { display: block; height: 100%; border-radius: 4px; background: var(--marigold); }
-@media (max-width: 520px) { .rp-fitbar { display: none; } }
+.rp-band { display: inline-block; flex: none; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 13px; padding: 3px 12px; border-radius: 999px; white-space: nowrap; background: #E7EBF2; color: #23262F; }
+.rp-band.strong { background: #DCEFE3; color: #1F5F3F; } .rp-band.good { background: #E3E9FB; color: #0f3ee4; } .rp-band.explore { background: #FBEBCB; color: #7A4E06; }
 .rp-closing { background: var(--indigo); color: #F4EAD3; border-radius: 8px 32px 8px 32px; padding: 26px 30px; font-size: 21px; line-height: 1.55; }
 .rp-closing p { margin: 0; }
 .rp-foot { font-size: 14px; color: var(--muted); margin-top: 28px; }

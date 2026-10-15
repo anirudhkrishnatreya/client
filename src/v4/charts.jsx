@@ -53,17 +53,6 @@ export function Compass({ x, y }) {
   );
 }
 
-export function Ring({ pct, size = 54 }) {
-  const r = 20, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, pct)) / 100 * c;
-  return (
-    <svg className="rp-ring" viewBox="0 0 54 54" width={size} height={size} role="img" aria-label={`${pct} percent match`}>
-      <circle cx="27" cy="27" r={r} fill="none" stroke="#E7EBF2" strokeWidth="5" />
-      <circle cx="27" cy="27" r={r} fill="none" stroke="#D9654A" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${f(v)} ${f(c)}`} transform="rotate(-90 27 27)" />
-      <text x="27" y="31" textAnchor="middle" fontSize="12" fontWeight="700" fill="#23262F">{pct}</text>
-    </svg>
-  );
-}
-
 export function CoverArt() {
   return (
     <svg className="rp-art" viewBox="0 0 600 600" aria-hidden="true">
@@ -118,18 +107,25 @@ export function BarChart({ rows, color = '#F2A93B', width = 520 }) {
 }
 
 const PART_COLOR = { orientation: '#D9654A', interest: '#F2A93B', aptitude: '#4C8C6B', personality: '#2C3566', ei: '#6F8FC0' };
+const PART_FILL = { strong: 1, good: 0.66, partial: 0.33 };
+/** The five-part breakdown of a career match, each part as a band in words (Strong, Good, Partial). */
 export function PartsBars({ parts, width = 250 }) {
-  const left = 72, right = 34, h = 18, gridW = width - left - right;
+  const left = 72, right = 50, h = 18, gridW = width - left - right;
   return (
-    <svg className="rp-parts" viewBox={`0 0 ${width} ${parts.length * h + 2}`} role="img" aria-label={parts.map(p => `${p.label} ${p.pct} percent`).join(', ')}>
+    <svg className="rp-parts" viewBox={`0 0 ${width} ${parts.length * h + 2}`} role="img" aria-label={parts.map(p => `${p.label}: ${p.bandLabel}`).join(', ')}>
       {parts.map((p, i) => (
         <g key={p.key}>
           <text x={left - 8} y={i * h + 12} textAnchor="end" fontSize="10" fill="#23262F">{p.label}</text>
           <rect x={left} y={i * h + 4} width={gridW} height="9" rx="4.5" fill="#E7EBF2" />
-          <rect x={left} y={i * h + 4} width={f(Math.max(9, gridW * p.pct / 100))} height="9" rx="4.5" fill={PART_COLOR[p.key] || '#F2A93B'} />
-          <text x={left + gridW + 6} y={i * h + 12} fontSize="9.5" fontWeight="600" fill="#23262F">{p.pct}</text>
+          <rect x={left} y={i * h + 4} width={f(gridW * (PART_FILL[p.band] || PART_FILL.partial))} height="9" rx="4.5" fill={PART_COLOR[p.key] || '#F2A93B'} />
+          <text x={left + gridW + 6} y={i * h + 12} fontSize="9" fontWeight="600" fill="#23262F">{p.bandLabel}</text>
         </g>
       ))}
     </svg>
   );
+}
+
+/** A career match as a band (Strong fit, Good fit, Worth exploring): words, never a percentage. */
+export function BandPill({ band, label }) {
+  return band ? <span className={`rp-band ${band}`}>{label}</span> : null;
 }

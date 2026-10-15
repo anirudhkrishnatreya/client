@@ -7,7 +7,7 @@ import '@fontsource/newsreader/400.css';
 import '@fontsource/newsreader/600.css';
 import '@fontsource/newsreader/400-italic.css';
 import '../report.css';
-import { ScaleTrack, Hexagon, Compass, Ring, CoverArt, Squiggle, BarChart, PartsBars, IconTile } from '../charts';
+import { ScaleTrack, Hexagon, Compass, CoverArt, Squiggle, BarChart, PartsBars, BandPill, IconTile } from '../charts';
 
 const DIM_COLOR = { interests: '#F2A93B', personality: '#2C3566', aptitude: '#4C8C6B', ei: '#6F8FC0', values: '#D9654A' };
 const Tiles = ({ items }) => (items.length ? <div className="rp-tiles">{items.map(s => <div className="rp-tile" key={s.id}><IconTile id={s.id} /><span>{s.label}</span></div>)}</div> : null);
@@ -105,7 +105,7 @@ function FieldCard({ f }) {
   const p = f.page;
   return (
     <article className="rp-field" aria-label={f.label}>
-      <div className="hd"><span className="no">{f.rank}</span><h3>{f.label}</h3>{f.overall != null && <Ring pct={f.overall} />}</div>
+      <div className="hd"><span className="no">{f.rank}</span><h3>{f.label}</h3><BandPill band={f.band} label={f.bandLabel} /></div>
       {p && <p>{p.summary}</p>}
       {((f.parts && f.parts.length) || (f.strengths && f.strengths.length)) && (
         <div className="rp-fit2">
@@ -145,13 +145,17 @@ function Matches({ sec }) {
   }
   return (
     <>
-      <p className="rp-lede">The percentage shows how closely your whole profile matches what each field usually asks for. Use it to start exploring, not to close doors.</p>
-      <div className="rp-panel" style={{ marginBottom: 18 }}>
-        {sec.fields.map(f => <div className="rp-fitrow" key={f.id}><span className="no">{f.rank}</span><span className="t">{f.label}</span>{f.overall != null && <><span className="rp-fitbar"><i style={{ width: `${f.overall}%` }} /></span><span className="pct">{f.overall}%</span></>}</div>)}
-      </div>
-      <h3 style={{ fontSize: 24, fontWeight: 400, margin: '0 0 10px' }}>The top few, up close</h3>
-      {sec.fields.filter(f => f.page).map(f => <FieldCard key={f.id} f={f} />)}
-      {sec.streams && <><h3 style={{ fontSize: 24, fontWeight: 400, margin: '24px 0 10px' }}>Which stream suits you</h3>{sec.streams.map(f => <FieldCard key={f.id} f={f} />)}</>}
+      <p className="rp-lede">{sec.note}</p>
+      {sec.fields.length > 0 && (
+        <>
+          <div className="rp-panel" style={{ marginBottom: 18 }}>
+            {sec.fields.map(f => <div className="rp-fitrow" key={f.id}><span className="no">{f.rank}</span><span className="t">{f.label}</span><BandPill band={f.band} label={f.bandLabel} /></div>)}
+          </div>
+          <h3 style={{ fontSize: 24, fontWeight: 400, margin: '0 0 10px' }}>Up close</h3>
+          {sec.fields.filter(f => f.page).map(f => <FieldCard key={f.id} f={f} />)}
+        </>
+      )}
+      {sec.streams && sec.streams.length > 0 && <><h3 style={{ fontSize: 24, fontWeight: 400, margin: '24px 0 10px' }}>Which stream suits you</h3>{sec.streams.map(f => <FieldCard key={f.id} f={f} />)}</>}
     </>
   );
 }
@@ -163,7 +167,7 @@ function Glance({ sections }) {
   const strongest = (id, n = 5) => (sec(id) ? sec(id).scales.filter(s => s.dominant).slice(0, n) : []);
   const Row = ({ title, items }) => <div><h3>{title}</h3>{items.length ? <Tiles items={items} /> : <p className="rp-muted">Nothing stood out strongly this time.</p>}</div>;
   const h = inter.holland;
-  const top = match && match.available && match.kind === 'fields' ? match.fields.slice(0, 3).map(f => ({ n: f.rank, t: f.label, pct: f.overall }))
+  const top = match && match.available && match.kind === 'fields' ? match.fields.slice(0, 3).map(f => ({ n: f.rank, t: f.label, band: f.band, bandLabel: f.bandLabel }))
     : match && match.available && match.kind === 'explore' ? match.areas.slice(0, 3).map((a, i) => ({ n: i + 1, t: a.label })) : [];
   return (
     <Chapter id="glance" no="The short version" title="You, on one page" color="#D9654A">
@@ -177,7 +181,7 @@ function Glance({ sections }) {
         <Row title="Your strengths as a person" items={strongest('personality', 4)} />
         <Row title="What your mind does well" items={strongest('aptitude', 4)} />
         <Row title="Your feelings toolkit" items={strongest('ei', 4)} />
-        {top.length > 0 && <div><h3>{match.kind === 'fields' ? 'Where this points first' : 'Good places to start exploring'}</h3>{top.map(r => <div className="rp-rowline" key={r.n}><span className="n">{r.n}</span><span className="t">{r.t}</span>{r.pct != null && <b>{r.pct}%</b>}</div>)}</div>}
+        {top.length > 0 && <div><h3>{match.kind === 'fields' ? 'Where this points first' : 'Good places to start exploring'}</h3>{top.map(r => <div className="rp-rowline" key={r.n}><span className="n">{r.n}</span><span className="t">{r.t}</span><BandPill band={r.band} label={r.bandLabel} /></div>)}</div>}
       </div>
     </Chapter>
   );

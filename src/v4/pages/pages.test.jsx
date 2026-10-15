@@ -483,7 +483,7 @@ describe('V4Results', () => {
     'p.E': { label: 'Extraversion', dimension: 'personality', scored: true, stanine: 4, pomp: 50, band: 'moderate' }
   };
   const report = (over = {}) => ({ assessmentId: 'a1', track: 'senior', norm: { provisional: true }, validity: { flag: 'ok' }, scales, holland: { code: 'EAS' }, orientation: { dominant: 'people', secondary: 'ideas', undifferentiated: false },
-    dominant: { interests: ['int.field.law'], aptitude: ['apt.verbal'], personality: [], ei: [] }, matches: { fields: [{ rank: 1, id: 'law', label: 'Law & Legal Services', overall: 81, components: { interest: { pct: 100 }, ei: { pct: 70 } } }], streams: [{ rank: 1, id: 'humanities', label: 'Humanities and Social Sciences', overall: 74, components: { interest: { pct: 90 } } }] }, ...over });
+    dominant: { interests: ['int.field.law'], aptitude: ['apt.verbal'], personality: [], ei: [] }, matches: { fields: [{ rank: 1, id: 'law', label: 'Law & Legal Services', band: 'strong', bandLabel: 'Strong fit', parts: [{ key: 'interest', label: 'Interest', band: 'strong', bandLabel: 'Strong' }, { key: 'ei', label: 'EQ', band: 'good', bandLabel: 'Good' }] }], streams: [{ rank: 1, id: 'humanities', label: 'Humanities and Social Sciences', band: 'good', bandLabel: 'Good fit', parts: [{ key: 'interest', label: 'Interest', band: 'strong', bandLabel: 'Strong' }] }], note: 'These are starting points to explore, not a ranking of what you can or cannot do.' }, ...over });
   const notReady = () => Promise.reject(apiErr(409, 'REPORT_NOT_READY'));
   const page = (api, fullReport = notReady) => mount(<V4Results api={{ fullReport, ...api }} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
 
@@ -494,9 +494,19 @@ describe('V4Results', () => {
     expect(screen.getByText(/lean towards working with/)).toHaveTextContent('People');
     expect(screen.getByRole('img', { name: 'Verbal Reasoning: 7 out of 9, Strong' })).toBeInTheDocument();
     expect(screen.getByText(/provisional/i)).toBeInTheDocument();
-    expect(screen.getByText('81% match')).toBeInTheDocument();
+    expect(screen.getByText('Strong fit')).toBeInTheDocument();
+    expect(screen.getByText('Good fit')).toBeInTheDocument();
     expect(screen.getByText('Subject streams that may suit you')).toBeInTheDocument();
-    expect(screen.getByText('emotional intelligence 70%', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('emotional intelligence: good', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(/starting points to explore/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/\d+\s?%/);                          // never a percentage
+  });
+  it('when no field reaches the floor it says so plainly instead of showing an empty list', async () => {
+    page({ report: vi.fn(() => ok({ report: report({ matches: { fields: [], streams: [], note: 'Your answers do not point clearly to one field yet.' } }) })) });
+    expect(await screen.findByText('EAS')).toBeInTheDocument();
+    expect(screen.getByText(/do not point clearly to one field/)).toBeInTheDocument();
+    expect(screen.queryByText(/Career fields that may suit/)).toBeNull();
+    expect(screen.queryByText(/Subject streams that may suit/)).toBeNull();
   });
   it('an invalid attempt shows no strengths or careers, only an explanation', async () => {
     page({ report: vi.fn(() => ok({ report: report({ validity: { flag: 'invalid' }, matches: { withheld: true } }) })) });
@@ -547,9 +557,9 @@ describe('V4Results: the finished report', () => {
       { id: 'orientation', title: 'Work orientation', available: true, coordinates: { x: -0.3, y: -0.4 }, poles: [{ pole: 'ideas', label: 'Ideas', stanine: 8, meaning: 'Working with ideas means thinking.' }], dominant: { label: 'Ideas', text: 'You like ideas.' }, secondary: { label: 'People', text: 'You like people a bit.' } },
       { id: 'interests', title: 'Interests', holland: { available: true, code: 'IRA', types: ['R', 'I', 'A', 'S', 'E', 'C'].map((l, i) => ({ letter: l, label: l, stanine: 3 + i })), letters: [{ letter: 'I', label: 'Investigative', text: 'Likes to study.' }] }, scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You show a strong interest in law.' }], notScored: [] },
       { id: 'aptitude', title: 'Aptitude', scales: [{ id: 'apt.verbal', label: 'Verbal Reasoning', stanine: 3, band: 'developing', dominant: false, meaning: 'Verbal reasoning is words.', analysis: 'Reading may take effort.', plan }], notScored: [{ id: 'apt.spatial', label: 'Spatial Reasoning' }] },
-      { id: 'matches', title: 'Fields that fit you', available: true, kind: 'fields', fields: [
-        { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [{ scale: 'apt.verbal', label: 'Verbal Reasoning', student: 3, need: 6, plan }] },
-        { rank: 2, id: 'design', label: 'Design', overall: 70 }], streams: [] },
+      { id: 'matches', title: 'Fields that fit you', available: true, kind: 'fields', note: 'These are starting points to explore.', fields: [
+        { rank: 1, id: 'law', label: 'Law & Legal Services', band: 'strong', bandLabel: 'Strong fit', page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [{ scale: 'apt.verbal', label: 'Verbal Reasoning', student: 3, need: 6, plan }] },
+        { rank: 2, id: 'design', label: 'Design', band: 'good', bandLabel: 'Good fit' }], streams: [] },
       { id: 'nextSteps', title: 'What to do next', blocks: [{ id: 'page.nextSteps', text: 'Talk to a counsellor.' }] }
     ], ...over });
   const full = d => mount(<V4Results api={{ fullReport: vi.fn(() => ok({ report: d })) }} />, { route: '/v4/results/a1', path: '/v4/results/:id' });
@@ -568,11 +578,22 @@ describe('V4Results: the finished report', () => {
     expect(screen.getByText('Talk to a counsellor.')).toBeInTheDocument();
     expect(screen.getByText('Results are provisional.')).toBeInTheDocument();
   });
-  it('fields beyond the detailed ones are listed in order', async () => {
+  it('the shown fields are listed in order with their band, and the best ones get a page', async () => {
     full(doc());
     expect((await screen.findAllByText('Design')).length).toBeGreaterThan(0);             // listed in the ranking, without a detail page
-    expect(screen.getByText('The top few, up close')).toBeInTheDocument();
+    expect(screen.getByText('Up close')).toBeInTheDocument();
     expect(screen.getAllByText('Law & Legal Services').length).toBeGreaterThan(1);
+    expect(screen.getAllByText('Strong fit').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Good fit').length).toBeGreaterThan(0);
+    expect(screen.getByText('These are starting points to explore.')).toBeInTheDocument();
+  });
+  it('a document with no fields shows only the explanation, with no empty headings', async () => {
+    const d = doc();
+    d.sections = d.sections.map(x => (x.id === 'matches' ? { ...x, note: 'Your answers do not point clearly to one field yet.', fields: [], streams: [] } : x));
+    full(d);
+    expect(await screen.findByText(/do not point clearly to one field/)).toBeInTheDocument();
+    expect(screen.queryByText('Up close')).toBeNull();
+    expect(screen.queryByText('Which stream suits you')).toBeNull();
   });
   it('draft wording is labelled', async () => {
     full(doc({ status: { contentStatus: 'draft', complete: true } }));
@@ -621,8 +642,8 @@ describe('V4Results: parity features of the finished report', () => {
         scales: [{ id: 'int.field.law', label: 'Law', stanine: 8, band: 'strong', dominant: true, meaning: 'Interest in law.', analysis: 'You like law.' }], notScored: [] },
       { id: 'aptitude', title: 'What your mind does well', about: 'Aptitude is what your mind does well.', chart: [{ id: 'apt.creative', label: 'Creative Thinking', stanine: 7, band: 'strong' }],
         scales: [{ id: 'apt.creative', label: 'Creative Thinking', stanine: 7, band: 'strong', dominant: true, meaning: 'Creative thinking.', analysis: 'You link ideas.', plan: [{ title: 'Make something', text: 'Turn an idea into a thing.' }] }], notScored: [] },
-      { id: 'matches', title: 'Where this could lead', available: true, kind: 'fields', fields: [
-        { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, parts: [{ key: 'orientation', label: 'Style', pct: 70 }, { key: 'interest', label: 'Interest', pct: 90 }, { key: 'ei', label: 'EQ', pct: 80 }], strengths: [{ scale: 'apt.verbal', label: 'Verbal Reasoning' }],
+      { id: 'matches', title: 'Where this could lead', available: true, kind: 'fields', note: 'Starting points, not verdicts.', fields: [
+        { rank: 1, id: 'law', label: 'Law & Legal Services', overall: 82, band: 'strong', bandLabel: 'Strong fit', parts: [{ key: 'orientation', label: 'Style', band: 'good', bandLabel: 'Good' }, { key: 'interest', label: 'Interest', band: 'strong', bandLabel: 'Strong' }, { key: 'ei', label: 'EQ', band: 'strong', bandLabel: 'Strong' }], strengths: [{ scale: 'apt.verbal', label: 'Verbal Reasoning' }],
           page: { summary: 'Law is about rules.', studyPaths: ['BA LLB'], exams: ['CLAT'], roles: ['Advocate'], employers: ['Law firms'], trending: ['Intellectual property'], sources: ['Consortium of NLUs'], lastReviewedAt: null }, gaps: [] }] },
       { id: 'developmentPlan', title: 'Skills worth building first', about: 'Pick one or two skills and start this month.', items: [{ scale: 'ei.conflict', label: 'Conflict Management', student: 3, need: 6, fields: ['Law & Legal Services'], plan: [{ title: 'Breathe first', text: 'Take one slow breath before you reply.' }] }] },
       { id: 'nextSteps', title: 'Your next few steps', blocks: [{ id: 'page.nextSteps', text: 'Read this with someone.' }] },
@@ -639,7 +660,7 @@ describe('V4Results: parity features of the finished report', () => {
   it('career pages show the five-part breakdown, why it fits, where people work and what to explore', async () => {
     show();
     expect(await screen.findByText('How it adds up')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Style 70 percent, Interest 90 percent, EQ 80 percent/ })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Style: Good, Interest: Strong, EQ: Strong' })).toBeInTheDocument();
     expect(screen.getByText('Why it fits you')).toBeInTheDocument();
     expect(screen.getByText('Verbal Reasoning')).toBeInTheDocument();
     expect(screen.getByText('Law firms')).toBeInTheDocument();
