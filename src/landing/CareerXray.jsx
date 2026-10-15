@@ -1,19 +1,26 @@
-// "Mission Control": the science page. Same aesthetic as the landing page (same fonts, colours and building blocks), reached
-// from the main nav and the footer. Every number here is real — pulled from the live assessment and engine, not invented for
-// marketing. Where something is still being reviewed (India entry guidance, provisional norms), this page says so.
+// "Career X-Ray": the science page. Same aesthetic as the landing page (same fonts, colours and building blocks), reached
+// from the main nav and the footer. The charts on this page are the real ones used in a student's own report (server/engine
+// v4/report/charts.js has the matching geometry), filled with made-up sample numbers — never a real student's data.
+// Every figure in the text is real, pulled from the live assessment and engine, not invented for marketing. Where something
+// is still being reviewed (India entry guidance, provisional norms), this page says so.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
 import Icon from '../platform/ui/Icon';
+import { Hexagon, BarChart, Compass, PartsBars, ScaleTrack, BandPill } from '../v4/charts';
 import { Reveal, Tag, Circled, Emoji, Example } from './ExtraSections';
 import { TAGS } from './config';
+import PHOTO from './photos';
 import logo from '../assets/landing/logo.png';
 import './landing.css';
+import '../v4/report.css';
 import '@fontsource/syne/700.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/dm-sans/400.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/newsreader/400.css';
 
 const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
 const goSection = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
@@ -23,7 +30,12 @@ function useAccount() {
   return isLoggedIn ? { to: PLATFORM_ENABLED ? '/platform' : '/dashboard', label: 'My dashboard', signedIn: true } : { to: '/login', label: 'Log in', signedIn: false };
 }
 
-const QUICK = [['dimensions', 'The five dimensions'], ['framework', 'The research'], ['report', 'Your report'], ['engine', 'The matching engine'], ['checks', 'Checks and balances'], ['faq', 'Questions']];
+// Sample numbers for the charts below. Made up to show the shape of a real report — not a real student's results.
+const SAMPLE_TYPES = [['R', 'Realistic', 4], ['I', 'Investigative', 8], ['A', 'Artistic', 6], ['S', 'Social', 5], ['E', 'Enterprising', 3], ['C', 'Conventional', 5]].map(([letter, label, stanine]) => ({ letter, label, stanine }));
+const SAMPLE_BARS = [['d1', 'Interests', 8], ['d2', 'Personality', 6], ['d3', 'Abilities', 7], ['d4', 'Emotional intelligence', 5]].map(([id, label, stanine]) => ({ id, label, stanine }));
+const SAMPLE_PARTS = [['interest', 'Interests', 'strong', 'Strong'], ['values', 'Values', 'good', 'Good'], ['orientation', 'Work style', 'strong', 'Strong'], ['aptitude', 'Readiness', 'good', 'Good']].map(([key, label, band, bandLabel]) => ({ key, label, band, bandLabel }));
+
+const QUICK = [['preview', 'See a report'], ['dimensions', 'The five dimensions'], ['framework', 'The research'], ['engine', 'The matching engine'], ['checks', 'Checks and balances'], ['faq', 'Questions']];
 
 function Header() {
   const acct = useAccount();
@@ -44,22 +56,78 @@ function Header() {
 }
 
 const FACTS = [['5', 'dimensions behind every report'], ['332', 'questions, for a college-track student'], ['483', 'careers mapped, 16 broad fields'], ['35–40', 'pages in a Class 10+ report']];
+const TRUST = [PHOTO.p6684552, PHOTO.p30858451, PHOTO.p10638081];
+
+/** A tilted preview card for the hero: the real interest-hexagon chart, filled with made-up sample numbers. */
+function HeroPreview() {
+  return (
+    <div className="lpx-xr-peek" aria-hidden="true">
+      <Example />
+      <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="target" size={24} stroke={1.8} /></span><div><b>Your interest shape</b><small>One chart from your own report</small></div></div>
+      <Hexagon types={SAMPLE_TYPES} />
+      <div style={{ display: 'flex', justifyContent: 'center' }}><BandPill band="strong" label="Strong fit: Investigative" /></div>
+    </div>
+  );
+}
 
 function Hero() {
   const acct = useAccount();
   return (
-    <section className="lpx" style={{ paddingTop: 48 }} aria-label="Mission Control">
-      <div className="lpx-mc-hero">
-        <Tag icon="sparkles">MISSION CONTROL</Tag>
-        <h1>The engineering<br />behind your <i>orbit</i>.</h1>
-        <p>Every suggestion iMenteo makes starts as a question answered, not a guess. This is a plain look at the instruments we use, the research they are built on, and exactly what your report contains.</p>
-        <div className="lpx-ctas">
-          <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn white">{acct.signedIn ? 'Open my dashboard' : 'Take the assessment'}<Icon name="chevronRight" size={18} /></Link>
-          <button type="button" className="lpx-btn outline" onClick={() => goSection('dimensions')}>Explore the science</button>
+    <section className="lpx" style={{ paddingTop: 48 }} aria-label="Career X-Ray">
+      <div className="lpx-mc-hero lpx-xr-hero">
+        <div>
+          <Tag icon="sparkles">CAREER X-RAY</Tag>
+          <h1>Your Career<br /><i>X-Ray</i>.</h1>
+          <p>A clear, visual look inside your report: the graphs it draws, the research behind them, and exactly what they tell you about where you could go. Built first for students in India, with entrance exams, degree names and real costs in mind.</p>
+          <div className="lpx-ctas">
+            <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn white">{acct.signedIn ? 'Open my dashboard' : 'Take the assessment'}<Icon name="chevronRight" size={18} /></Link>
+            <button type="button" className="lpx-btn outline" onClick={() => goSection('preview')}>See a real chart</button>
+          </div>
+          <div className="lpx-xr-trust">
+            <span className="lpx-xr-trust-photos">{TRUST.map((src, i) => <img key={i} src={src} alt="" />)}</span>
+            <span>Built for Class 6 to college, across India</span>
+          </div>
         </div>
+        <HeroPreview />
       </div>
       <Reveal className="lpx-facts lpx-mc-facts">{FACTS.map(([n, t]) => <div key={n}><b>{n}</b><span>{t}</span></div>)}</Reveal>
       <div className="lpx-mc-quick" aria-hidden="true">{QUICK.map(([id, label]) => <button key={id} type="button" onClick={() => goSection(id)}>{label}</button>)}</div>
+    </section>
+  );
+}
+
+/* ── See a report ──────────────────────────────────────── */
+function Preview() {
+  const acct = useAccount();
+  return (
+    <section id="preview" className="lpx" aria-label="What your report looks like">
+      <Reveal className="lpx-head"><Tag icon="file">SEE A REPORT</Tag><h2>What your report<br />actually looks <Circled>like</Circled>.</h2><p>These are the real charts your report uses, drawn here with made-up sample numbers so you can see the shape of the thing before you take it.</p></Reveal>
+      <div className="lpx-xr-spread">
+        <Reveal className="lpx-xr-page">
+          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="target" size={24} stroke={1.8} /></span><div><b>Your interest code</b><small>The Holland hexagon, six themes at once</small></div></div>
+          <Hexagon types={SAMPLE_TYPES} />
+          <ul className="lpx-bars">{SAMPLE_BARS.slice(0, 2).map(r => <li key={r.id}><span>{r.label}</span><ScaleTrack stanine={r.stanine} label={r.label} width={160} /></li>)}</ul>
+        </Reveal>
+        <Reveal className="lpx-xr-page" delay={90}>
+          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="chart" size={24} stroke={1.8} /></span><div><b>Your five dimensions</b><small>Every scale on a 1-to-9 track, never a percentage</small></div></div>
+          <BarChart rows={SAMPLE_BARS} color="#F2A93B" width={420} />
+        </Reveal>
+        <Reveal className="lpx-xr-page" delay={160}>
+          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="trend" size={24} stroke={1.8} /></span><div><b>Where your energy points</b><small>People or data, ideas or things</small></div></div>
+          <Compass x={-0.4} y={-0.5} />
+        </Reveal>
+        <Reveal className="lpx-xr-page" delay={230}>
+          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="layers" size={24} stroke={1.8} /></span><div><b>Why a career was suggested</b><small>How a single match adds up</small></div></div>
+          <PartsBars parts={SAMPLE_PARTS} width={230} />
+          <div style={{ marginTop: 10 }}><BandPill band="strong" label="Strong fit" /></div>
+        </Reveal>
+      </div>
+      <Reveal className="lpx-xr-photo-row" delay={100}>
+        <img src={PHOTO.p8055086} alt="A student going through their report with family at home" />
+        <div><h3>Read it, download it, or get it by email</h3><p>Every student gets the full report on screen the moment they finish. It is also a PDF you can download or have emailed to you — to keep, print, or show a parent, a counsellor, or a mentor.</p>
+          <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -85,7 +153,7 @@ function Dimensions() {
 const FRAMEWORK = [
   ['target', 'Holland’s RIASEC framework', 'The six-letter language of career interests, in use since the 1970s and still the standard starting point for interest-based career theory.'],
   ['layers', 'The Brown & Gore C-index', 'A published method for comparing two interest codes by how closely their strongest themes agree, and in what order, not just whether they overlap.'],
-  ['search', 'O*NET, the U.S. Department of Labor’s occupation database', 'A public, continually updated database covering the real demands and rewards of hundreds of occupations. It is our starting point for every career we map, carrying its own open licence (CC BY 4.0).'],
+  ['search', 'O*NET, the U.S. Department of Labor’s occupation database', 'A public, continually updated database covering the real demands and rewards of hundreds of occupations — our starting point for every career we map, adapted for India: entrance exams like JEE and NEET, Indian degree names, and cost bands you can actually plan around.'],
   ['shield', 'Work-values theory', 'What people consistently say they need from a job — achievement, relationships, independence and the rest — compared using the same statistical approach researchers use to compare profiles.']
 ];
 function Framework() {
@@ -98,32 +166,6 @@ function Framework() {
           <p>We built an engine on top of frameworks career researchers have trusted for decades, then wrote plain-English rules for how they get used: suggest, never decide, and never show a number dressed up as certainty.</p>
         </Reveal>
         <div className="lpx-rules">{FRAMEWORK.map(([e, t, d], i) => <Reveal key={t} className="lpx-rule" delay={i * 80}><Emoji tone={i}>{e}</Emoji><div><h3>{t}</h3><p>{d}</p></div></Reveal>)}</div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Inside your report ───────────────────────────────── */
-const TRACKS = [['Class 6–9', '160', 'questions, an explore-areas report'], ['Class 10–12', '314', 'questions, streams and career fields'], ['College', '332', 'questions, the full five dimensions']];
-const BARS = [['Interests', 72], ['Personality', 58], ['Abilities', 81], ['Emotional intelligence', 64]];
-function ReportSection() {
-  const acct = useAccount();
-  return (
-    <section id="report" className="lpx lpx-panel" aria-label="Inside your report">
-      <div className="lpx-panel-in">
-        <Reveal className="lpx-panel-copy">
-          <Tag icon="file">YOUR REPORT</Tag>
-          <h2 className="lpx-h">A document built<br />around <Circled>you</Circled>.</h2>
-          <p>Finish the assessment and you get a full Career Discovery Report: typically 35 to 40 pages for Class 10 and up, shorter and explore-focused for Class 6 to 9. Every scale is shown on a simple 1-to-9 scale with a plain-language band underneath it, never a raw percentage. You can read it on screen, download it as a PDF, or have it emailed to you.</p>
-          <div className="lpx-mc-tracks">{TRACKS.map(([t, n, d]) => <div key={t} className="lpx-mc-track"><b>{n}</b><span>{t} · {d}</span></div>)}</div>
-          <Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn" style={{ marginTop: 24 }}>{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}<Icon name="chevronRight" size={18} /></Link>
-        </Reveal>
-        <Reveal className="lpx-report" delay={120} aria-label="An example report page">
-          <Example />
-          <div className="lpx-report-top"><span className="lpx-report-ico"><Icon name="file" size={26} stroke={1.8} /></span><div><b>Career Discovery Report</b><small>Scored on a 1-to-9 scale, not a percentage</small></div></div>
-          <ul className="lpx-bars">{BARS.map(([l, v]) => <li key={l}><span>{l}</span><div><i style={{ width: `${v}%` }} /></div></li>)}</ul>
-          <div className="lpx-fields"><small>Career fields are shown as a band, never a number</small><span>Strong fit</span><span>Good fit</span><span>Worth exploring</span></div>
-        </Reveal>
       </div>
     </section>
   );
@@ -176,15 +218,15 @@ const FAQ = [
   ['Is the India-specific guidance reviewed?', 'It is being reviewed in stages. Until a career’s entry guidance is confirmed, its page says so plainly, and we ask you to check exams and eligibility on the official sites before deciding.'],
   ['Does the assessment ever say I am not good enough for something?', 'No. Where your abilities do not fully match a career yet, the report calls it “building” or “a stretch” and lists what to work on — the wording that would rule you out is explicitly banned from how we write results.']
 ];
-function MCFaq() {
+function XrFaq() {
   const [open, setOpen] = useState(0);
   return (
     <section id="faq" className="lpx lpx-faq" aria-label="Questions about the science">
       <Reveal className="lpx-head"><Tag icon="info">QUESTIONS</Tag><h2>The science, in plain answers.</h2></Reveal>
       <div className="lpx-qs">{FAQ.map(([q, a], i) => (
         <div key={q} className={`lpx-q${open === i ? ' open' : ''}`}>
-          <h3><button type="button" aria-expanded={open === i} aria-controls={`mc-faq-${i}`} onClick={() => setOpen(open === i ? -1 : i)}>{q}<Icon name="chevronDown" size={20} /></button></h3>
-          <div id={`mc-faq-${i}`} role="region" aria-label={q} className="lpx-a"><p>{a}</p></div>
+          <h3><button type="button" aria-expanded={open === i} aria-controls={`xr-faq-${i}`} onClick={() => setOpen(open === i ? -1 : i)}>{q}<Icon name="chevronDown" size={20} /></button></h3>
+          <div id={`xr-faq-${i}`} role="region" aria-label={q} className="lpx-a"><p>{a}</p></div>
         </div>))}</div>
     </section>
   );
@@ -195,15 +237,15 @@ function ClosingCta() {
   return (
     <section id="start" className="lpx lpx-final" aria-label="Get started">
       <Reveal className="lpx-final-in">
-        <h2>Your orbit is<br />waiting to be charted.</h2>
-        <p>The assessment takes a few sittings, at your pace. Everything on this page is what happens next.</p>
+        <h2>Your Career X-Ray is<br />one assessment away.</h2>
+        <p>The assessment takes a few sittings, at your pace. Everything on this page is what you get at the end of it.</p>
         <div className="lpx-ctas"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lpx-btn white">{acct.signedIn ? 'Open my dashboard' : 'Take the assessment'}<Icon name="chevronRight" size={18} /></Link><Link to="/" className="lpx-btn outline">Back to iMenteo</Link></div>
       </Reveal>
     </section>
   );
 }
 
-function MCFooter() {
+function XrFooter() {
   return (
     <footer className="lpx-foot" style={{ paddingBottom: 40 }}>
       <div style={{ paddingTop: 44 }}>
@@ -219,24 +261,24 @@ function MCFooter() {
   );
 }
 
-export default function MissionControl() {
+export default function CareerXray() {
   useEffect(() => {
     const prev = document.title;
-    document.title = 'iMenteo | Mission Control — the science behind your orbit';
+    document.title = 'iMenteo | The Career X-Ray — see inside your report';
     return () => { document.title = prev; };
   }, []);
   return (
     <div className="lp" id="top">
       <Header />
       <Hero />
+      <Preview />
       <Dimensions />
       <Framework />
-      <ReportSection />
       <Engine />
       <Checks />
-      <MCFaq />
+      <XrFaq />
       <ClosingCta />
-      <MCFooter />
+      <XrFooter />
     </div>
   );
 }

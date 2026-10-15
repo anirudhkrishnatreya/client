@@ -60,7 +60,7 @@ function HeroDesktop() {
           <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>The platform<img src={chevron} alt="" /></button>
           <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About</button>
           <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact</button>
-          <Link to="/mission-control" className="lp-hlink">Mission Control</Link>
+          <Link to="/career-xray" className="lp-hlink">Career X-Ray</Link>
         </nav>
         <Link to={acct.to} className="lp-hlogin">{acct.label}</Link>
       </header>
@@ -107,7 +107,7 @@ function HeroMobile() {
             <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>The platform</button>
             <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About</button>
             <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact</button>
-            <Link to="/mission-control" onClick={() => setOpen(false)}>Mission Control</Link>
+            <Link to="/career-xray" onClick={() => setOpen(false)}>Career X-Ray</Link>
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
           </nav>
         )}
