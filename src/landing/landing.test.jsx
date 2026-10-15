@@ -15,9 +15,9 @@ describe('landing page (desktop)', () => {
   beforeEach(() => media(q => /min-width: 1024px/.test(q)));
   it('shows the headline, the nav and the sign-in link', () => {
     page();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/GROW\s+YOUR FUTURE.*SKILLS.*WITH MENTORS/is);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/YOUR 24\/7.*AI MENTOR.*FOR WHAT’S NEXT/is);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Login / Signup' })).toHaveAttribute('href', '/login');
+    expect(screen.getAllByRole('link', { name: 'Log in' })[0]).toHaveAttribute('href', '/login');
     expect(screen.getAllByAltText('iMenteo').length).toBeGreaterThan(0);
   });
   it('has every week\'s words on the page, so none depend on scrolling to be readable by assistive tools', () => {
@@ -37,7 +37,7 @@ describe('landing page (phone)', () => {
     const btn = screen.getByRole('button', { name: 'Open menu' });
     expect(btn).toHaveAttribute('aria-expanded', 'false');
     btn.click();
-    expect(await screen.findByRole('link', { name: 'Login / Signup' })).toHaveAttribute('href', '/login');
+    expect((await screen.findAllByRole('link', { name: 'Log in' }))[0]).toHaveAttribute('href', '/login');
   });
 });
 

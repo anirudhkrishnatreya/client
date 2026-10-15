@@ -2,4 +2,4 @@
 export const CONTACT_EMAIL = (import.meta.env.VITE_CONTACT_EMAIL || '').trim();
 
 /** The hashtags on the landing page: each says something real about what iMenteo does. */
-export const TAGS = ['#CareerClarity', '#WeeklyMentoring', '#Accountability', '#ParentVisibility', '#GuidedByMentors', '#LearnWithPurpose', '#Class6ToCollege', '#SkillsFirst'];
+export const TAGS = ['#CareerClarity', '#AIMentor', '#AlwaysOn', '#AgenticAI', '#WeeklyPlan', '#Accountability', '#ParentVisibility', '#Class6ToCollege'];

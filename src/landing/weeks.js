@@ -25,25 +25,25 @@ export const LINE_ICONS = {
 };
 
 export const WEEKS = [
-  { n: 1, title: 'Know Your Career Fit', items: [
-    { img: iconSurvey, title: 'Survey & Profile.', text: 'Tell us about you: background, strengths, goals.' },
-    { img: iconGauge, title: 'Instant Assessment', text: 'Your answers are scored against career profiles, and you see your results straight away.' },
-    { img: iconReport, title: 'Your Career Fit Report', text: 'Get your top recommended paths, your key strengths, and a skills roadmap to start from.' }
+  { n: 1, title: 'Know where you fit', items: [
+    { img: iconSurvey, title: 'Your starting point', text: 'Your background, your strengths and what you want to do.' },
+    { img: iconGauge, title: 'A quick assessment', text: 'Answer at your own pace. Your results are ready as soon as you finish.' },
+    { img: iconReport, title: 'Your career fit report', text: 'The paths that suit you best, your strengths, and the skills to build first.' }
   ],
   emojis: ['sparkles', 'target', 'heart', 'bulb', 'bolt', 'flag', 'award'],
   art: { cardA: card1, captionA: 'Tell us about you: background, strengths, goals.', cardB: card2, captionB: 'Tell us about you: background, strengths, goals.', blob: blob1, blobSize: [174, 174], round: PHOTO.p10638081 } },
-  { n: 2, title: 'Meet Your Mentor', items: [
-    { icon: 'match', title: 'Mentor Match.', text: 'Matched on your goals and profile, with a person checking the fit.' },
-    { icon: 'session', title: 'Your First Session', text: 'Talk through your report together and set clear goals for the weeks ahead.' },
-    { icon: 'plan', title: 'Your Action Plan', text: 'Leave with a simple, week-by-week plan you can start on right away.' }
+  { n: 2, title: 'Your mentor, ready', items: [
+    { icon: 'match', title: 'It learns your goals', text: 'Your AI mentor starts from your report, your goals and your marks.' },
+    { icon: 'session', title: 'A real mentor joins in', text: 'A person checks the fit, goes through your report with you and sets your goals.' },
+    { icon: 'plan', title: 'Your plan for the week', text: 'A simple plan you can start on today, built around your goal.' }
   ],
   emojis: ['users', 'target', 'message', 'heart', 'star', 'calendar', 'flag'],
-  art: { cardA: PHOTO.p8419640, captionA: 'Matched with a mentor who gets your goals.', cardB: PHOTO.p4308097, captionB: 'Your first session, booked and ready.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
-  { n: 3, title: 'Build the Habit', items: [
-    { icon: 'week', title: 'Weekly Sessions.', text: 'Meet your mentor every week and leave with clear action items.' },
-    { icon: 'check', title: 'Insights That Help', text: 'Short summaries of your progress and what to focus on next, reviewed by your mentor.' },
-    { icon: 'growth', title: 'Progress You Can See', text: 'You and your parents follow your growth through reports and mentor notes.' }
+  art: { cardA: PHOTO.p8419640, captionA: 'A mentor that already knows your goals.', cardB: PHOTO.p4308097, captionB: 'Your first session, set up for you.', blobPhoto: PHOTO.p5306434, blobMask: hero4, blobSize: [190, 141], round: PHOTO.p6392977 } },
+  { n: 3, title: 'Keep moving', items: [
+    { icon: 'week', title: 'Check-ins, any hour', text: 'Ask for help, get a nudge, or change your plan whenever you need to.' },
+    { icon: 'check', title: 'A plan that adjusts', text: 'Fall behind or get ahead and your week changes with you. Your mentor reviews the big moves.' },
+    { icon: 'growth', title: 'Progress you can see', text: 'You and your parents can follow your growth through reports and mentor notes.' }
   ],
   emojis: ['trend', 'award', 'book', 'bolt', 'check', 'cap', 'star'],
-  art: { cardA: PHOTO.p7683820, captionA: 'Clear action items after every session.', cardB: PHOTO.p30858451, captionB: 'Progress that shows up week by week.', blobPhoto: PHOTO.p7129712, blobMask: hero2, blobSize: [158, 174], round: PHOTO.p21006242 } }
+  art: { cardA: PHOTO.p7683820, captionA: 'Clear next steps after every check-in.', cardB: PHOTO.p30858451, captionB: 'Progress that shows up week by week.', blobPhoto: PHOTO.p7129712, blobMask: hero2, blobSize: [158, 174], round: PHOTO.p21006242 } }
 ];

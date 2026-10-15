@@ -29,7 +29,7 @@ const toTop = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'sm
 
 function useAccount() {
   const { isLoggedIn } = useAuth();
-  return isLoggedIn ? { to: PLATFORM_ENABLED ? '/platform' : '/dashboard', label: 'My dashboard' } : { to: '/login', label: 'Login / Signup' };
+  return isLoggedIn ? { to: PLATFORM_ENABLED ? '/platform' : '/dashboard', label: 'My dashboard' } : { to: '/login', label: 'Log in' };
 }
 
 // one repeating group of five pills, in the design's own arrangement: [centre x, centre y, width, height, tilt, look]  (design units, group width 421)
@@ -56,10 +56,10 @@ function HeroDesktop() {
         <img src={logo} alt="iMenteo" className="lp-hlogo" />
         <nav aria-label="Main" className="lp-hlinks">
           <a href="#top" className="lp-hpill" onClick={toTop}>Home</a>
-          <button type="button" className="lp-hlink" onClick={() => goTo('how-it-works')}>Services<img src={chevron} alt="" /></button>
-          <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>Mentors<img src={chevron} alt="" /></button>
-          <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About Us</button>
-          <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact Us</button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('how-it-works')}>How it works<img src={chevron} alt="" /></button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('get-started')}>AI mentor<img src={chevron} alt="" /></button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About</button>
+          <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact</button>
         </nav>
         <Link to={acct.to} className="lp-hlogin">{acct.label}</Link>
       </header>
@@ -75,9 +75,9 @@ function HeroDesktop() {
       </div>
 
       <div className="lp-hbody">
-        <h1 className="lp-hh1"><span className="l1">Grow&nbsp; your future</span><span className="l2">&amp; skills</span><span className="l3">with <i>mentors</i></span></h1>
+        <h1 className="lp-hh1"><span className="l1">Your 24/7</span><span className="l2">AI mentor</span><span className="l3">for <i>what’s next</i></span></h1>
         <div className="lp-hside">
-          <p>Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
+          <p>iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
           <div className="lp-hcta">
             <Link to={acct.label === 'My dashboard' ? acct.to : SIGNUP} className="lp-btn lp-herobtn">{acct.label === 'My dashboard' ? 'Open my dashboard' : 'Take the career assessment'}</Link>
             <button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button>
@@ -102,17 +102,17 @@ function HeroMobile() {
         {open && (
           <nav id="lp-menu" className="lp-menu" aria-label="Main">
             <a href="#top" onClick={e => { toTop(e); setOpen(false); }}>Home</a>
-            <button type="button" onClick={() => { setOpen(false); goTo('how-it-works'); }}>Services</button>
-            <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>Mentors</button>
-            <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About Us</button>
-            <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact Us</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('how-it-works'); }}>How it works</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('get-started'); }}>AI mentor</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About</button>
+            <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact</button>
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
           </nav>
         )}
       </header>
       <div className="lp-strip" aria-hidden="true"><div className="lp-strip-in">{[...strip, ...strip].map(([src, cls], i) => <img key={i} src={src} alt="" className={`lp-sp ${cls}`} />)}</div></div>
-      <h1 className="lp-mh1">GROW YOUR<br />FUTURE &amp; SKILLS<br />WITH <i>MENTORS</i></h1>
-      <p className="lp-mlede">Embark on a Transformative Journey: Cultivate Your Talents and Expand Your Horizons with the Guidance of Seasoned Mentors, Unleashing your Full Potential.</p>
+      <h1 className="lp-mh1">YOUR 24/7<br />AI MENTOR<br />FOR <i>WHAT’S NEXT</i></h1>
+      <p className="lp-mlede">iMenteo is an AI mentor that learns what you are good at, plans your week and checks in on you every day. A real mentor is there for the big decisions.</p>
       <div className="lp-mcta"><Link to={acct.signedIn ? acct.to : SIGNUP} className="lp-btn">{acct.signedIn ? 'Open my dashboard' : 'Take the career assessment'}</Link><button type="button" className="lp-herolink" onClick={() => goTo('how-it-works')}>See how it works</button></div>
       <div className="lp-mtagrow" aria-hidden="true">{TAGS.map((t, i) => <span key={t} className={`lp-chip m c${i % 4}`} style={{ transform: `rotate(${[-4, 3, -2, 5][i % 4]}deg)` }}>{t}</span>)}</div>
     </div>

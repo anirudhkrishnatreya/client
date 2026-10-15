@@ -7,7 +7,7 @@ import { goSection } from './ExtraSections';
 import logo from '../assets/landing/logo.png';
 
 export const BAR_H = 60;
-const ITEMS = [['about', 'About'], ['how-it-works', 'How it works'], ['get-started', 'Mentors'], ['assessment', 'Assessment'], ['who', 'Who it’s for'], ['faq', 'FAQ']];
+const ITEMS = [['about', 'About'], ['how-it-works', 'How it works'], ['get-started', 'AI mentor'], ['assessment', 'Assessment'], ['who', 'Who it’s for'], ['faq', 'FAQ']];
 const IDS = ITEMS.map(([id]) => id);
 
 /** The design's nav scrolls away with the first screen; this slim bar takes over once it has, with the section you are in highlighted. */
