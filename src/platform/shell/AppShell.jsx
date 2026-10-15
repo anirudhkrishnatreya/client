@@ -76,7 +76,7 @@ export default function AppShell({ role, preview = false }) {
     <div className="pf">
       <div className={`pf-shell${collapsed ? ' collapsed' : ''}${open ? ' open' : ''}`}>
         <aside className="pf-side" aria-label="Main navigation">
-          <div className="pf-brand"><Link to={live ? base : '/platform/preview'} className="chip" aria-label="iMenteo home"><img src={logo} alt="iMenteo" /></Link></div>
+          <div className="pf-brand"><Link to={live ? base : '/platform/preview'} className="chip" aria-label="iMenteo home">{collapsed ? <img src="/icon-512.png" alt="iMenteo" className="mark" /> : <img src={logo} alt="iMenteo" />}</Link></div>
           <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span>{live
             ? <button type="button" onClick={() => { clearSession(); nav('/login'); }} style={{ background: 'none', border: 0, color: '#FFC56B', fontSize: 12, cursor: 'pointer', display: 'inline-flex', gap: 5, alignItems: 'center' }} title="Sign out"><Icon name="logout" size={15} />Sign out</button>
             : <Link to="/platform/preview" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>

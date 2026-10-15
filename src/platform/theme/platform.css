@@ -22,9 +22,11 @@
 .pf-shell { display: grid; grid-template-columns: 268px 1fr; min-height: 100vh; transition: grid-template-columns .2s ease; }
 .pf-shell.collapsed { grid-template-columns: 84px 1fr; }
 .pf-side { background: linear-gradient(180deg, var(--deep) 0%, #0a1f86 100%); color: #D5DAF0; display: flex; flex-direction: column; padding: 18px 14px 14px; position: sticky; top: 0; height: 100vh; z-index: 30; }
-.pf-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 18px; }
-.pf-brand .chip { background: #fff; border-radius: 12px; padding: 7px 12px; display: flex; align-items: center; } .pf-brand img { height: 22px; display: block; }
-.pf-shell.collapsed .pf-brand .chip { padding: 7px 8px; } .pf-shell.collapsed .pf-brand img { width: 30px; height: 22px; object-fit: cover; object-position: left; }
+.pf-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 20px; }
+.pf-brand .chip { background: #fff; border-radius: 14px; padding: 10px 16px; display: flex; align-items: center; box-shadow: 0 6px 16px -6px rgba(0,0,0,.35); }
+.pf-brand img { height: 24px; display: block; }
+.pf-shell.collapsed .pf-brand .chip { padding: 10px; border-radius: 16px; }
+.pf-shell.collapsed .pf-brand img.mark { width: 28px; height: 28px; object-fit: contain; }
 .pf-roleswitch { margin: 0 6px 14px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.07); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #AEB6DD; display: flex; justify-content: space-between; align-items: center; }
 .pf-nav { flex: 1; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
 .pf-nav h6 { margin: 16px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #a9bcff; }
