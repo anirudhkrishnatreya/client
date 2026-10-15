@@ -97,7 +97,7 @@ export default function AppShell({ role, preview = false }) {
         <aside className="pf-side" aria-label="Main navigation">
           <div className="pf-brand"><Link to={live ? base : '/platform/preview'} className="chip" aria-label="iMenteo home">{collapsed ? <img src="/icon-512.png" alt="iMenteo" className="mark" /> : <img src={logo} alt="iMenteo" />}</Link></div>
           <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span>{!live &&
-            <Link to="/platform/preview" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>
+            <Link to="/platform/preview" style={{ color: 'var(--indigo)', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>
           <nav className="pf-nav">
             {NAV[role].map(sec => (
               <div key={sec.section}>
