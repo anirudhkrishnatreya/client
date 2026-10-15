@@ -419,11 +419,23 @@ describe('V4Dashboard', () => {
     expect(await screen.findByText('IRA')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
     expect(screen.getByText('Preparing your PDF…')).toBeInTheDocument();
-    expect(screen.getByText('PDF coming soon')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create my PDF' })).toBeInTheDocument();
     expect(screen.getByText(/Retaking is recommended/)).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'View' })).toHaveLength(3);
   });
 
+  it('a report with no PDF can ask for one, and says so plainly if the service is off', async () => {
+    const reports = [{ assessmentId: 'a1', completedAt: '2026-08-01T10:00:00Z', hollandCode: 'SEC', validity: 'ok', provisional: true, pdf: { status: 'unavailable' } }];
+    const api = baseApi({ reports: vi.fn(() => ok({ reports })), requestPdf: vi.fn(() => Promise.reject({ response: { status: 503, data: { code: 'PDF_DISABLED' } } })) });
+    const user = userEvent.setup();
+    await dash(api);
+    await user.click(await screen.findByRole('button', { name: 'Create my PDF' }));
+    expect(api.requestPdf).toHaveBeenCalledWith('a1');
+    expect(await screen.findByRole('alert')).toHaveTextContent('The PDF is not available yet.');
+    api.requestPdf.mockImplementation(() => ok({ status: 'preparing' }));
+    await user.click(screen.getByRole('button', { name: 'Create my PDF' }));
+    expect(await screen.findByText('Preparing your PDF…')).toBeInTheDocument();
+  });
   it('an adult controls sharing; a minor sees the guardian\'s choice and cannot change it', async () => {
     const adult = baseApi({ setSharing: vi.fn(() => ok({})) });
     const user = userEvent.setup();

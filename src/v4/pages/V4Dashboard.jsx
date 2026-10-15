@@ -85,6 +85,12 @@ export default function V4Dashboard({ api = defaultApi, today = new Date() }) {
 export function PdfCell({ api, report }) {
   const [err, setErr] = useState('');
   const [status, setStatus] = useState(report.pdf && report.pdf.status);
+  // while the PDF is being made, look again every few seconds so it turns into a Download button on its own
+  useEffect(() => {
+    if (status !== 'preparing') return undefined;
+    const t = setInterval(() => { api.reports().then(({ data }) => { const r = data.reports.find(x => x.assessmentId === report.assessmentId); if (r && r.pdf && r.pdf.status !== 'preparing') setStatus(r.pdf.status); }).catch(() => {}); }, 6000);
+    return () => clearInterval(t);
+  }, [status, api, report.assessmentId]);
   if (status === 'ready') {
     const download = async () => {
       setErr('');
@@ -105,7 +111,12 @@ export function PdfCell({ api, report }) {
     };
     return <><span className="v4-muted" role="status">The PDF could not be made.</span> <button className="v4-btn secondary" onClick={retry}>Try again</button>{err && <span className="v4-err" role="alert">{err}</span>}</>;
   }
-  return <span className="v4-muted">PDF coming soon</span>;
+  const create = async () => {
+    setErr('');
+    try { await api.requestPdf(report.assessmentId); setStatus('preparing'); }
+    catch (e) { setErr(errorCode(e) === 'PDF_DISABLED' ? 'The PDF is not available yet.' : 'We could not start it. Please try again later.'); }
+  };
+  return <><button className="v4-btn secondary" onClick={create}>Create my PDF</button>{err && <span className="v4-err" role="alert">{err}</span>}</>;
 }
 
 function PendingConsent({ api, consent, run }) {
