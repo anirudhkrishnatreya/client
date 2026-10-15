@@ -89,3 +89,12 @@ describe('Career X-Ray', () => {
     expect(screen.getAllByRole('link', { name: /Take the (assessment|career assessment)/ }).length).toBeGreaterThan(0);
   });
 });
+
+describe('the page never ships a third-party script that resets the site’s own CSS', () => {
+  it('index.html has no Tailwind (or other) CDN script tag', async () => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const html = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf8');
+    expect(html).not.toMatch(/cdn\.tailwindcss\.com|<script[^>]+src=["']https?:\/\//i);
+  });
+});

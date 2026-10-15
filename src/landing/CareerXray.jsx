@@ -23,6 +23,7 @@ import '@fontsource/fraunces/600.css';
 import '@fontsource/newsreader/400.css';
 
 const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
+const BAR_H = 64;
 const goSection = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
 
 function useAccount() {
@@ -40,7 +41,7 @@ const QUICK = [['preview', 'See a report'], ['dimensions', 'The five dimensions'
 function Header() {
   const acct = useAccount();
   return (
-    <header className="lp-bar show xr-bar">
+    <header className="lp-bar show xr-bar" style={{ height: BAR_H }}>
       <div className="lp-bar-in">
         <Link to="/" className="lp-bar-logo" aria-label="iMenteo home"><img src={logo} alt="iMenteo" /></Link>
         <nav className="lp-bar-links" aria-label="Sections">

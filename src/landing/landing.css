@@ -512,7 +512,7 @@ button.lp-btn { cursor: pointer; font-family: 'DM Sans', sans-serif; }
    exists so a stray earlier bug (an inline position:sticky with no offset, which silently cancelled the fixed pin) can
    never come back unnoticed. */
 .xr-bar { position: fixed; }
-.xr-page { padding-top: 60px; }  /* room for the fixed header before the hero begins */
+.xr-page { padding-top: 64px; }  /* room for the fixed header before the hero begins */
 
 /* On a wide monitor the default 1043px reading column leaves large plain gutters either side; this page widens its
    column and fills those gutters with full-bleed tinted bands instead of flat white, so nothing feels like empty space. */
