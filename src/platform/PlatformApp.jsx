@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Icon from './ui/Icon';
@@ -21,6 +22,7 @@ import LiveParentProgress from './live/parent/Progress';
 import LiveParentTasks from './live/parent/Tasks';
 import LiveParentReports from './live/parent/Reports';
 import LiveParentMentor from './live/parent/Mentor';
+import { REC_ENABLED } from './live/careers/config';
 import './theme/platform.css';
 import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/500.css';
@@ -48,6 +50,14 @@ import ParentProgress from './parent/Progress';
 import ParentTasks from './parent/Tasks';
 import ParentReports from './parent/Reports';
 import ParentMentor from './parent/Mentor';
+
+// The career explorer is loaded only when someone opens it, so it adds nothing to the first load of the dashboards.
+const Explore = lazy(() => import('./live/careers/Explore'));
+const Occupation = lazy(() => import('./live/careers/Occupation'));
+const Matches = lazy(() => import('./live/careers/Matches'));
+const Shortlist = lazy(() => import('./live/careers/Shortlist'));
+const Situation = lazy(() => import('./live/careers/Situation'));
+const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
 const ROLES = [
   { id: 'student', icon: 'cap', title: 'Student', text: 'Your goal, your week, your tasks, your assessments and your mentor, in one place.', color: 'var(--indigo)' },
@@ -108,6 +118,10 @@ export default function PlatformApp() {
       <Route path="student" element={<Gate role="student" />}>
         <Route index element={<LiveStudentOverview />} /><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /><Route path="tasks" element={<StudentTasks />} />
         <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
+        {REC_ENABLED && <>
+          <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />
+          <Route path="shortlist" element={later(<Shortlist />)} /><Route path="situation" element={later(<Situation />)} />
+        </>}
       </Route>
       <Route path="mentor" element={<Gate role="mentor" />}>
         <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="insights" element={<LiveInsights />} />
