@@ -90,6 +90,38 @@ describe('student: reports', () => {
   });
 });
 
+describe('sidebar: the user menu and the mobile drawer', () => {
+  beforeEach(() => signIn({ id: 's1', fullName: 'Asha Verma', role: 'student', grade: '9' }));
+
+  it('sign out lives behind the user\'s name, not as a loose link next to the role label', async () => {
+    routes['get /v2/platform/student'] = studentBundle();
+    const user = userEvent.setup();
+    at('/platform/student');
+    await screen.findByText('Python loops set');
+    expect(screen.queryByRole('button', { name: /sign out/i })).toBeNull();
+    const trigger = screen.getByRole('button', { name: /asha verma/i });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await user.click(screen.getByRole('menuitem', { name: /sign out/i }));
+    expect(await screen.findByText('LOGIN PAGE')).toBeInTheDocument();
+  });
+
+  it('the hamburger button both opens and closes the mobile menu', async () => {
+    routes['get /v2/platform/student'] = studentBundle();
+    const user = userEvent.setup();
+    at('/platform/student');
+    await screen.findByText('Python loops set');
+    const burger = screen.getByRole('button', { name: 'Open menu' });
+    expect(burger).toHaveAttribute('aria-expanded', 'false');
+    await user.click(burger);
+    const closeBtn = screen.getByRole('button', { name: 'Close menu' });
+    expect(closeBtn).toHaveAttribute('aria-expanded', 'true');
+    await user.click(closeBtn);
+    expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
+  });
+});
+
 describe('student', () => {
   beforeEach(() => signIn({ id: 's1', fullName: 'Asha Verma', role: 'student', grade: '9' }));
 

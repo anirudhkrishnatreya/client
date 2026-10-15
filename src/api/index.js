@@ -39,6 +39,9 @@ export const authLogin    = (data)   => api.post('/auth/login',    data);
 export const authMe       = ()       => api.get('/auth/me');
 export const authLogout   = ()       => api.post('/auth/logout');
 export const getDashboard = ()       => api.get('/auth/dashboard');
+export const forgotPassword   = identifier => api.post('/auth/forgot-password', { identifier });
+export const checkResetToken  = token       => api.get(`/auth/reset-password/${token}`);
+export const resetPassword    = (token, password) => api.post(`/auth/reset-password/${token}`, { password });
 
 // ── Assessment APIs
 export const getQuestions        = ()     => api.get('/assessment/questions');

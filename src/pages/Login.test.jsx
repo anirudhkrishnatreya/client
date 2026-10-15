@@ -22,6 +22,7 @@ function mount() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/assessment" element={<div>ASSESSMENT</div>} />
+          <Route path="/forgot-password" element={<div>FORGOT PAGE</div>} />
         </Routes>
       </AssessmentProvider></AuthProvider>
     </MemoryRouter>
@@ -65,5 +66,12 @@ describe('Login', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Resend the confirmation email' })).toBeNull();
+  });
+
+  it('links to the forgot-password page', async () => {
+    const user = userEvent.setup();
+    mount();
+    await user.click(screen.getByRole('link', { name: 'Forgot password?' }));
+    await screen.findByText('FORGOT PAGE');
   });
 });

@@ -7,6 +7,8 @@ import LandingPage   from './landing/LandingPage';
 import LandingV2     from './landing/LandingV2';
 import Register      from './pages/Register';
 import Login         from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword  from './pages/ResetPassword';
 import Assessment    from './pages/Assessment';
 import Results       from './pages/Results';
 import UserDashboard from './pages/UserDashboard';
@@ -79,6 +81,8 @@ function AppRoutes() {
 
       {/* Guest-only */}
       <Route path="/login"    element={<GuestOnly><Login /></GuestOnly>} />
+      <Route path="/forgot-password" element={<GuestOnly><ForgotPassword /></GuestOnly>} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* User-protected */}
       <Route path="/dashboard"      element={<RequireUser><UserDashboard /></RequireUser>} />

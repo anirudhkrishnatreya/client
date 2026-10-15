@@ -9,6 +9,25 @@ import { useAuth } from '../../context/AuthContext';
 
 const stored = () => { try { return localStorage.getItem('imenteo-platform-collapsed') === '1'; } catch { return false; } };
 
+function UserMenu({ name, meta, onSignOut }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => { const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h); }, []);
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {open && (
+        <div role="menu" className="pf-usermenu">
+          <button type="button" role="menuitem" onClick={onSignOut}><Icon name="logout" size={15} />Sign out</button>
+        </div>
+      )}
+      <button type="button" className="pf-user" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(o => !o)}>
+        <Avatar name={name} size={38} /><div className="who"><b>{name}</b><small>{meta}</small></div>
+        <Icon name="chevronDown" size={14} className="pf-user-caret" />
+      </button>
+    </div>
+  );
+}
+
 function Notifications({ items, onRead }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -77,9 +96,8 @@ export default function AppShell({ role, preview = false }) {
       <div className={`pf-shell${collapsed ? ' collapsed' : ''}${open ? ' open' : ''}`}>
         <aside className="pf-side" aria-label="Main navigation">
           <div className="pf-brand"><Link to={live ? base : '/platform/preview'} className="chip" aria-label="iMenteo home">{collapsed ? <img src="/icon-512.png" alt="iMenteo" className="mark" /> : <img src={logo} alt="iMenteo" />}</Link></div>
-          <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span>{live
-            ? <button type="button" onClick={() => { clearSession(); nav('/login'); }} style={{ background: 'none', border: 0, color: '#FFC56B', fontSize: 12, cursor: 'pointer', display: 'inline-flex', gap: 5, alignItems: 'center' }} title="Sign out"><Icon name="logout" size={15} />Sign out</button>
-            : <Link to="/platform/preview" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>
+          <div className="pf-roleswitch"><span>{ROLE_LABEL[role]} view</span>{!live &&
+            <Link to="/platform/preview" style={{ color: '#FFC56B', fontSize: 12, textDecoration: 'none' }} title="Switch view"><Icon name="repeat" size={15} /></Link>}</div>
           <nav className="pf-nav">
             {NAV[role].map(sec => (
               <div key={sec.section}>
@@ -92,13 +110,15 @@ export default function AppShell({ role, preview = false }) {
               </div>
             ))}
           </nav>
-          <div className="pf-user"><Avatar name={me ? me.name : '…'} size={38} /><div className="who"><b>{me ? me.name : 'Loading…'}</b><small>{ROLE_LABEL[role]}{role === 'student' && me ? ` · ${me.gradeLabel || `Class ${me.klass}`}` : ''}</small></div></div>
+          {live
+            ? <UserMenu name={me ? me.name : 'Loading…'} meta={`${ROLE_LABEL[role]}${role === 'student' && me ? ` · ${me.gradeLabel || `Class ${me.klass}`}` : ''}`} onSignOut={() => { clearSession(); nav('/login'); }} />
+            : <div className="pf-user"><Avatar name={me ? me.name : '…'} size={38} /><div className="who"><b>{me ? me.name : 'Loading…'}</b><small>{ROLE_LABEL[role]}{role === 'student' && me ? ` · ${me.gradeLabel || `Class ${me.klass}`}` : ''}</small></div></div>}
           <button type="button" className="pf-collapse" onClick={toggle} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}><Icon name={collapsed ? 'chevronRight' : 'chevronLeft'} size={16} /><span style={{ display: collapsed ? 'none' : 'inline' }}>Collapse</span></button>
         </aside>
         <div className="pf-scrim" onClick={() => setOpen(false)} />
         <div className="pf-main">
           <header className="pf-top">
-            <button type="button" className="pf-iconbtn pf-menu-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Icon name="menu" /></button>
+            <button type="button" className="pf-iconbtn pf-menu-btn" onClick={() => setOpen(o => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}><Icon name={open ? 'x' : 'menu'} /></button>
             <div><div className="crumb">{ROLE_LABEL[role]}{me && role !== 'student' ? '' : ''}</div><h1>{current.label}</h1></div>
             <form className="pf-search" onSubmit={onSearch} role="search"><Icon name="search" size={18} /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Jump to a page" aria-label="Jump to a page" /></form>
             {role === 'student'

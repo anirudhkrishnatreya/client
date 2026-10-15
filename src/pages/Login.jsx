@@ -73,7 +73,7 @@ export default function Login() {
           <input id="login-id" className="au-input" type="text" autoComplete="username" value={identifier} onChange={e => setIdentifier(e.target.value)} placeholder="you@example.com" />
         </div>
         <div className="au-field">
-          <label htmlFor="login-pw">Password</label>
+          <div className="au-row-between"><label htmlFor="login-pw">Password</label><Link to="/forgot-password" className="au-forgot">Forgot password?</Link></div>
           <div className="au-pw">
             <input id="login-pw" className="au-input" type={showPw ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Your password" />
             <button type="button" onClick={() => setShowPw(v => !v)} aria-pressed={showPw} aria-label={showPw ? 'Hide password' : 'Show password'}>{showPw ? 'HIDE' : 'SHOW'}</button>
