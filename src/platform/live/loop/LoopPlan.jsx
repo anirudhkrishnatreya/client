@@ -55,6 +55,38 @@ function Places({ places }) {
   );
 }
 
+/** "Was this fair?": a yes, or a "not really" (with an optional note) that goes to a person, whose reply then shows here. */
+function Fair({ target, refId, fair, act, what }) {
+  const [mode, setMode] = useState(null);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const send = async (yes, text = '') => { setBusy(true); setErr(''); try { await act(() => loopApi.feedback(target, refId, yes, text)); setMode(null); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  if (fair && fair.status === 'answered') {
+    return <div className="pf-fair answered"><b>{fair.reply.by === 'mentor' ? 'Your mentor replied:' : 'The iMenteo team replied:'}</b> {fair.reply.text}</div>;
+  }
+  if (fair && !fair.fair) return <p className="pf-small pf-muted pf-fair">You said this did not feel fair. A mentor will look at it and reply here.</p>;
+  if (fair && fair.fair) return <p className="pf-small pf-muted pf-fair">Thanks for telling us.</p>;
+  if (mode === 'no') {
+    return (
+      <form className="pf-fair" onSubmit={e => { e.preventDefault(); send(false, note.trim()); }}>
+        <label className="pf-label" htmlFor={`fair-${refId}`}>What felt wrong? (optional)</label>
+        <textarea id={`fair-${refId}`} className="pf-textarea" rows={3} maxLength={500} value={note} onChange={e => setNote(e.target.value)} placeholder="For example: I did explain that part in my second paragraph." />
+        <div className="pf-row" style={{ gap: 8, marginTop: 8 }}><button type="submit" className="pf-btn sm" disabled={busy}>{busy ? 'Sending…' : 'Send to a mentor'}</button><button type="button" className="pf-btn sm ghost" onClick={() => setMode(null)}>Cancel</button></div>
+        {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
+      </form>
+    );
+  }
+  return (
+    <div className="pf-row pf-wrap pf-fair" style={{ gap: 8 }} role="group" aria-label={`Was ${what} fair?`}>
+      <span className="pf-small">Was {what} fair?</span>
+      <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => send(true)}>Yes</button>
+      <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => setMode('no')}>Not really</button>
+      {err && <span className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</span>}
+    </div>
+  );
+}
+
 const PRACTICE_STEPS = ['The Practice Maker is writing exercises at your level…', 'The Practice Checker is solving each one first…', 'Keeping only the ones that passed…'];
 /** Practice questions for this step, made on request (one tap, then kept): hints and answers stay hidden until asked for. */
 function Exercises({ item, act }) {
@@ -81,6 +113,7 @@ function Exercises({ item, act }) {
           {x.kind === 'task' && x.checklist && <details><summary>How to check your work</summary><ul className="pf-small">{x.checklist.map(c => <li key={c}>{c}</li>)}</ul></details>}
         </li>
       ))}</ol>
+      <Fair target="practice" refId={item.id} fair={item.exercisesFair} act={act} what="this practice" />
     </div>
   );
 }
@@ -207,6 +240,7 @@ function Assessment({ a, act }) {
             <ul className="pf-list" style={{ marginTop: 8 }}>{j.criteria.map(c => <li key={c.name}><span className="pf-grow"><b>{c.name}</b><br /><span className="pf-small pf-muted">{c.comment}</span></span><Pill tone={BAND[c.band][1]}>{BAND[c.band][0]}</Pill></li>)}</ul>
             {j.feedback && <p className="pf-small">{j.feedback}</p>}
             {j.nextStep && <p className="pf-small"><b>Next step:</b> {j.nextStep}</p>}
+            <Fair target="judgement" refId={a.id} fair={a.fair} act={act} what="this feedback" />
           </div>
         )}
         {a.task && a.task.levelUp && a.task.submitted && (a.task.levelPassed

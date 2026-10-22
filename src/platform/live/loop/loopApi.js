@@ -20,7 +20,9 @@ export const loopApi = {
   submitWork: (text, link) => api.post('/v2/me/loop/check/work', { text, ...(link ? { link } : {}) }),
   planNext: () => api.post('/v2/me/loop/next-week'),
   anotherVideo: id => api.post(`${unit(id)}/video/another`),
-  makePractice: id => api.post(`${unit(id)}/practice`)
+  makePractice: id => api.post(`${unit(id)}/practice`),
+  feedback: (target, refId, fair, note = '') => api.post('/v2/me/loop/feedback', { target, refId, fair, note }),
+  setEmails: on => api.put('/v2/me/loop/emails', { on })
 };
 
 export const codeOf = err => (err && err.response && err.response.data && (err.response.data.code || err.response.data.error)) || null;

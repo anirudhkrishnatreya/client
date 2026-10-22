@@ -219,6 +219,26 @@ describe('mentor', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Save note' }));
     await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/notes', body: { text: 'Needs a gentler pace', sharedWithParent: true } }));
   });
+  it('the Weekly plan tab shows the level, recent weeks, and a "not fair" flag with the work, and the mentor replies', async () => {
+    const loop = { goal: { title: 'Astronaut', endPoint: 'A strong physics base.', level: { number: 2, total: 4, title: 'Physics base', levelUp: 'Solve five mechanics problems.' } }, week: { number: 3, start: '2026-10-20', focus: 'x' }, lastActive: '2026-10-22T10:00:00Z',
+      recentWeeks: [{ weekNumber: 2, completion: 0.5 }], adaptations: [{ week: 2, pace: 'slow-down', summary: 'A hard week, so this one asks less.' }],
+      flagged: [{ id: 'f1', target: 'judgement', weekNumber: 2, note: 'I did explain it.', status: 'open', reply: null, context: { task: 'Explain inertia.', work: 'Things keep moving unless pushed.', judgement: { status: 'judged', criteria: [{ name: 'Accuracy', band: 'not-yet', comment: 'Incomplete.' }], feedback: 'Add an example.' } } }] };
+    routes['get /v2/platform/mentor/students/s1'] = { student: row('s1', 'Asha Verma'), loop, tasks: [], sessions: { next: null, upcoming: [], history: [] }, notes: [], reports: [] };
+    routes['post /v2/platform/mentor/students/s1/loop-feedback/f1'] = { success: true };
+    const user = userEvent.setup();
+    at('/platform/mentor/students');
+    await user.click(await screen.findByText('Asha Verma'));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(await within(dialog).findByRole('tab', { name: /Weekly plan/ }));
+    expect(within(dialog).getByText(/Level 2 of 4: Physics base/)).toBeInTheDocument();
+    expect(within(dialog).getByText('Solve five mechanics problems.')).toBeInTheDocument();
+    expect(within(dialog).getByText('A hard week, so this one asks less.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Waiting for you')).toBeInTheDocument();
+    expect(within(dialog).getByText(/Things keep moving unless pushed/)).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText('Reply to the student'), 'Your answer was right; I have noted it.');
+    await user.click(within(dialog).getByRole('button', { name: 'Send reply' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/mentor/students/s1/loop-feedback/f1')).toMatchObject({ method: 'post', body: { text: 'Your answer was right; I have noted it.' } }));
+  });
   it('assigns a task to the chosen student', async () => {
     routes['post /v2/platform/mentor/students/s1/tasks'] = { success: true };
     const user = userEvent.setup();

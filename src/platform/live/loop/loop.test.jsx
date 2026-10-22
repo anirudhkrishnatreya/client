@@ -334,6 +334,56 @@ describe('the weekly assessment and the next week', () => {
   });
 });
 
+describe('people around the plan', () => {
+  const judgedTask = { prompt: 'Explain gravity.', expects: 'About 100 words', rubric: ['Accuracy'], submitted: true, levelUp: false, levelPassed: false, judgement: { status: 'judged', overall: 'getting-there', criteria: [{ name: 'Accuracy', band: 'getting-there', comment: 'Mostly right.' }], feedback: 'Good start.', nextStep: 'Add an example.' } };
+  const done = fair => planState({ next: { canPlan: true, assessed: true, over: false, finished: false }, assessment: { id: 'c1', stage: 'done', fair, quiz: { status: 'done', score: 1, questions: [] }, task: judgedTask } });
+  it('"Was this fair?": not really, with a note, goes to a mentor; then the reply shows', async () => {
+    routes['get /v2/me/loop'] = done(null);
+    routes['post /v2/me/loop/feedback'] = done({ fair: false, note: 'I did give an example.', status: 'open', reply: null });
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    const group = await screen.findByRole('group', { name: 'Was this feedback fair?' });
+    await user.click(within(group).getByRole('button', { name: 'Not really' }));
+    await user.type(screen.getByLabelText(/What felt wrong/), 'I did give an example.');
+    await user.click(screen.getByRole('button', { name: 'Send to a mentor' }));
+    expect(await screen.findByText(/A mentor will look at it and reply here/)).toBeInTheDocument();
+    expect(calls.find(c => c.url === '/v2/me/loop/feedback').body).toEqual({ target: 'judgement', refId: 'c1', fair: false, note: 'I did give an example.' });
+  });
+  it('a reply from the mentor is shown in place of the question', async () => {
+    routes['get /v2/me/loop'] = done({ fair: false, note: 'x', status: 'answered', reply: { text: 'You are right, well spotted.', by: 'mentor', at: '2026-10-23' } });
+    at('/platform/student/plan');
+    expect(await screen.findByText('Your mentor replied:')).toBeInTheDocument();
+    expect(screen.getByText('You are right, well spotted.')).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: /fair/ })).toBeNull();
+  });
+  it('practice questions can be rated too', async () => {
+    const s = planState();
+    s.loop.week.items = [unit('u2', 3, { type: 'practise', practice: [], exercisesFair: null, exercises: [{ kind: 'question', prompt: 'Q?', hint: 'h', answer: 'a', checklist: null }] })];
+    routes['get /v2/me/loop'] = s;
+    routes['post /v2/me/loop/feedback'] = s;
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    await user.click(within(await screen.findByRole('group', { name: 'Was this practice fair?' })).getByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/me/loop/feedback').body).toEqual({ target: 'practice', refId: 'u2', fair: true, note: '' }));
+  });
+  it('the reminder switch shows only while reminders are sent, and turns them off', async () => {
+    routes['get /v2/me/loop'] = { loop: { ...planState().loop, emails: true, emailsOn: true } };
+    routes['put /v2/me/loop/emails'] = { loop: { ...planState().loop, emails: false, emailsOn: true } };
+    const user = userEvent.setup();
+    const { unmount } = at('/platform/student/goal');
+    const box = await screen.findByRole('checkbox', { name: /Email me when my week is ending/ });
+    expect(box).toBeChecked();
+    await user.click(box);
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: /Email me/ })).not.toBeChecked());
+    expect(calls.find(c => c.method === 'put' && c.url === '/v2/me/loop/emails').body).toEqual({ on: false });
+    unmount();
+    routes['get /v2/me/loop'] = { loop: { ...planState().loop, emails: true, emailsOn: false } };
+    at('/platform/student/goal');
+    await screen.findByText('Set your real week');
+    expect(screen.queryByRole('checkbox', { name: /Email me/ })).toBeNull();
+  });
+});
+
 describe('loading', () => {
   it('shows the shape of the page instead of the word "Loading"', async () => {
     let release; routes['get /v2/me/loop'] = () => new Promise(r => { release = r; });

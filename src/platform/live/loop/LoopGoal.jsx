@@ -92,6 +92,20 @@ function Proposal({ plan, act, onStarted }) {
 }
 
 /** Free time per day, rest day and exams: the week every plan is built around. */
+/** Reminder emails: on by default, one tap to stop (only shown while reminders are being sent at all). */
+function Emails({ on, act }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const flip = async () => { setBusy(true); setErr(''); try { await act(() => loopApi.setEmails(!on)); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  return (
+    <div className="pf-row pf-wrap" style={{ gap: 10, marginTop: 16 }}>
+      <label className="pf-row" style={{ gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={on} disabled={busy} onChange={flip} /><span>Email me when my week is ending or my next week is ready to plan</span></label>
+      <span className="pf-small pf-muted">At most one email a day, in the evening.</span>
+      {err && <span className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</span>}
+    </div>
+  );
+}
+
 function Schedule({ profile, act, intro }) {
   const [free, setFree] = useState(profile.freeMinutes);
   const [restDay, setRest] = useState(profile.restDay);
@@ -176,6 +190,7 @@ export default function LoopGoalPage() {
       </div>
       <Card style={{ marginTop: 18 }}><CardHead title="Set your real week" icon="calendar" />
         <Schedule profile={loop.profile} act={act} intro="How much free time do you have each day, after school, college, coaching and sleep? Be honest: a plan that fits is a plan you will follow." />
+        {loop.emailsOn && <Emails on={loop.emails} act={act} />}
       </Card>
     </>
   );

@@ -60,6 +60,11 @@ export const adminLogin      = (data)   => api.post('/admin/login',     data);
 export const adminGetUsers   = (params) => api.get('/admin/users',      { params });
 export const adminGetUser    = (id)     => api.get(`/admin/user/${id}`);
 export const adminGetStats   = ()       => api.get('/admin/stats');
+export const adminLoopMetrics   = (days = 30) => api.get('/admin/loop/metrics', { params: { days } });
+export const adminLoopAttention = ()          => api.get('/admin/loop/attention');
+export const adminLoopReply     = (id, text)  => api.post(`/admin/loop/feedback/${id}/reply`, { text });
+export const adminQualityGet   = ()          => api.get('/admin/loop/quality-pass');
+export const adminQualityStart = ()          => api.post('/admin/loop/quality-pass', { confirm: true });
 export const adminDeleteUser = (id)     => api.delete(`/admin/user/${id}`);
 
 export default api;

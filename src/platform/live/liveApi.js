@@ -68,7 +68,8 @@ export const mentorApi = {
   setTaskStatus: (taskId, status) => send('patch', `tasks/${taskId}`, { status }),
   schedule: (id, s) => send('post', `mentor/students/${id}/sessions`, s),
   updateSession: (sessionId, body) => send('patch', `sessions/${sessionId}`, body),
-  addNote: (id, n) => send('post', `mentor/students/${id}/notes`, n)
+  addNote: (id, n) => send('post', `mentor/students/${id}/notes`, n),
+  replyLoop: (id, feedbackId, text) => send('post', `mentor/students/${id}/loop-feedback/${feedbackId}`, { text })
 };
 
 /** Reports are opened through the viewer's own route so each role reads them under its own access rule. */

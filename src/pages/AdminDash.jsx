@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { adminGetUsers, adminGetStats } from '../api';
+import { adminGetUsers, adminGetStats, adminLoopMetrics, adminLoopAttention, adminLoopReply, adminQualityGet, adminQualityStart } from '../api';
 import logoImg from '../assets/imenteo_logo.png';
 import { V4_ENABLED } from '../v4/config';
 
@@ -10,6 +10,121 @@ function StatChip({ label, value, sub, color }) {
       <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: 'var(--slate)', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--navy)', lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontSize: 12, color: 'var(--slate)', marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
+const pctOf = v => (v === null || v === undefined ? '—' : `${Math.round(v * 100)}%`);
+const box = { background: 'var(--white)', borderRadius: 12, padding: 24, border: '1.5px solid var(--border)', marginBottom: 28 };
+const LEVEL = { high: ['#b42318', 'Urgent'], medium: ['#b54708', 'Needs a look'], good: ['#067647', 'Good news'] };
+
+/** The learning loop at a glance: is it working (the numbers), and who needs a person (alerts and "not fair" flags). */
+function LoopPanel() {
+  const [m, setM] = useState(null);
+  const [att, setAtt] = useState(null);
+  const [reply, setReply] = useState({});
+  const [msg, setMsg] = useState('');
+  const load = () => Promise.all([adminLoopMetrics(30), adminLoopAttention()]).then(([a, b]) => { setM(a.data); setAtt(b.data); }).catch(() => setMsg('Could not load the learning loop.'));
+  useEffect(() => { load(); }, []);
+  const send = async id => { try { await adminLoopReply(id, (reply[id] || '').trim()); setReply(r => ({ ...r, [id]: '' })); await load(); } catch { setMsg('Could not send the reply.'); } };
+  if (msg) return <div style={box}>{msg}</div>;
+  if (!m || !att) return null;
+  return (
+    <div style={box}>
+      <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', marginBottom: 14 }}>Learning loop · last 30 days</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(170px,1fr))', gap: 12, marginBottom: 18 }}>
+        <StatChip label="Plans started" value={m.funnel.plansStarted} sub={`${pctOf(m.funnel.chatToPlan)} of ${m.funnel.chatsStarted} chats`} color="var(--amber)" />
+        <StatChip label="Came back for week 2" value={pctOf(m.retention.week2Return)} sub={`of ${m.retention.week2Eligible} plans over a week old`} color="var(--green)" />
+        <StatChip label="Steps finished" value={pctOf(m.work.stepsFinished)} sub={`${m.work.finishedWeeks} finished weeks`} color="#3355CC" />
+        <StatChip label="Level-ups passed" value={m.levels.levelUpPasses} sub={`of ${m.levels.levelUpAttempts} attempts`} color="#8a3ffc" />
+        <StatChip label="Felt fair" value={pctOf(m.fairness.fairShare)} sub={`${m.fairness.waitingForReply} waiting for a reply`} color="#067647" />
+        <StatChip label="AI cost" value={`$${m.cost.aiUsd}`} sub={m.cost.perActiveStudentUsd === null ? 'no active students' : `$${m.cost.perActiveStudentUsd} per active student`} color="#b54708" />
+      </div>
+      <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', margin: '0 0 8px' }}>Needs a person ({att.alerts.filter(a => a.level !== 'good').length})</h4>
+      {att.alerts.length === 0 ? <p style={{ fontSize: 13, color: 'var(--slate)' }}>Nobody right now.</p> : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'grid', gap: 6 }}>{att.alerts.map(a => (
+          <li key={a.id} style={{ fontSize: 13 }}><b style={{ color: LEVEL[a.level][0] }}>{LEVEL[a.level][1]}:</b> {a.text} {!a.hasMentor && <span style={{ color: 'var(--slate)' }}>(no mentor)</span>} <Link to={`/admin/user/${a.studentId}`}>Open</Link></li>
+        ))}</ul>
+      )}
+      <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', margin: '0 0 8px' }}>"Not fair" waiting for a reply ({att.feedback.length})</h4>
+      {att.feedback.length === 0 ? <p style={{ fontSize: 13, color: 'var(--slate)' }}>None.</p> : att.feedback.map(f => (
+        <div key={f.id} style={{ borderTop: '1px solid var(--border)', padding: '10px 0', fontSize: 13 }}>
+          <b>{f.name || 'A student'}</b> · {f.target === 'judgement' ? `week ${f.weekNumber} feedback` : 'practice questions'}{f.hasMentor ? ' · their mentor can reply too' : ' · no mentor'}
+          {f.note && <div style={{ margin: '4px 0' }}>“{f.note}”</div>}
+          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+            <input aria-label={`Reply to ${f.name || 'the student'}`} value={reply[f.id] || ''} onChange={e => setReply(r => ({ ...r, [f.id]: e.target.value }))} placeholder="Reply as the iMenteo team" maxLength={1000} style={{ flex: 1, padding: '8px 10px', border: '1.5px solid var(--border)', borderRadius: 8, fontFamily: 'inherit' }} />
+            <button type="button" onClick={() => send(f.id)} disabled={(reply[f.id] || '').trim().length < 2} style={{ padding: '8px 14px', borderRadius: 8, border: 0, background: 'var(--navy)', color: '#fff', fontWeight: 600, fontFamily: 'inherit' }}>Send</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const small = { fontSize: 13, color: 'var(--slate)' };
+/** One made-up student's results: the journey (levels, proofs, the critic's verdict), the first week, and a practice set. */
+function PersonaReport({ p }) {
+  const j = p.journey || {};
+  const critic = j.run ? j.run.steps.filter(s => s.agent === 'journey-critic') : [];
+  return (
+    <details style={{ borderTop: '1px solid var(--border)', padding: '10px 0' }}>
+      <summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--navy)' }}>{p.label}{p.error ? ` · failed (${p.error})` : j.outcome ? ` · journey ${j.outcome}` : ''}{p.week ? ` · week ${p.week.outcome}` : ''}</summary>
+      {j.plan && (
+        <div style={{ fontSize: 13, marginTop: 8 }}>
+          <p><b>{j.plan.careerTitle}</b>: {j.plan.startPoint.summary} → {j.plan.endPoint.summary} ({j.plan.endPoint.horizonWeeks} weeks, {j.plan.weeklyMinutes} min a week)</p>
+          {critic.map((c, k) => <p key={k} style={small}>Critic: {c.verdict || 'no verdict'}{c.notes.length ? ` · ${c.notes.join(' · ')}` : ''}</p>)}
+          {j.ruleIssuesAfter && j.ruleIssuesAfter.length > 0 && <p style={{ color: '#b54708' }}>Rules still unmet: {j.ruleIssuesAfter.join(' · ')}</p>}
+          <ol>{j.plan.phases.map(ph => <li key={ph.id} style={{ marginBottom: 6 }}><b>{ph.title}</b> ({ph.weeks} wk): {ph.topics.map(t => `${t.title} [${t.kind}]`).join('; ')}{ph.levelUp && <div style={small}>Level-up: {ph.levelUp.proof}</div>}</li>)}</ol>
+        </div>
+      )}
+      {p.week && (
+        <div style={{ fontSize: 13 }}>
+          <p><b>Week 1</b> ({p.week.minutes} min available){p.week.ruleIssuesAfter.length ? <span style={{ color: '#b54708' }}> · rules unmet: {p.week.ruleIssuesAfter.join(' · ')}</span> : ''}</p>
+          <ol>{p.week.units.map((u, k) => (
+            <li key={k} style={{ marginBottom: 6 }}>[{u.type}, {u.minutes} min] <b>{u.title}</b> <span style={small}>({u.topic})</span>
+              <div style={small}>Goal: {u.goal} · Show: {u.evidence}</div>
+              {u.help && <div style={small}>Help: {u.help}</div>}
+              {u.video && <div>{u.video.role === 'practice' ? 'Follow-along' : 'Video'}: <a href={u.video.url} target="_blank" rel="noopener noreferrer">{u.video.title}</a> <span style={small}>({u.video.channel}, {u.video.minutes} min)</span></div>}
+              {u.practice.map(x => <div key={x.url}>Practice: <a href={x.url} target="_blank" rel="noopener noreferrer">{x.provider}: {x.title}</a> <span style={small}>{x.what}</span></div>)}
+            </li>
+          ))}</ol>
+        </div>
+      )}
+      {p.practice && (
+        <div style={{ fontSize: 13 }}>
+          <p><b>Practice for "{p.practice.step}"</b> · {p.practice.run.steps.filter(s => s.agent === 'practice-checker').map(s => s.notes.join(' · ')).join(' | ')}</p>
+          <ol>{p.practice.items.map((x, k) => <li key={k} style={{ marginBottom: 6 }}>{x.prompt}<div style={small}>{x.kind === 'question' ? `Answer: ${x.answer}` : `Checklist: ${(x.checklist || []).join('; ')}`}</div></li>)}</ol>
+        </div>
+      )}
+    </details>
+  );
+}
+
+/** Runs the real agents on made-up students (it spends credit, so it asks first) and shows the report for a person to read. */
+function QualityPanel() {
+  const [q, setQ] = useState(null);
+  const [msg, setMsg] = useState('');
+  const load = () => adminQualityGet().then(r => setQ(r.data)).catch(() => setMsg('Could not load the quality check.'));
+  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (!q || !q.run || q.run.status !== 'running') return undefined;
+    const t = setInterval(load, 5000);
+    return () => clearInterval(t);
+  }, [q]);
+  const start = async () => {
+    if (!window.confirm(`This runs the real AI on ${q.personas.length} made-up students and spends up to $${q.maxUsd} of credit. Go ahead?`)) return;
+    try { await adminQualityStart(); await load(); } catch (e) { setMsg(e.response?.data?.code === 'ALREADY_RUNNING' ? 'A check is already running.' : 'Could not start the check.'); }
+  };
+  if (!q) return msg ? <div style={box}>{msg}</div> : null;
+  const r = q.run;
+  return (
+    <div style={box}>
+      <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', marginBottom: 6 }}>Quality check of the planning agents</h3>
+      <p style={small}>Runs the real AI on {q.personas.length} made-up students ({q.personas.join(', ')}). Nothing is saved to anyone's account. Read each journey, week and practice set, and note what is wrong. Spends up to ${q.maxUsd}.</p>
+      <button type="button" onClick={start} disabled={r && r.status === 'running'} style={{ margin: '10px 0', padding: '8px 14px', borderRadius: 8, border: 0, background: 'var(--navy)', color: '#fff', fontWeight: 600, fontFamily: 'inherit' }}>{r && r.status === 'running' ? 'Running…' : 'Run quality check'}</button>
+      {msg && <p role="alert" style={{ color: '#b42318', fontSize: 13 }}>{msg}</p>}
+      {r && <p style={small}>Last run: {r.status}{r.note ? ` (${r.note})` : ''} · cost ${r.costUsd} · {r.personas.length} of {q.personas.length} students done</p>}
+      {r && r.personas.map(p => <PersonaReport key={p.label} p={p} />)}
     </div>
   );
 }
@@ -71,6 +186,9 @@ export default function AdminDash() {
             <StatChip label="Avg Confidence" value={stats.average_scores ? `${Math.round(stats.average_scores.avgConfidence)}` : '—'} sub="out of 100" color="#884488" />
           </div>
         )}
+
+        <LoopPanel />
+        <QualityPanel />
 
         {/* Top careers */}
         {stats?.top_career_recommendations?.length > 0 && (

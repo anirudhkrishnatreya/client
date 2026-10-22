@@ -3,10 +3,64 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
 import { Avatar, Card, Drawer, Empty, PageHead, Pill, Progress, Tabs } from '../../ui/kit';
 import { dueLabel, fmtDate, fmtShort } from '../../ui/format';
-import { errMessage, gradeLabel } from '../liveApi';
+import { errMessage, gradeLabel, mentorApi } from '../liveApi';
 
 const A = { submitted: ['leaf', 'Done'], in_progress: ['gold', 'Started'], not_started: ['grey', 'Not started'] };
 const ST = { todo: 'To do', doing: 'In progress', review: 'With mentor', done: 'Done' };
+
+const PACE = { 'speed-up': ['leaf', 'Faster'], 'slow-down': ['gold', 'Slower'], continue: ['sky', 'Steady'], start: ['grey', 'First week'] };
+
+/** One "not fair" a student flagged: what they were asked, what they wrote, what the AI said, and the mentor's reply. */
+function Flag({ studentId, f, onDone }) {
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const send = async e => { e.preventDefault(); setBusy(true); setErr(''); try { await mentorApi.replyLoop(studentId, f.id, text.trim()); setText(''); await onDone(); } catch (x) { setErr(errMessage(x)); } finally { setBusy(false); } };
+  const j = f.context && f.context.judgement;
+  return (
+    <li style={{ display: 'block' }}>
+      <div className="pf-row pf-wrap" style={{ gap: 8 }}><Pill tone={f.status === 'open' ? 'coral' : 'leaf'}>{f.status === 'open' ? 'Waiting for you' : 'Replied'}</Pill><b>{f.target === 'judgement' ? `Week ${f.weekNumber} feedback` : 'Practice questions'}</b></div>
+      {f.note && <p className="pf-small" style={{ margin: '6px 0' }}>“{f.note}”</p>}
+      {f.context && f.target === 'judgement' && (
+        <details><summary className="pf-small">See the task, their work and the AI's judgement</summary>
+          <p className="pf-small"><b>Task:</b> {f.context.task}</p>
+          <p className="pf-small" style={{ whiteSpace: 'pre-wrap' }}><b>Their work:</b> {f.context.work}</p>
+          {j && j.criteria && <ul className="pf-small">{j.criteria.map(c => <li key={c.name}>{c.name}: {c.band}. {c.comment}</li>)}</ul>}
+          {j && j.feedback && <p className="pf-small"><b>AI feedback:</b> {j.feedback}</p>}
+        </details>
+      )}
+      {f.context && f.target === 'practice' && (
+        <details><summary className="pf-small">See the questions</summary><ol className="pf-small">{f.context.items.map((x, k) => <li key={k}>{x.prompt}{x.answer ? ` (answer: ${x.answer})` : ''}</li>)}</ol></details>
+      )}
+      {f.reply ? <p className="pf-small" style={{ margin: '6px 0 0' }}><b>Your reply:</b> {f.reply.text}</p> : (
+        <form onSubmit={send} style={{ marginTop: 8 }}>
+          <textarea className="pf-input" rows="2" aria-label="Reply to the student" maxLength={1000} placeholder="Your reply, shown to the student" value={text} onChange={e => setText(e.target.value)} />
+          <button type="submit" className="pf-btn sm" style={{ marginTop: 6 }} disabled={busy || text.trim().length < 2}>{busy ? 'Sending…' : 'Send reply'}</button>
+          {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</p>}
+        </form>
+      )}
+    </li>
+  );
+}
+
+/** The student's weekly plan as their mentor sees it: where they are, how the last weeks went, and what they flagged. */
+function LoopTab({ studentId, loop, reload }) {
+  if (!loop) return <Empty icon="target" title="No weekly plan yet">They have not set a goal in the career chat yet.</Empty>;
+  return (
+    <>
+      <p style={{ margin: '0 0 6px' }}><b>{loop.goal.title}</b> · Level {loop.goal.level.number} of {loop.goal.level.total}: {loop.goal.level.title}</p>
+      <p className="pf-small pf-muted" style={{ margin: '0 0 6px' }}>Heading to: {loop.goal.endPoint}</p>
+      {loop.goal.level.levelUp && <p className="pf-small" style={{ margin: '0 0 6px' }}><b>To move up:</b> {loop.goal.level.levelUp}</p>}
+      <p className="pf-small" style={{ margin: '0 0 12px' }}>{loop.week ? `Week ${loop.week.number}` : 'No week yet'} · last active {fmtShort(String(loop.lastActive).slice(0, 10))}</p>
+      {loop.recentWeeks.length > 0 && <><h4 style={{ fontSize: 15, margin: '12px 0 6px' }}>Recent weeks</h4>
+        <ul className="pf-list">{loop.recentWeeks.map(w => <li key={w.weekNumber}><span className="pf-grow">Week {w.weekNumber}</span><Progress value={w.completion * 100} label={`Week ${w.weekNumber} finished`} /><span className="pf-small pf-muted" style={{ minWidth: 44, textAlign: 'right' }}>{Math.round(w.completion * 100)}%</span></li>)}</ul></>}
+      {loop.adaptations.length > 0 && <><h4 style={{ fontSize: 15, margin: '12px 0 6px' }}>How the plan adapted</h4>
+        <ul className="pf-list">{[...loop.adaptations].reverse().map(a => <li key={a.week}><span className="pf-grow"><b>After week {a.week}</b><br /><span className="pf-small">{a.summary}</span></span>{PACE[a.pace] && <Pill tone={PACE[a.pace][0]}>{PACE[a.pace][1]}</Pill>}</li>)}</ul></>}
+      <h4 style={{ fontSize: 15, margin: '12px 0 6px' }}>Flagged as not fair</h4>
+      {loop.flagged.length === 0 ? <p className="pf-small pf-muted">Nothing flagged.</p> : <ul className="pf-list">{loop.flagged.map(f => <Flag key={f.id} studentId={studentId} f={f} onDone={reload} />)}</ul>}
+    </>
+  );
+}
 
 function Detail({ id }) {
   const { actions } = usePlatform();
@@ -23,7 +77,7 @@ function Detail({ id }) {
     <>
       <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div></div>
       {msg && <div className="pf-note" role="alert">{msg}</div>}
-      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'work', label: 'Work', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }]} />
+      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'work', label: 'Work', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }]} />
       {tab === 'overview' && <>
         <div className="pf-grid g2"><div className="pf-note"><b>{s.tasks.done} of {s.tasks.total}</b><br />tasks done</div><div className="pf-note"><b>{s.tasks.overdue}</b><br />overdue</div></div>
         <h4 style={{ fontSize: 16, margin: '16px 0 6px' }}>Career assessment</h4>
@@ -31,6 +85,7 @@ function Detail({ id }) {
         {d.reports.map(r => <p key={r.assessmentId} style={{ margin: '10px 0 0' }}><Link className="pf-btn sm" to={`/platform/report/mentor/${s.id}/${r.assessmentId}`}>Open career report</Link> <span className="pf-small pf-muted">{fmtDate(String(r.completedAt).slice(0, 10))}</span></p>)}
         <h4 style={{ fontSize: 16, margin: '16px 0 6px' }}>Parent</h4>
         <Pill tone={s.parent === 'linked' ? 'leaf' : 'gold'}>{s.parent === 'linked' ? 'Account set up' : s.parent === 'invited' ? 'Invited, not set up yet' : 'None'}</Pill></>}
+      {tab === 'loop' && <LoopTab studentId={id} loop={d.loop} reload={load} />}
       {tab === 'work' && (d.tasks.length === 0 ? <Empty icon="tasks" title="No tasks yet">Give them one from Assign tasks.</Empty> :
         <ul className="pf-list">{d.tasks.map(t => { const l = dueLabel(t.due, t.status === 'done'); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · by {t.by}</span></span><Pill tone={l.tone}>{l.text}</Pill>
           <select className="pf-select" style={{ width: 130 }} aria-label={`Status of ${t.title}`} value={t.status} onChange={e => setStatus(t, e.target.value)}>{Object.entries(ST).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></li>; })}</ul>)}

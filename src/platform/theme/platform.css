@@ -236,3 +236,6 @@ button.pf-link { background: none; border: 0; padding: 0; color: var(--indigo); 
 .pf-exercises details { margin-top: 4px; }
 .pf-exercises summary { cursor: pointer; font-size: 13px; color: var(--blue, #1d4ed8); }
 .pf-levelup { margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--leaf, #16a34a) 12%, transparent); }
+
+.pf-fair { margin-top: 10px; }
+.pf-fair.answered { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--blue, #1d4ed8) 7%, transparent); font-size: 14px; }
