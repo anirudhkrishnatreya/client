@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
 import { Avatar, Card, CardHead, Icon, PageHead, Pill, Stat } from '../../ui/kit';
 import { dueLabel, fmtDate, greeting } from '../../ui/format';
+import { LOOP_ENABLED } from '../loop/config';
+import LoopToday from '../loop/LoopToday';
 
 export default function LiveStudentOverview() {
   const { data } = usePlatform();
@@ -23,6 +25,7 @@ export default function LiveStudentOverview() {
           </div>
         </div>
       </Card>
+      {LOOP_ENABLED && <LoopToday />}
       <div className="pf-grid g4" style={{ marginBottom: 18 }}>
         <Stat label="Tasks still open" value={open.length} icon="tasks" hint={open[0] ? `Next: ${dueLabel(open[0].due).text.toLowerCase()}` : 'All caught up'} />
         <Stat label="Overdue" value={overdue} icon="alert" up={false} hint={overdue ? 'Worth doing first' : 'Nothing late'} />

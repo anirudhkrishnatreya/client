@@ -23,6 +23,7 @@ import LiveParentTasks from './live/parent/Tasks';
 import LiveParentReports from './live/parent/Reports';
 import LiveParentMentor from './live/parent/Mentor';
 import { REC_ENABLED } from './live/careers/config';
+import { LOOP_ENABLED } from './live/loop/config';
 import './theme/platform.css';
 import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/500.css';
@@ -57,6 +58,9 @@ const Occupation = lazy(() => import('./live/careers/Occupation'));
 const Matches = lazy(() => import('./live/careers/Matches'));
 const Shortlist = lazy(() => import('./live/careers/Shortlist'));
 const Situation = lazy(() => import('./live/careers/Situation'));
+const LoopGoal = lazy(() => import('./live/loop/LoopGoal'));
+const LoopPlan = lazy(() => import('./live/loop/LoopPlan'));
+const LoopRoadmap = lazy(() => import('./live/loop/LoopRoadmap'));
 const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
 const ROLES = [
@@ -116,7 +120,11 @@ export default function PlatformApp() {
 
       {/* Real dashboards */}
       <Route path="student" element={<Gate role="student" />}>
-        <Route index element={<LiveStudentOverview />} /><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /><Route path="tasks" element={<StudentTasks />} />
+        <Route index element={<LiveStudentOverview />} />
+        {LOOP_ENABLED
+          ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /></>
+          : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
+        <Route path="tasks" element={<StudentTasks />} />
         <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />

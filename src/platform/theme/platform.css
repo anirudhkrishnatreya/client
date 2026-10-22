@@ -152,3 +152,24 @@ button.pf-user:hover, button.pf-user[aria-expanded="true"] { background: var(--l
 .pf-link, .pf-eyebrow, .pf-roleswitch, .pf-nav h6, .pf-tabs button { font-family: 'Montserrat', 'DM Sans', sans-serif; }
 .pf-link { font-weight: 600; font-size: 14px; }
 .pf-eyebrow { font-weight: 600; }
+
+/* ---- learning loop: goal setup, weekly plan, roadmap ---- */
+.pf-choice { position: relative; display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 12px; cursor: pointer; background: var(--card); transition: border-color .15s, box-shadow .15s; }
+.pf-choice:hover { border-color: var(--indigo); }
+.pf-choice.on { border-color: var(--indigo); box-shadow: 0 0 0 2px rgba(15, 62, 228, .15); }
+.pf-choice input { position: absolute; opacity: 0; pointer-events: none; }
+.pf-choice:focus-within { outline: 2px solid var(--indigo); outline-offset: 2px; }
+.pf-unit { padding: 12px 14px; border: 1px solid var(--line2); border-radius: 12px; background: #fff; }
+.pf-unit.finished { background: #FAFBFE; }
+.pf-unit.finished b { color: var(--muted); }
+.pf-unit-form { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line2); }
+.pf-star { border: 0; background: none; font-size: 22px; line-height: 1; color: #D5DAEA; cursor: pointer; padding: 2px; }
+.pf-star.on { color: var(--marigold); }
+.pf-today { border-color: var(--indigo); box-shadow: 0 0 0 2px rgba(15, 62, 228, .12), var(--shadow); }
+.pf-milestone { border-top: 1px solid var(--line2); padding: 10px 0; }
+.pf-milestone summary { cursor: pointer; }
+.pf-dot { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line2); color: #fff; }
+.pf-dot.done { background: var(--leaf); border-color: var(--leaf); }
+.pf-dot.skipped { background: var(--line2); }
+.pf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 600px) { .pf-unit > .pf-row:first-child > b.pf-grow { flex-basis: 100%; order: -1; } }
