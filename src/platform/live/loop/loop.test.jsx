@@ -136,7 +136,7 @@ describe('the week', () => {
     expect(within(card).getByText('Gravity and orbits explained')).toBeInTheDocument();
     expect(within(card).getByText(/Great Teacher · 18 min/)).toBeInTheDocument();
     expect(within(card).getByText(/Why this one: Clear and the right level/)).toBeInTheDocument();
-    expect(within(card).getByText(/Video 1 of 2 on this topic/)).toBeInTheDocument();
+    expect(within(card).getByText(/Video 1 of 2 for this topic, one for each learning step/)).toBeInTheDocument();
     expect(within(card).queryByRole('link', { name: /Find a free video/ })).toBeNull();
     expect(within(card).getByRole('link', { name: 'Open on YouTube' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     await user.click(within(card).getByRole('button', { name: /Play: Gravity and orbits explained/ }));
@@ -144,6 +144,27 @@ describe('the week', () => {
     await user.click(within(card).getByRole('button', { name: 'Show me a different video' }));
     expect(await within(card).findByText('A different lesson')).toBeInTheDocument();
     expect(card.querySelector('iframe')).toBeNull();
+  });
+  it('a practise step has how-to help, a follow-along video, and links back to the lessons; a check step links back too', async () => {
+    const s = planState();
+    s.loop.week.items = [
+      unit('u1', 3, { video: video(), sequence: { index: 1, of: 1 }, help: 'Pause and note three points.' }),
+      unit('u2', 3, { type: 'practise', help: 'Start with the easy one, then try a harder one.', video: video({ videoId: 'bbbbbbbbbbb', title: 'Worked examples', role: 'practice', embedUrl: 'https://www.youtube-nocookie.com/embed/bbbbbbbbbbb?rel=0' }), rewatch: [{ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }] }),
+      unit('u3', 4, { type: 'check', help: 'Close the video and answer from memory.', rewatch: [{ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }] })
+    ];
+    routes['get /v2/me/loop'] = s;
+    at('/platform/student/plan');
+    const practise = await screen.findByRole('article', { name: 'Unit u2' });
+    expect(within(practise).getByText(/Start with the easy one/)).toBeInTheDocument();
+    expect(within(practise).getByText('How to go about it:')).toBeInTheDocument();
+    expect(within(practise).getByText('Follow along while you practise')).toBeInTheDocument();
+    expect(within(practise).queryByText(/Video 1 of/)).toBeNull();
+    expect(within(practise).getByRole('link', { name: 'Gravity and orbits explained' })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    const check = screen.getByRole('article', { name: 'Unit u3' });
+    expect(within(check).getByText(/Close the video and answer from memory/)).toBeInTheDocument();
+    expect(within(check).getByRole('link', { name: 'Gravity and orbits explained' })).toBeInTheDocument();
+    expect(within(check).getByRole('link', { name: /Find a free video to help/ })).toBeInTheDocument();
+    expect(within(screen.getByRole('article', { name: 'Unit u1' })).getByText('Tip:')).toBeInTheDocument();
   });
   it('never plays a video from an address that is not YouTube\u2019s embed player', async () => {
     const s = planState();

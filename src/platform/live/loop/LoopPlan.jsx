@@ -22,7 +22,8 @@ function Video({ unit, act }) {
           ? <div className="pf-video-frame"><iframe src={v.embedUrl} title={v.title} loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /></div>
           : <button type="button" className="pf-video-thumb" onClick={() => setPlaying(true)} aria-label={`Play: ${v.title}`}><img src={v.thumb} alt="" loading="lazy" /><span className="pf-play" aria-hidden="true"><Icon name="play" size={22} /></span></button>}
         <div className="pf-video-meta">
-          {unit.sequence && unit.sequence.of > 1 && <Pill tone="grey">Video {unit.sequence.index} of {unit.sequence.of} on this topic</Pill>}
+          {v.role === 'practice' && <Pill tone="grey">Follow along while you practise</Pill>}
+          {v.role !== 'practice' && unit.sequence && unit.sequence.of > 1 && <Pill tone="grey">Video {unit.sequence.index} of {unit.sequence.of} for this topic, one for each learning step</Pill>}
           <b>{v.title}</b>
           <span className="pf-small pf-muted">{v.channel} · {v.minutes} min{v.start ? ` · from ${mmss(v.start)}${v.end ? ` to ${mmss(v.end)}` : ''}` : ''}</span>
           {v.covers && <span className="pf-small"><b>Covers:</b> {v.covers}</span>}
@@ -64,10 +65,14 @@ function Item({ item, act }) {
           <p className="pf-small" style={{ margin: '4px 0 0' }}><b>To show it:</b> {item.evidence}</p>
         </>
       )}
+      {!finished && item.help && <p className="pf-help"><b>{item.type === 'learn' ? 'Tip:' : 'How to go about it:'}</b> {item.help}</p>}
       {item.video && !(finished && item.status === 'skipped') && <Video unit={item} act={act} />}
+      {!finished && item.rewatch && item.rewatch.length > 0 && (
+        <p className="pf-small" style={{ margin: '8px 0 0' }}><b>Stuck? Go back to:</b> {item.rewatch.map((r, k) => <span key={r.videoId}>{k > 0 && ' · '}<a href={r.watchUrl} target="_blank" rel="noopener noreferrer">{r.title}</a></span>)}</p>
+      )}
       {item.status === 'done' && item.resourceUrl && <p className="pf-small" style={{ margin: '6px 0 0' }}>You also used: <a href={item.resourceUrl} target="_blank" rel="noopener noreferrer">{item.resourceTitle || item.resourceUrl}</a></p>}
       <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 10 }}>
-        {!finished && !item.video && <a className="pf-btn sm ghost" href={item.searchUrl} target="_blank" rel="noopener noreferrer"><Icon name="search" size={14} />Find a free video</a>}
+        {!finished && !item.video && <a className="pf-btn sm ghost" href={item.searchUrl} target="_blank" rel="noopener noreferrer"><Icon name="search" size={14} />{item.type === 'learn' ? 'Find a free video' : 'Find a free video to help'}</a>}
         {!finished && mode === null && <button type="button" className="pf-btn sm" onClick={() => setMode('done')}>I have done this</button>}
         {!finished && mode === null && <button type="button" className="pf-btn sm ghost" onClick={() => setMode('skip')}>Skip</button>}
         {finished && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => run(() => loopApi.undo(item.id))}>Undo</button>}
