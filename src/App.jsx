@@ -26,6 +26,7 @@ import V4Results       from './v4/pages/V4Results';
 import GuardianConsent from './v4/pages/GuardianConsent';
 import VerifyEmail      from './v4/pages/VerifyEmail';
 import Unsubscribe      from './pages/Unsubscribe';
+import PublicPortfolio  from './pages/PublicPortfolio';
 import SchoolHome      from './v4/pages/SchoolHome';
 import SchoolClass     from './v4/pages/SchoolClass';
 import SchoolStudent   from './v4/pages/SchoolStudent';
@@ -114,6 +115,7 @@ function AppRoutes() {
 
       {/* Admin */}
       <Route path="/unsubscribe"    element={<Unsubscribe />} />
+      <Route path="/p/:token"       element={<PublicPortfolio />} />
       <Route path="/admin/login"    element={<AdminLogin />} />
       <Route path="/admin"          element={<RequireAdmin><AdminDash /></RequireAdmin>} />
       <Route path="/admin/user/:id" element={<RequireAdmin><AdminUser /></RequireAdmin>} />

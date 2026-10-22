@@ -264,6 +264,19 @@ describe('parent', () => {
     notes: [{ id: 'n1', text: 'Keen and curious.', at: day(-5), sharedWithParent: true }], reports: [{ assessmentId: 'a1', completedAt: new Date().toISOString(), hollandCode: 'IRC', pdf: { status: 'ready' } }] });
   beforeEach(() => signIn({ id: 'p1', fullName: 'Meera Verma', role: 'parent', email: 'm@example.com' }));
 
+  it('progress shows the child’s weekly plan: level, this week, the latest band and how it adapted', async () => {
+    const a = kid('s1', 'Asha Verma');
+    routes['get /v2/platform/parent'] = { me: { id: 'p1', fullName: 'Meera Verma', email: 'm@example.com' }, children: [a] };
+    routes['get /v2/platform/parent/children/s1'] = { ...detail(a), loop: { goal: { title: 'Architect', endPoint: 'NATA ready' }, level: { number: 2, total: 5, title: 'Sketching basics', finished: false }, levelsPassed: 1, week: { number: 4, steps: 6, done: 4 }, lastResult: { quiz: 0.8, work: 'getting-there', levelUp: false }, recentWeeks: [], adaptations: [{ week: 3, pace: 'slow-down', summary: 'A busy week, so this one asks less.' }], portfolioItems: 2 } };
+    at('/platform/parent/progress');
+    expect(await screen.findByText('Architect')).toBeInTheDocument();
+    expect(screen.getByText(/Level 2 of 5: Sketching basics · 1 level passed/)).toBeInTheDocument();
+    expect(screen.getByText('4/6')).toBeInTheDocument();
+    expect(screen.getByText('Getting there')).toBeInTheDocument();
+    expect(screen.getByText(/a bit slower: A busy week/)).toBeInTheDocument();
+    expect(screen.getByText(/2 pieces of work in Asha’s portfolio/)).toBeInTheDocument();
+    expect(screen.queryByText(/Coming soon/)).toBeNull();
+  });
   it('shows the child, the tasks, and what the mentor shared', async () => {
     const a = kid('s1', 'Asha Verma');
     routes['get /v2/platform/parent'] = { me: { id: 'p1', fullName: 'Meera Verma', email: 'm@example.com' }, children: [a] };

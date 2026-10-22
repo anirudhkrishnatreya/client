@@ -61,6 +61,7 @@ const Situation = lazy(() => import('./live/careers/Situation'));
 const LoopGoal = lazy(() => import('./live/loop/LoopGoal'));
 const LoopPlan = lazy(() => import('./live/loop/LoopPlan'));
 const LoopRoadmap = lazy(() => import('./live/loop/LoopRoadmap'));
+const LoopPortfolio = lazy(() => import('./live/loop/LoopPortfolio'));
 const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
 const ROLES = [
@@ -122,7 +123,7 @@ export default function PlatformApp() {
       <Route path="student" element={<Gate role="student" />}>
         <Route index element={<LiveStudentOverview />} />
         {LOOP_ENABLED
-          ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /></>
+          ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /><Route path="portfolio" element={later(<LoopPortfolio />)} /></>
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         <Route path="tasks" element={<StudentTasks />} />
         <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />

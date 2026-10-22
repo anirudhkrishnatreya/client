@@ -4,6 +4,7 @@ import { usePlatform } from '../../data/store';
 import { Avatar, Card, Drawer, Empty, PageHead, Pill, Progress, Tabs } from '../../ui/kit';
 import { dueLabel, fmtDate, fmtShort } from '../../ui/format';
 import { errMessage, gradeLabel, mentorApi } from '../liveApi';
+import AuthImage from '../loop/AuthImage';
 
 const A = { submitted: ['leaf', 'Done'], in_progress: ['gold', 'Started'], not_started: ['grey', 'Not started'] };
 const ST = { todo: 'To do', doing: 'In progress', review: 'With mentor', done: 'Done' };
@@ -25,6 +26,7 @@ function Flag({ studentId, f, onDone }) {
         <details><summary className="pf-small">See the task, their work and the AI's judgement</summary>
           <p className="pf-small"><b>Task:</b> {f.context.task}</p>
           <p className="pf-small" style={{ whiteSpace: 'pre-wrap' }}><b>Their work:</b> {f.context.work}</p>
+          {f.context.photos && f.context.photos.length > 0 && <div className="pf-row pf-wrap" style={{ gap: 8 }}>{f.context.photos.map((pid, k) => <AuthImage key={pid} path={`/v2/platform/mentor/students/${studentId}/photos/${pid}`} alt={`Photo ${k + 1} of their work`} />)}</div>}
           {j && j.criteria && <ul className="pf-small">{j.criteria.map(c => <li key={c.name}>{c.name}: {c.band}. {c.comment}</li>)}</ul>}
           {j && j.feedback && <p className="pf-small"><b>AI feedback:</b> {j.feedback}</p>}
         </details>

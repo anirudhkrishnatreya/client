@@ -53,7 +53,7 @@ export async function loadParent(childId) {
   const id = home.children.find(c => String(c.id) === String(childId)) ? childId : home.children[0] && home.children[0].id;
   if (!id) return { ...base, child: null, tasks: [], sessions: { next: null, upcoming: [], history: [] }, notes: [], reports: [], mentor: null, notifications: [] };
   const c = await get(`parent/children/${id}`);
-  return { ...base, child: { ...c.child, firstName: firstName(c.child.name), gradeLabel: gradeLabel(c.child.grade) }, mentor: c.mentor, tasks: c.tasks, sessions: c.sessions, notes: c.notes, reports: c.reports,
+  return { ...base, child: { ...c.child, firstName: firstName(c.child.name), gradeLabel: gradeLabel(c.child.grade) }, mentor: c.mentor, loop: c.loop || null, tasks: c.tasks, sessions: c.sessions, notes: c.notes, reports: c.reports,
     notifications: nudges(c.tasks, c.sessions.next, `${firstName(c.child.name)}: `) };
 }
 

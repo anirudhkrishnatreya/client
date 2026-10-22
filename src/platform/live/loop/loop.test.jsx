@@ -17,6 +17,7 @@ vi.mock('../../../api', () => {
   return { default: { get: handle('get'), post: handle('post'), put: handle('put'), patch: handle('patch'), delete: handle('delete') } };
 });
 
+vi.mock('./photos', () => ({ shrinkImage: async file => `data:image/jpeg;base64,${btoa(file.name)}` }));
 let PlatformApp;
 beforeAll(async () => { vi.stubEnv('VITE_LOOP', 'on'); PlatformApp = (await import('../../PlatformApp')).default; });
 
@@ -278,7 +279,7 @@ describe('the weekly assessment and the next week', () => {
     expect(await screen.findByText(/Part 2 of 2/)).toBeInTheDocument();
     expect(screen.getByText('Explain gravity to a younger student.')).toBeInTheDocument();
     expect(screen.getByText(/Accuracy, Clarity, Own words/)).toBeInTheDocument();
-    const submit = screen.getByRole('button', { name: 'Write a little more' });
+    const submit = screen.getByRole('button', { name: 'Write a little more, or add a photo' });
     expect(submit).toBeDisabled();
     await user.type(screen.getByLabelText('Your answer'), 'Gravity pulls things toward each other, like the Earth pulls the Moon.');
     await user.type(screen.getByLabelText(/A link to something you made/), 'https://github.com/asha/notes');
@@ -433,6 +434,58 @@ describe('today’s AI meter', () => {
     at('/platform/student/goal');
     await screen.findByText('Hi Asha! What do you want to become?');
     expect(screen.queryByRole('meter')).toBeNull();
+  });
+});
+
+describe('proof of work', () => {
+  const task = { prompt: 'Sketch an orbit.', expects: 'A labelled sketch', rubric: ['Accuracy'], submitted: false, judgement: null, levelUp: false };
+  it('a photo can be the work: added, previewed, removable, and sent with the work', async () => {
+    const base = planState();
+    routes['get /v2/me/loop'] = { loop: { ...base.loop, assessment: { id: 'c1', stage: 'work', quiz: { status: 'done', score: 1, questions: [] }, task } } };
+    routes['post /v2/me/loop/check/work'] = { loop: base.loop };
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    const submit = await screen.findByRole('button', { name: 'Write a little more, or add a photo' });
+    expect(submit).toBeDisabled();
+    const input = screen.getByLabelText('Add a photo of your work');
+    await user.upload(input, [new File(['one'], 'one.jpg', { type: 'image/jpeg' }), new File(['two'], 'two.png', { type: 'image/png' })]);
+    expect(await screen.findByAltText('Photo 2 of your work')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Add a photo of your work')).toBeNull();                      // two is the most
+    await user.click(screen.getByRole('button', { name: 'Remove photo 1' }));
+    expect(screen.queryByAltText('Photo 2 of your work')).toBeNull();
+    await user.type(screen.getByLabelText('Your answer'), 'My sketch');
+    await user.click(screen.getByRole('button', { name: 'Submit my work' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/me/loop/check/work').body).toEqual({ text: 'My sketch', photos: [`data:image/jpeg;base64,${btoa('two.png')}`] }));
+  });
+  it('after judging: the work is shown with the link status, and good work can go into the portfolio', async () => {
+    const judged = { ...task, submitted: true, work: { text: 'My sketch', link: 'https://github.com/asha/orbits', linkCheck: 'not-public', photos: [] }, judgement: { status: 'judged', overall: 'strong', criteria: [{ name: 'Accuracy', band: 'strong', comment: 'Good.' }], feedback: 'Great.', nextStep: 'More.' } };
+    const done = itemId => ({ loop: { ...planState({ next: { canPlan: true, assessed: true, over: false, finished: false } }).loop, assessment: { id: 'c1', stage: 'done', fair: null, portfolio: { canAdd: true, itemId }, quiz: { status: 'done', score: 1, questions: [] }, task: judged } } });
+    routes['get /v2/me/loop'] = done(null);
+    routes['post /v2/me/loop/portfolio'] = { portfolio: { items: [], share: {} } };
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    expect(await screen.findByText('Not public: others cannot open it')).toBeInTheDocument();
+    routes['get /v2/me/loop'] = done('p1');
+    await user.click(screen.getByRole('button', { name: 'Add to my portfolio' }));
+    expect(await screen.findByText('In your portfolio')).toBeInTheDocument();
+    expect(calls.find(c => c.url === '/v2/me/loop/portfolio').body).toEqual({ checkId: 'c1' });
+  });
+  it('the portfolio page lists the work and shares a link (adults); minors are told sharing is not available yet', async () => {
+    const item = { id: 'p1', source: 'levelup', levelTitle: 'Fundamentals', weekNumber: 2, brief: 'Explain orbits with a diagram.', text: 'The Moon keeps falling around the Earth.', link: null, linkPublic: false, photos: [], band: 'strong', feedback: 'Clear and correct.' };
+    routes['get /v2/me/loop/portfolio'] = { portfolio: { items: [item], share: { public: false, url: null, allowed: true } } };
+    routes['put /v2/me/loop/portfolio/share'] = { portfolio: { items: [item], share: { public: true, url: 'https://imenteo.com/#/p/abcdefghijkl', allowed: true } } };
+    const user = userEvent.setup();
+    const { unmount } = at('/platform/student/portfolio');
+    expect(await screen.findByText('The Moon keeps falling around the Earth.')).toBeInTheDocument();
+    expect(screen.getByText(/Level-up proof · Fundamentals/)).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Anyone with the link can see it'));
+    expect(await screen.findByDisplayValue('https://imenteo.com/#/p/abcdefghijkl')).toBeInTheDocument();
+    expect(calls.find(c => c.method === 'put' && c.url === '/v2/me/loop/portfolio/share').body).toEqual({ public: true });
+    unmount();
+    routes['get /v2/me/loop/portfolio'] = { portfolio: { items: [], share: { public: false, url: null, allowed: false } } };
+    at('/platform/student/portfolio');
+    expect(await screen.findByText(/not available for students under 18 yet/)).toBeInTheDocument();
+    expect(screen.getByText('Nothing here yet')).toBeInTheDocument();
   });
 });
 

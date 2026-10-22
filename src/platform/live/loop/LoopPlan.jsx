@@ -4,6 +4,8 @@ import { Card, CardHead, Empty, Icon, PageHead, Pill, Progress } from '../../ui/
 import { loopApi, useLoop, messageFor, TYPE_LABEL, TYPE_TONE, PACE, BAND, fmtMinutes, fmtShort, weekdayOf, pct } from './loopApi';
 import { Working, PageSkeleton, Orbit } from './Loader';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
+import AuthImage from './AuthImage';
+import { shrinkImage } from './photos';
 
 const SKIPS = [['already-know', 'I already know this'], ['covered-elsewhere', 'Covered in school or coaching'], ['not-relevant', 'Not relevant for me'], ['too-hard', 'Too hard for now'], ['other', 'Another reason']];
 const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -189,7 +191,31 @@ const QUIZ_STEPS = ['Writing questions on what you studied…', 'Writing a short
 const WORK_STEPS = ['Reading what you wrote…', 'Comparing it with the rubric…', 'Writing feedback to help you improve…'];
 
 /** The week's assessment: a short quiz, then a piece of work, then feedback. Its results shape next week. */
+/** "Add to my portfolio" for work that earned it; once in, a link to the portfolio. */
+function PortfolioButton({ a, act }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  if (a.portfolio.itemId) return <p className="pf-small" style={{ margin: '8px 0' }}><Pill tone="leaf" icon="check">In your portfolio</Pill> <Link to="../portfolio">See my portfolio</Link></p>;
+  const add = async () => { setBusy(true); setErr(''); try { await loopApi.addToPortfolio(a.id); await act(() => loopApi.state()); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  return (
+    <div style={{ margin: '8px 0' }}>
+      <button type="button" className="pf-btn sm" disabled={busy} onClick={add}><Icon name="award" size={14} />{busy ? 'Adding…' : 'Add to my portfolio'}</button>
+      <span className="pf-small pf-muted" style={{ marginLeft: 8 }}>Proof of what you can do, to show colleges and employers.</span>
+      {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
+    </div>
+  );
+}
+
 function Assessment({ a, act, off }) {
+  const [shots, setShots] = useState([]);           // photos of the work, already shrunk on this device
+  const [shotErr, setShotErr] = useState('');
+  const addShots = async files => {
+    setShotErr('');
+    for (const f of [...files].slice(0, 2 - shots.length)) {
+      try { const url = await shrinkImage(f); setShots(x => (x.length < 2 ? [...x, url] : x)); }
+      catch { setShotErr('That file is not a photo this browser can read. Try a JPEG or PNG.'); }
+    }
+  };
   const [answers, setAnswers] = useState({});
   const [text, setText] = useState('');
   const [link, setLink] = useState('');
@@ -217,7 +243,7 @@ function Assessment({ a, act, off }) {
     );
   } else if (a.stage === 'work') {
     body = (
-      <form onSubmit={e => { e.preventDefault(); go('work', () => loopApi.submitWork(text.trim(), link.trim())); }}>
+      <form onSubmit={e => { e.preventDefault(); go('work', () => loopApi.submitWork(text.trim(), link.trim(), shots)); }}>
         <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 2 of 2: {a.task.levelUp ? 'your level-up proof' : 'show what you can do'} · quiz score {pct(a.quiz.score)}</p>
         <p style={{ margin: '0 0 6px' }}><b>{a.task.prompt}</b></p>
         <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>{a.task.expects}. You will be judged on: {a.task.rubric.join(', ')}.</p>
@@ -226,7 +252,15 @@ function Assessment({ a, act, off }) {
         <div className="pf-small pf-muted" style={{ textAlign: 'right' }}>{text.trim().length} / 3000</div>
         <label className="pf-sr" htmlFor="work-link">A link to something you made (optional)</label>
         <input id="work-link" className="pf-input" type="url" inputMode="url" placeholder="Link to something you made (optional)" value={link} onChange={e => setLink(e.target.value)} style={{ marginTop: 6 }} />
-        <button type="submit" className="pf-btn sm" style={{ marginTop: 10 }} disabled={text.trim().length < 20}>{text.trim().length < 20 ? 'Write a little more' : 'Submit my work'}</button>
+        <div className="pf-photos" style={{ marginTop: 10 }}>
+          <span className="pf-small"><b>Photos of your work</b> (optional, up to 2): a sketch, a page of your notebook, a model. Photograph only the work, with no people in it.</span>
+          <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 6 }}>
+            {shots.map((src, k) => <span key={k} className="pf-shot"><img src={src} alt={`Photo ${k + 1} of your work`} /><button type="button" className="pf-shot-x" aria-label={`Remove photo ${k + 1}`} onClick={() => setShots(x => x.filter((_, j) => j !== k))}>×</button></span>)}
+            {shots.length < 2 && <label className="pf-btn sm ghost" style={{ cursor: 'pointer' }}><Icon name="plus" size={14} />Add a photo<input type="file" accept="image/*" multiple className="pf-sr" aria-label="Add a photo of your work" onChange={e => { addShots(e.target.files); e.target.value = ''; }} /></label>}
+          </div>
+          {shotErr && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{shotErr}</p>}
+        </div>
+        {(() => { const ready = shots.length > 0 || text.trim().length >= 20; return <button type="submit" className="pf-btn sm" style={{ marginTop: 10 }} disabled={!ready}>{ready ? 'Submit my work' : 'Write a little more, or add a photo'}</button>; })()}
       </form>
     );
   } else {
@@ -244,6 +278,14 @@ function Assessment({ a, act, off }) {
             <Fair target="judgement" refId={a.id} fair={a.fair} act={act} what="this feedback" />
           </div>
         )}
+        {a.task && a.task.work && (
+          <details className="pf-milestone" open={Boolean(a.task.work.photos.length)}><summary>Your work</summary>
+            {a.task.work.text && <p className="pf-small" style={{ whiteSpace: 'pre-wrap' }}>{a.task.work.text}</p>}
+            {a.task.work.photos.length > 0 && <div className="pf-row pf-wrap" style={{ gap: 8 }}>{a.task.work.photos.map((id, k) => <AuthImage key={id} path={`/v2/me/loop/photos/${id}`} alt={`Photo ${k + 1} of your work`} />)}</div>}
+            {a.task.work.link && <p className="pf-small">Your link: <a href={a.task.work.link} target="_blank" rel="noopener noreferrer">{a.task.work.link}</a> {a.task.work.linkCheck === 'public' ? <Pill tone="leaf" icon="check">Public</Pill> : a.task.work.linkCheck === 'not-public' ? <Pill tone="coral">Not public: others cannot open it</Pill> : null}</p>}
+          </details>
+        )}
+        {a.portfolio && a.portfolio.canAdd && <PortfolioButton a={a} act={act} />}
         {a.task && a.task.levelUp && a.task.submitted && (a.task.levelPassed
           ? <p className="pf-levelup" role="status"><b>Level complete!</b> Your proof was accepted: the next level opens with your next week.</p>
           : <p className="pf-small" style={{ margin: '8px 0' }}><b>Not quite ready to move up.</b> Next week works on what the feedback says, then you get another go at the proof.</p>)}

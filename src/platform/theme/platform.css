@@ -248,3 +248,8 @@ button.pf-link { background: none; border: 0; padding: 0; color: var(--indigo); 
 .pf-aimeter.out { border-color: color-mix(in srgb, var(--coral, #e5484d) 40%, transparent); color: var(--coral, #c4320a); }
 .pf-aimeter.out svg { color: var(--coral, #c4320a); } .pf-aimeter.out .pf-aimeter-bar i { background: var(--coral, #e5484d); }
 .pf-aimeter-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pf-shot { position: relative; display: inline-block; }
+.pf-shot img, .pf-workphoto { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line, #e5e7eb); display: block; }
+.pf-shot-x { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: #111; color: #fff; cursor: pointer; line-height: 22px; padding: 0; }
+.pf-portfolio-item { display: grid; gap: 8px; }

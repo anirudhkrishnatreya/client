@@ -17,7 +17,11 @@ export const loopApi = {
   undo: id => api.delete(unit(id)),
   openCheck: () => api.post('/v2/me/loop/check'),
   submitQuiz: answers => api.post('/v2/me/loop/check/answers', { answers }),
-  submitWork: (text, link) => api.post('/v2/me/loop/check/work', { text, ...(link ? { link } : {}) }),
+  submitWork: (text, link, photos = []) => api.post('/v2/me/loop/check/work', { text, ...(link ? { link } : {}), ...(photos.length ? { photos } : {}) }),
+  portfolio: () => api.get('/v2/me/loop/portfolio'),
+  addToPortfolio: checkId => api.post('/v2/me/loop/portfolio', { checkId }),
+  removeFromPortfolio: id => api.delete(`/v2/me/loop/portfolio/${id}`),
+  sharePortfolio: on => api.put('/v2/me/loop/portfolio/share', { public: on }),
   planNext: () => api.post('/v2/me/loop/next-week'),
   anotherVideo: id => api.post(`${unit(id)}/video/another`),
   makePractice: id => api.post(`${unit(id)}/practice`),
@@ -32,6 +36,9 @@ export function messageFor(err) {
   if (c === 'LOOP_DISABLED') return 'Goals and weekly plans are not open yet. They are coming soon.';
   if (c === 'AI_OFF') return 'The guide is switched off right now. Please try again later.';
   if (c === 'AI_DAILY_LIMIT') { const d = detailsOf(err); const at = d.resetsAt ? new Date(d.resetsAt).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toLowerCase() : 'tomorrow morning'; return `This needs a bit more of today’s AI than you have left. It comes back at ${at}.`; }
+  if (c === 'PHOTO_NOT_ALLOWED') return detailsOf(err).photos || 'This photo cannot be used. Please photograph only your work.';
+  if (c === 'NOT_EARNED') return 'Only work judged “Strong” or “Getting there”, or a passed level-up, can go in your portfolio.';
+  if (c === 'PORTFOLIO_SHARE_MINOR') return 'Sharing a public link is not available for students under 18 yet.';
   if (c === 'AI_BUSY') return 'The guide has done a lot today and is resting. Please try again tomorrow.';
   if (c === 'AI_UNAVAILABLE') return 'The guide could not answer just now. Your message is safe: please send it again.';
   if (c === 'VALIDATION_FAILED') return Object.values(detailsOf(err))[0] || 'Please check what you entered.';
