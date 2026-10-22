@@ -7,7 +7,7 @@ import { Working, PageSkeleton } from './Loader';
 
 const MINUTE_CHOICES = [0, 15, 30, 45, 60, 90, 120, 180, 240];
 
-const PLAN_STEPS = ['Working out where you are starting from\u2026', 'Choosing an end point you can reach in your time\u2026', 'Shaping the road between the two\u2026', 'Checking it against real career data\u2026'];
+const PLAN_STEPS = ['The Journey Architect is working out where you start\u2026', 'Choosing an end point you can reach in your time\u2026', 'Laying out the levels between the two\u2026', 'A Journey Critic is checking the order and the load\u2026', 'Fixing anything the critic found\u2026'];
 /** The guide's typing dots; if it takes a while (it may be writing the plan), say what it is doing. */
 function Thinking() {
   const [long, setLong] = useState(false);
@@ -53,7 +53,7 @@ function Chat({ intake, act }) {
   );
 }
 
-const START_STEPS = ['Writing your first week\u2026', 'Picking good free videos for each topic\u2026', 'Fitting everything into your real free time\u2026'];
+const START_STEPS = ['The Week Planner is writing your first week\u2026', 'A Week Critic is checking it\u2026', 'Scouts are finding free videos and practice\u2026', 'Fitting everything into your real free time\u2026'];
 /** The drafted plan: where they start and where they are heading. The steps in between are shown one week at a time, not all at once. */
 function Proposal({ plan, act, onStarted }) {
   const [busy, setBusy] = useState(false);
@@ -70,6 +70,15 @@ function Proposal({ plan, act, onStarted }) {
       </div>
       {plan.endPoint.outcomes.length > 0 && <><h4 style={{ margin: '14px 0 6px' }}>By the end, you will be able to show</h4><ul style={{ margin: 0, paddingLeft: 18 }}>{plan.endPoint.outcomes.map(o => <li key={o} className="pf-small">{o}</li>)}</ul></>}
       <p className="pf-small" style={{ marginTop: 14 }}><b>How it works:</b> you get one week at a time. After each week you do a short assessment, and the next week is built from how it went, faster if you are flying, slower if you need time. The road between here and the end point changes with you.</p>
+      {plan.firstLevel && (
+        <div className="pf-levelcard">
+          <div className="pf-eyebrow">Level 1 of {plan.phaseCount} · about {plan.firstLevel.weeks} weeks</div>
+          <b>{plan.firstLevel.title}</b>
+          <p className="pf-small" style={{ margin: '4px 0 0' }}>{plan.firstLevel.outcome}</p>
+          {plan.firstLevel.levelUp && <p className="pf-small" style={{ margin: '6px 0 0' }}><b>To move up to Level 2:</b> {plan.firstLevel.levelUp}</p>}
+          <p className="pf-small pf-muted" style={{ margin: '6px 0 0' }}>Each level ends with a proof like this. Pass it and the next level opens.</p>
+        </div>
+      )}
       {plan.longPath && <p className="pf-small"><b>The longer road:</b> {plan.longPath}</p>}
       {plan.notes.length > 0 && <ul className="pf-small pf-muted" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{plan.notes.map(n => <li key={n}>{n}</li>)}</ul>}
       <div className="pf-row pf-wrap" style={{ gap: 10, marginTop: 16 }}>
@@ -77,7 +86,7 @@ function Proposal({ plan, act, onStarted }) {
         <span className="pf-small pf-muted">Want something different? Tell the guide in the chat above.</span>
       </div>
       {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}
-      <p className="pf-small pf-faint" style={{ marginTop: 12 }}>Drafted by AI from what you said and real occupation data. A mentor can help you adjust it.</p>
+      <p className="pf-small pf-faint" style={{ marginTop: 12 }}>Drafted by AI from what you said and real occupation data, then reviewed by a second AI acting as a senior practitioner. Not yet checked by a person: a mentor can help you adjust it.</p>
     </Card>
   );
 }
@@ -153,7 +162,7 @@ export default function LoopGoalPage() {
       <div className="pf-grid g-main-r">
         <Card><CardHead title="Your goal" icon="target" />
           <h3 style={{ margin: '4px 0' }}>{g.title}</h3>
-          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · phase {g.phase.number} of {g.phase.total}: {g.phase.title} · target {fmtDay(g.targetDate)}</span></div>
+          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · Level {g.phase.number} of {g.phase.total}: {g.phase.title} · target {fmtDay(g.targetDate)}</span></div>
           <div className="pf-grid g2">
             <div className="pf-point"><div className="pf-eyebrow">Started from</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.startPoint.summary}</p></div>
             <div className="pf-point end"><div className="pf-eyebrow">Heading to</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.endPoint.summary}</p></div>

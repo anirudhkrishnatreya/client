@@ -226,3 +226,13 @@ button.pf-link { background: none; border: 0; padding: 0; color: var(--indigo); 
 @media (max-width: 700px) { .pf-video-head { grid-template-columns: 1fr; } }
 
 .pf-help { margin: 8px 0 0; padding: 8px 10px; border-left: 3px solid var(--blue, #1d4ed8); background: color-mix(in srgb, var(--blue, #1d4ed8) 6%, transparent); border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.45; }
+
+.pf-levelcard { margin-top: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line, #e5e7eb); background: color-mix(in srgb, var(--blue, #1d4ed8) 4%, var(--card, #fff)); }
+.pf-places, .pf-exercises { margin-top: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line, #e5e7eb); background: var(--card, #fff); }
+.pf-places ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 8px; }
+.pf-places a { text-decoration: none; }
+.pf-places a:hover { text-decoration: underline; }
+.pf-exercises ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 12px; }
+.pf-exercises details { margin-top: 4px; }
+.pf-exercises summary { cursor: pointer; font-size: 13px; color: var(--blue, #1d4ed8); }
+.pf-levelup { margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--leaf, #16a34a) 12%, transparent); }

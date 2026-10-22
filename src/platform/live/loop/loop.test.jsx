@@ -26,14 +26,14 @@ const bundle = { success: true, me: { id: 's1', fullName: 'Asha Verma', grade: '
 const at = path => render(<MemoryRouter initialEntries={[path]}><AuthProvider><Routes><Route path="/platform/*" element={<PlatformApp />} /></Routes></AuthProvider></MemoryRouter>);
 
 const profile = { freeMinutes: [45, 45, 45, 45, 45, 90, 90], restDay: null, exams: [], saved: false };
-const PLAN = { careerTitle: 'Astronaut', startPoint: { summary: 'Class 10, curious about space.', level: 'Class 10' }, endPoint: { summary: 'A strong Physics base and readiness for the IIST route.', outcomes: ['Explain orbits'], horizonWeeks: 10 }, longPath: 'Then a degree and ISRO selection.', phases: [{ id: 'p1', title: 'Fundamentals', weeks: 2, outcome: 'o', topics: [{ id: 'p1t1', title: 'Gravity and orbits' }] }, { id: 'p2', title: 'Physics base', weeks: 3, outcome: 'o', topics: [{ id: 'p2t1', title: 'Newton’s laws' }] }], weeklyMinutes: 300, notes: ['Check the official ISRO website.'] };
+const PLAN = { careerTitle: 'Astronaut', startPoint: { summary: 'Class 10, curious about space.', level: 'Class 10' }, endPoint: { summary: 'A strong Physics base and readiness for the IIST route.', outcomes: ['Explain orbits'], horizonWeeks: 10 }, longPath: 'Then a degree and ISRO selection.', phaseCount: 4, firstLevel: { title: 'Foundations of space science', outcome: 'Core ideas', weeks: 2, levelUp: 'Explain, with a labelled diagram, why the Moon stays in orbit.' }, notes: ['Check the official ISRO website.'] };
 const chatState = (messages, extra = {}) => ({ loop: { mode: 'chat', profile, today: '2026-10-22', intake: { status: 'chatting', messages, proposal: null, ...extra.intake }, currentGoal: null, ...extra.loop } });
 const greeting = { role: 'assistant', text: 'Hi Asha! What do you want to become?', quickReplies: ['AI engineer', 'Astronaut'] };
 const video = over => ({ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', channel: 'Great Teacher', minutes: 18, views: 500000, covers: 'Why things orbit.', why: 'Clear and the right level.', start: null, end: null, thumb: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', embedUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0', ...over });
 const unit = (id, day, over = {}) => ({ id, title: `Unit ${id}`, type: 'learn', minutes: 30, goal: `Goal of ${id}`, evidence: `Evidence for ${id}`, search: `search ${id}`, searchUrl: `https://www.youtube.com/results?search_query=search%20${id}`, topic: 'Gravity and orbits', day, date: ['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23'][day], reason: `Reason for ${id}.`, video: null, sequence: null, status: 'todo', resourceUrl: null, resourceTitle: null, rating: null, ...over });
 const planState = (over = {}) => ({ loop: { mode: 'plan', profile: { ...profile, saved: true }, today: '2026-10-22',
   goal: { id: 'g1', title: 'Astronaut', startPoint: PLAN.startPoint, endPoint: PLAN.endPoint, longPath: PLAN.longPath, notes: PLAN.notes, targetDate: '2026-12-31', weekNumber: 1, pace: 'on-track', adaptations: [],
-    phase: { number: 1, total: 4, title: 'Fundamentals', outcome: 'Core ideas of space science', finished: false },
+    phase: { number: 1, total: 4, title: 'Fundamentals', outcome: 'Core ideas of space science', finished: false, levelUp: { proof: 'Explain, with a labelled diagram, why the Moon stays in orbit.', criteria: ['Correct ideas', 'Clear diagram'] }, levelUpDue: false },
     progress: { phaseIndex: 0, phases: 4, topicsTotal: 10, topicsDone: 1, mastered: 0 } },
   week: { weekStart: '2026-10-19', weekEnd: '2026-10-25', weekNumber: 1, mode: 'normal', pace: 'start', focus: 'Fundamentals: gravity', summary: '', source: 'model', notices: [], items: [unit('u1', 3), unit('u2', 3, { type: 'practise' }), unit('u3', 4)], capacityMinutes: 300, plannedMinutes: 90, doneMinutes: 0, todayIndex: 3, over: false, videos: false },
   assessment: { stage: 'locked', done: 0, need: 2 }, next: { canPlan: false, assessed: false, over: false, finished: false }, history: [], ...over } });
@@ -73,6 +73,9 @@ describe('the career chat', () => {
     expect(screen.getByText(/End point · about 10 weeks/)).toBeInTheDocument();
     expect(screen.queryByText('Fundamentals')).toBeNull();                                  // the phases are not shown
     expect(screen.getAllByText(/one week at a time/).length).toBeGreaterThan(0);
+    expect(screen.getByText('Foundations of space science')).toBeInTheDocument();
+    expect(screen.getByText('To move up to Level 2:')).toBeInTheDocument();
+    expect(screen.getByText(/Level 1 of 4/)).toBeInTheDocument();
     expect(screen.getByText(/Then a degree and ISRO selection/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Start this plan' }));
     expect(await screen.findByText(/Your plan has started/)).toBeInTheDocument();
@@ -103,7 +106,7 @@ describe('my goal with a plan', () => {
     at('/platform/student/goal');
     expect(await screen.findByText('On track')).toBeInTheDocument();
     expect(screen.getByText(/A strong Physics base/)).toBeInTheDocument();
-    expect(screen.getByText(/phase 1 of 4: Fundamentals/)).toBeInTheDocument();
+    expect(screen.getByText(/Level 1 of 4: Fundamentals/)).toBeInTheDocument();
     expect(screen.queryByText(/Newton/)).toBeNull();
     await user.selectOptions(screen.getByLabelText('Monday'), '90');
     await user.click(screen.getByRole('button', { name: 'Save my week' }));
@@ -165,6 +168,48 @@ describe('the week', () => {
     expect(within(check).getByRole('link', { name: 'Gravity and orbits explained' })).toBeInTheDocument();
     expect(within(check).getByRole('link', { name: /Find a free video to help/ })).toBeInTheDocument();
     expect(within(screen.getByRole('article', { name: 'Unit u1' })).getByText('Tip:')).toBeInTheDocument();
+  });
+  it('a practise step lists real places to practise and makes practice questions on request, with hints and answers hidden until asked', async () => {
+    const s = planState();
+    s.loop.week.items = [unit('u2', 3, { type: 'practise', help: 'Try the easy ones first.', exercises: null, practice: [{ id: 'physics-classroom', provider: 'The Physics Classroom', title: 'Tutorials and practice', url: 'https://www.physicsclassroom.com/', kind: 'problems', login: false, what: 'Do the gravity practice set.' }, { id: 'khan-physics', provider: 'Khan Academy', title: 'Physics practice exercises', url: 'https://www.khanacademy.org/science/physics', kind: 'interactive', login: true, what: '' }] })];
+    routes['get /v2/me/loop'] = s;
+    const made = JSON.parse(JSON.stringify(s));
+    made.loop.week.items[0].exercises = [{ kind: 'question', prompt: 'A ball falls 20 m. How long does it take?', hint: 'Use s = ½gt².', answer: 't = 2 s', checklist: null }, { kind: 'task', prompt: 'Draw the Earth and the Moon.', hint: 'Two arrows.', answer: null, checklist: ['Gravity arrow points to the Earth', 'Labels are clear'] }];
+    let release; routes['post /v2/me/loop/units/u2/practice'] = () => new Promise(r => { release = r; });
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    const card = await screen.findByRole('article', { name: 'Unit u2' });
+    const link = within(card).getByRole('link', { name: /The Physics Classroom/ });
+    expect(link).toHaveAttribute('href', 'https://www.physicsclassroom.com/');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(within(card).getByText('Do the gravity practice set.')).toBeInTheDocument();
+    expect(within(card).getByText(/free account/)).toBeInTheDocument();
+    await user.click(within(card).getByRole('button', { name: 'Give me practice questions' }));
+    expect(await within(card).findByText('Making your practice')).toBeInTheDocument();
+    expect(within(card).getByText(/Practice Maker is writing exercises/)).toBeInTheDocument();
+    release(made);
+    expect(await within(card).findByText('A ball falls 20 m. How long does it take?')).toBeInTheDocument();
+    expect(within(card).getByText('t = 2 s')).not.toBeVisible();                               // hidden until opened
+    await user.click(within(card).getByText('Show the answer'));
+    expect(within(card).getByText('t = 2 s')).toBeVisible();
+    await user.click(within(card).getByText('How to check your work'));
+    expect(within(card).getByText('Labels are clear')).toBeVisible();
+    expect(within(card).queryByRole('button', { name: 'Give me practice questions' })).toBeNull();
+  });
+  it('a learning step has no practice button; the level-up proof shows where they are', async () => {
+    routes['get /v2/me/loop'] = planState();
+    at('/platform/student/plan');
+    const card = await screen.findByRole('article', { name: 'Unit u1' });
+    expect(within(card).queryByRole('button', { name: 'Give me practice questions' })).toBeNull();
+    expect(screen.getByText('To move up a level:')).toBeInTheDocument();
+    expect(screen.getByText(/labelled diagram, why the Moon stays in orbit/)).toBeInTheDocument();
+  });
+  it('a level-up assessment is named as one, and passing it says the next level opens', async () => {
+    const task = { prompt: 'Explain, with a labelled diagram, why the Moon stays in orbit.', expects: 'Your work', rubric: ['Correct ideas', 'Clear diagram'], submitted: true, levelUp: true, levelPassed: true, judgement: { status: 'judged', overall: 'strong', criteria: [{ name: 'Correct ideas', band: 'strong', comment: 'Good.' }], feedback: 'Well done.', nextStep: 'Next.' } };
+    routes['get /v2/me/loop'] = planState({ next: { canPlan: true, assessed: true, over: false, finished: false }, assessment: { stage: 'done', quiz: { status: 'done', score: 1, questions: [] }, task } });
+    at('/platform/student/plan');
+    expect(await screen.findByText('Level-up assessment')).toBeInTheDocument();
+    expect(screen.getByText('Level complete!')).toBeInTheDocument();
   });
   it('never plays a video from an address that is not YouTube\u2019s embed player', async () => {
     const s = planState();
@@ -311,7 +356,7 @@ describe('progress and overview', () => {
     expect(screen.getByText('Another look at: Gravity and orbits.')).toBeInTheDocument();
     expect(screen.getByText('Slower')).toBeInTheDocument();
     expect(screen.getByText(/60% finished · quiz 50%/)).toBeInTheDocument();
-    expect(screen.getByText(/phase 1 of 4: Fundamentals/)).toBeInTheDocument();
+    expect(screen.getByText(/Level 1 of 4: Fundamentals/)).toBeInTheDocument();
     expect(screen.queryByText(/Newton|Vectors/)).toBeNull();
   });
   it('the overview shows today\u2019s steps, or invites the chat', async () => {
@@ -319,7 +364,7 @@ describe('progress and overview', () => {
     const { unmount } = at('/platform/student');
     expect(await screen.findByText('Today')).toBeInTheDocument();
     expect(screen.getByText('Unit u1')).toBeInTheDocument();
-    expect(screen.getByText(/phase 1 of 4/)).toBeInTheDocument();
+    expect(screen.getByText(/Level 1 of 4/)).toBeInTheDocument();
     unmount();
     routes['get /v2/me/loop'] = chatState([greeting]);
     at('/platform/student');

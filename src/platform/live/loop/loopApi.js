@@ -19,7 +19,8 @@ export const loopApi = {
   submitQuiz: answers => api.post('/v2/me/loop/check/answers', { answers }),
   submitWork: (text, link) => api.post('/v2/me/loop/check/work', { text, ...(link ? { link } : {}) }),
   planNext: () => api.post('/v2/me/loop/next-week'),
-  anotherVideo: id => api.post(`${unit(id)}/video/another`)
+  anotherVideo: id => api.post(`${unit(id)}/video/another`),
+  makePractice: id => api.post(`${unit(id)}/practice`)
 };
 
 export const codeOf = err => (err && err.response && err.response.data && (err.response.data.code || err.response.data.error)) || null;

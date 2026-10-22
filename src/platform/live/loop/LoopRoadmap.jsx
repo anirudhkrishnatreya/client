@@ -22,8 +22,9 @@ export default function LoopProgressPage() {
         <Card><div className="pf-eyebrow">Heading to · by {fmtDay(g.targetDate)}</div><p style={{ margin: '6px 0 0' }}>{g.endPoint.summary}</p>{g.endPoint.outcomes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{g.endPoint.outcomes.map(o => <li key={o}>{o}</li>)}</ul>}</Card>
       </div>
       <Card style={{ marginBottom: 14 }}>
-        <div className="pf-row pf-wrap" style={{ gap: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><b>Week {g.weekNumber}</b><span className="pf-small pf-muted">· phase {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
+        <div className="pf-row pf-wrap" style={{ gap: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><b>Week {g.weekNumber}</b><span className="pf-small pf-muted">· Level {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
         <p className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>{g.phase.outcome}</p>
+        {g.phase.levelUp && <p className="pf-small" style={{ margin: '8px 0 0' }}><b>{g.phase.levelUpDue ? 'Your level-up proof is due:' : 'To move up a level:'}</b> {g.phase.levelUp.proof}{g.phase.levelUp.criteria.length > 0 && <span className="pf-muted"> (checked for: {g.phase.levelUp.criteria.join('; ')})</span>}</p>}
         <p className="pf-small" style={{ margin: '8px 0 0' }}>{g.progress.topicsDone} of {g.progress.topicsTotal} topics studied · {g.progress.mastered} mastered</p>
       </Card>
       {g.adaptations.length > 0 && (

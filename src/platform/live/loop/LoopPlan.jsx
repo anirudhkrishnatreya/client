@@ -39,6 +39,52 @@ function Video({ unit, act }) {
   );
 }
 
+/** Real free places to practise this, from iMenteo's checked list: what it is, what to do there, and whether it needs a free account. */
+function Places({ places }) {
+  return (
+    <div className="pf-places">
+      <div className="pf-eyebrow">Practise here</div>
+      <ul>{places.map(p => (
+        <li key={p.id}>
+          <a href={p.url} target="_blank" rel="noopener noreferrer"><b>{p.provider}</b>: {p.title}</a>
+          {p.login && <span className="pf-small pf-muted"> · free account</span>}
+          {p.what && <div className="pf-small">{p.what}</div>}
+        </li>
+      ))}</ul>
+    </div>
+  );
+}
+
+const PRACTICE_STEPS = ['The Practice Maker is writing exercises at your level…', 'The Practice Checker is solving each one first…', 'Keeping only the ones that passed…'];
+/** Practice questions for this step, made on request (one tap, then kept): hints and answers stay hidden until asked for. */
+function Exercises({ item, act }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const make = async () => { setBusy(true); setErr(''); try { await act(() => loopApi.makePractice(item.id)); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  if (busy) return <div style={{ marginTop: 10 }}><Working compact title="Making your practice" steps={PRACTICE_STEPS} /></div>;
+  if (!item.exercises) {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <button type="button" className="pf-btn sm ghost" onClick={make}><Icon name="sparkles" size={14} />Give me practice questions</button>
+        {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
+      </div>
+    );
+  }
+  return (
+    <div className="pf-exercises">
+      <div className="pf-eyebrow">Practice questions · checked before you see them</div>
+      <ol>{item.exercises.map((x, k) => (
+        <li key={k}>
+          <p style={{ margin: '0 0 4px', whiteSpace: 'pre-wrap' }}>{x.prompt}</p>
+          {x.hint && <details><summary>Show a hint</summary><p className="pf-small">{x.hint}</p></details>}
+          {x.kind === 'question' && x.answer && <details><summary>Show the answer</summary><p className="pf-small" style={{ whiteSpace: 'pre-wrap' }}>{x.answer}</p></details>}
+          {x.kind === 'task' && x.checklist && <details><summary>How to check your work</summary><ul className="pf-small">{x.checklist.map(c => <li key={c}>{c}</li>)}</ul></details>}
+        </li>
+      ))}</ol>
+    </div>
+  );
+}
+
 /** One unit: what, why, the video, and the done/skip actions. */
 function Item({ item, act }) {
   const [mode, setMode] = useState(null);
@@ -67,6 +113,8 @@ function Item({ item, act }) {
       )}
       {!finished && item.help && <p className="pf-help"><b>{item.type === 'learn' ? 'Tip:' : 'How to go about it:'}</b> {item.help}</p>}
       {item.video && !(finished && item.status === 'skipped') && <Video unit={item} act={act} />}
+      {!finished && item.practice && item.practice.length > 0 && <Places places={item.practice} />}
+      {!finished && item.type !== 'learn' && <Exercises item={item} act={act} />}
       {!finished && item.rewatch && item.rewatch.length > 0 && (
         <p className="pf-small" style={{ margin: '8px 0 0' }}><b>Stuck? Go back to:</b> {item.rewatch.map((r, k) => <span key={r.videoId}>{k > 0 && ' · '}<a href={r.watchUrl} target="_blank" rel="noopener noreferrer">{r.title}</a></span>)}</p>
       )}
@@ -136,7 +184,7 @@ function Assessment({ a, act }) {
   } else if (a.stage === 'work') {
     body = (
       <form onSubmit={e => { e.preventDefault(); go('work', () => loopApi.submitWork(text.trim(), link.trim())); }}>
-        <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 2 of 2: show what you can do · quiz score {pct(a.quiz.score)}</p>
+        <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 2 of 2: {a.task.levelUp ? 'your level-up proof' : 'show what you can do'} · quiz score {pct(a.quiz.score)}</p>
         <p style={{ margin: '0 0 6px' }}><b>{a.task.prompt}</b></p>
         <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>{a.task.expects}. You will be judged on: {a.task.rubric.join(', ')}.</p>
         <label className="pf-sr" htmlFor="work-text">Your answer</label>
@@ -161,6 +209,9 @@ function Assessment({ a, act }) {
             {j.nextStep && <p className="pf-small"><b>Next step:</b> {j.nextStep}</p>}
           </div>
         )}
+        {a.task && a.task.levelUp && a.task.submitted && (a.task.levelPassed
+          ? <p className="pf-levelup" role="status"><b>Level complete!</b> Your proof was accepted: the next level opens with your next week.</p>
+          : <p className="pf-small" style={{ margin: '8px 0' }}><b>Not quite ready to move up.</b> Next week works on what the feedback says, then you get another go at the proof.</p>)}
         {j && j.status === 'unjudged' && <p className="pf-small" style={{ margin: '8px 0' }}>Your work is saved. We could not read it just now, so next week is planned from your quiz and your finished steps.</p>}
         <details className="pf-milestone"><summary>See the quiz answers</summary>
           <ol style={{ margin: '8px 0 0', paddingLeft: 18 }}>{rows.map(q => <li key={q.id} className="pf-small" style={{ marginBottom: 8 }}>{q.q} <Pill tone={q.correct ? 'leaf' : 'coral'}>{q.correct ? 'Right' : 'Not quite'}</Pill>{!q.correct && <div>Answer: <b>{q.options[q.answer]}</b>. {q.explanation}</div>}</li>)}</ol>
@@ -168,10 +219,11 @@ function Assessment({ a, act }) {
       </>
     );
   }
-  return <Card><CardHead title="Week assessment" icon="clipboard" />{body}{err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}</Card>;
+  const levelUp = a.task && a.task.levelUp;
+  return <Card><CardHead title={levelUp ? 'Level-up assessment' : 'Week assessment'} icon="clipboard" />{body}{err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}</Card>;
 }
 
-const NEXT_STEPS = ['Looking at how your week went…', 'Adjusting the plan to your pace…', 'Writing next week’s steps…', 'Choosing the best videos for each topic…'];
+const NEXT_STEPS = ['Looking at how your week went…', 'Adjusting the plan to your pace…', 'The Week Planner is writing next week…', 'A Week Critic is checking it…', 'Scouts are finding videos and practice…'];
 /** After the assessment: review the week and plan the next, with a loader while it works. */
 function NextWeek({ next, act }) {
   const [busy, setBusy] = useState(false);
@@ -229,7 +281,8 @@ export default function LoopPlanPage() {
           {loop.next.canPlan && <NextWeek next={loop.next} act={act} />}
           <Assessment a={loop.assessment} act={act} />
           <Card><CardHead title="Where you are" icon="trend" action="Details" to="roadmap" />
-            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">phase {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
+            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Level {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
+            {g.phase.levelUp && <p className="pf-small" style={{ margin: '0 0 8px' }}><b>{g.phase.levelUpDue ? 'Level-up proof due this week:' : 'To move up a level:'}</b> {g.phase.levelUp.proof}</p>}
             <p className="pf-small" style={{ margin: '0 0 8px' }}>{g.progress.topicsDone} of {g.progress.topicsTotal} topics studied, {g.progress.mastered} mastered</p>
             <Progress value={g.progress.topicsTotal ? (g.progress.topicsDone / g.progress.topicsTotal) * 100 : 0} label="Topics studied" />
           </Card>
