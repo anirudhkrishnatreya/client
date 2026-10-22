@@ -1,11 +1,44 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill, Progress } from '../../ui/kit';
-import { loopApi, useLoop, messageFor, DAYS, TYPE_LABEL, TYPE_TONE, PACE, fmtMinutes } from './loopApi';
+import { loopApi, useLoop, messageFor, TYPE_LABEL, TYPE_TONE, PACE, BAND, fmtMinutes, fmtShort, weekdayOf, pct } from './loopApi';
+import { Working, PageSkeleton, Orbit } from './Loader';
 
 const SKIPS = [['already-know', 'I already know this'], ['covered-elsewhere', 'Covered in school or coaching'], ['not-relevant', 'Not relevant for me'], ['too-hard', 'Too hard for now'], ['other', 'Another reason']];
+const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const SAFE_EMBED = /^https:\/\/www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}(\?|$)/;
 
-/** One unit: what, why, where to learn it, and the done/skip actions. */
+/** The video chosen for a unit: why it was chosen, what it covers, played here or on YouTube, and a way to ask for a different one. */
+function Video({ unit, act }) {
+  const v = unit.video;
+  const [playing, setPlaying] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const another = async () => { setBusy(true); setErr(''); setPlaying(false); try { await act(() => loopApi.anotherVideo(unit.id)); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  return (
+    <div className="pf-video">
+      <div className="pf-video-head">
+        {playing && SAFE_EMBED.test(v.embedUrl)
+          ? <div className="pf-video-frame"><iframe src={v.embedUrl} title={v.title} loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /></div>
+          : <button type="button" className="pf-video-thumb" onClick={() => setPlaying(true)} aria-label={`Play: ${v.title}`}><img src={v.thumb} alt="" loading="lazy" /><span className="pf-play" aria-hidden="true"><Icon name="play" size={22} /></span></button>}
+        <div className="pf-video-meta">
+          {unit.sequence && unit.sequence.of > 1 && <Pill tone="grey">Video {unit.sequence.index} of {unit.sequence.of} on this topic</Pill>}
+          <b>{v.title}</b>
+          <span className="pf-small pf-muted">{v.channel} · {v.minutes} min{v.start ? ` · from ${mmss(v.start)}${v.end ? ` to ${mmss(v.end)}` : ''}` : ''}</span>
+          {v.covers && <span className="pf-small"><b>Covers:</b> {v.covers}</span>}
+          {v.why && <span className="pf-small pf-muted">Why this one: {v.why}</span>}
+        </div>
+      </div>
+      <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 8 }}>
+        <a className="pf-btn sm ghost" href={v.watchUrl} target="_blank" rel="noopener noreferrer">Open on YouTube</a>
+        {unit.status === 'todo' && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={another}>{busy ? 'Finding another…' : 'Show me a different video'}</button>}
+      </div>
+      {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
+    </div>
+  );
+}
+
+/** One unit: what, why, the video, and the done/skip actions. */
 function Item({ item, act }) {
   const [mode, setMode] = useState(null);
   const [link, setLink] = useState('');
@@ -31,17 +64,21 @@ function Item({ item, act }) {
           <p className="pf-small" style={{ margin: '4px 0 0' }}><b>To show it:</b> {item.evidence}</p>
         </>
       )}
-      {item.status === 'done' && item.resourceUrl && <p className="pf-small" style={{ margin: '6px 0 0' }}>Learned from: <a href={item.resourceUrl} target="_blank" rel="noopener noreferrer">{item.resourceTitle || item.resourceUrl}</a></p>}
+      {item.video && !(finished && item.status === 'skipped') && <Video unit={item} act={act} />}
+      {item.status === 'done' && item.resourceUrl && <p className="pf-small" style={{ margin: '6px 0 0' }}>You also used: <a href={item.resourceUrl} target="_blank" rel="noopener noreferrer">{item.resourceTitle || item.resourceUrl}</a></p>}
       <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 10 }}>
-        {!finished && <a className="pf-btn sm ghost" href={item.searchUrl} target="_blank" rel="noopener noreferrer"><Icon name="search" size={14} />Find a free video</a>}
+        {!finished && !item.video && <a className="pf-btn sm ghost" href={item.searchUrl} target="_blank" rel="noopener noreferrer"><Icon name="search" size={14} />Find a free video</a>}
         {!finished && mode === null && <button type="button" className="pf-btn sm" onClick={() => setMode('done')}>I have done this</button>}
         {!finished && mode === null && <button type="button" className="pf-btn sm ghost" onClick={() => setMode('skip')}>Skip</button>}
         {finished && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => run(() => loopApi.undo(item.id))}>Undo</button>}
       </div>
       {mode === 'done' && (
         <form className="pf-unit-form" onSubmit={e => { e.preventDefault(); run(() => loopApi.done(item.id, { ...(link.trim() ? { resourceUrl: link.trim() } : {}), ...(rating ? { rating } : {}) })); }}>
-          <label className="pf-label" htmlFor={`link-${item.id}`}>Which video or page did you learn from? (optional)</label>
-          <input id={`link-${item.id}`} className="pf-input" type="url" inputMode="url" placeholder="https://www.youtube.com/watch?v=…" value={link} onChange={e => setLink(e.target.value)} />
+          {item.video
+            ? <p className="pf-small" style={{ marginTop: 0 }}>How was the video? Your rating helps other students get better videos. (You can also add another link you used.)</p>
+            : <p className="pf-small" style={{ marginTop: 0 }}>Which video or page did you learn from? (optional)</p>}
+          <label className="pf-sr" htmlFor={`link-${item.id}`}>A link you used (optional)</label>
+          <input id={`link-${item.id}`} className="pf-input" type="url" inputMode="url" placeholder="https://www.youtube.com/watch?v=… (optional)" value={link} onChange={e => setLink(e.target.value)} />
           <div className="pf-row pf-wrap" style={{ gap: 6, marginTop: 8 }} role="group" aria-label="How good was it?">
             <span className="pf-small">How good was it?</span>
             {[1, 2, 3, 4, 5].map(n => <button key={n} type="button" className={`pf-star${rating >= n ? ' on' : ''}`} aria-pressed={rating === n} aria-label={`${n} out of 5`} onClick={() => setRating(n)}>★</button>)}
@@ -61,88 +98,139 @@ function Item({ item, act }) {
   );
 }
 
-/** The end-of-week check: locked until a couple of steps are done, then 5 quick questions, then answers explained. */
-function WeekCheck({ check, act }) {
+const QUIZ_STEPS = ['Writing questions on what you studied…', 'Writing a short task for you…', 'Checking every answer is right…'];
+const WORK_STEPS = ['Reading what you wrote…', 'Comparing it with the rubric…', 'Writing feedback to help you improve…'];
+
+/** The week's assessment: a short quiz, then a piece of work, then feedback. Its results shape next week. */
+function Assessment({ a, act }) {
   const [answers, setAnswers] = useState({});
-  const [busy, setBusy] = useState(false);
+  const [text, setText] = useState('');
+  const [link, setLink] = useState('');
+  const [busy, setBusy] = useState(null);                 // 'open' | 'quiz' | 'work'
   const [err, setErr] = useState('');
-  const go = async fn => { setBusy(true); setErr(''); try { await act(fn); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
+  const go = async (kind, fn) => { setBusy(kind); setErr(''); try { await act(fn); } catch (e) { setErr(messageFor(e)); } finally { setBusy(null); } };
   let body;
-  if (check.status === 'locked') body = <p className="pf-small" style={{ margin: 0 }}>Unlocks after you finish {check.need} of this week’s steps ({check.done} done so far). It is 5 quick questions on what you learned, and it decides how fast next week moves.</p>;
-  else if (check.status === 'ready') body = <><p className="pf-small" style={{ marginTop: 0 }}>5 quick questions on what you studied this week. About 5 minutes. Your result shapes next week: ahead, steady, or a little revision.</p><button type="button" className="pf-btn sm" disabled={busy} onClick={() => go(() => loopApi.openCheck())}>{busy ? 'Preparing your questions…' : 'Start the check'}</button></>;
-  else if (check.status === 'open') {
-    const all = check.questions.every(q => answers[q.id] !== undefined);
+  if (busy === 'open') body = <Working title="Preparing your assessment" steps={QUIZ_STEPS} />;
+  else if (busy === 'work') body = <Working title="Judging your work" steps={WORK_STEPS} />;
+  else if (a.stage === 'locked') body = <p className="pf-small" style={{ margin: 0 }}>Unlocks after you finish {a.need} of this week’s steps ({a.done} done so far). It is a 5-question quiz and one short piece of work, and the result decides how next week is planned.</p>;
+  else if (a.stage === 'ready') body = <><p className="pf-small" style={{ marginTop: 0 }}>A 5-question quiz and one short piece of work on what you learned this week. About 15 minutes. Your result decides next week: faster, steadier, or a little revision.</p><button type="button" className="pf-btn sm" onClick={() => go('open', () => loopApi.openCheck())}>Start the assessment</button></>;
+  else if (a.stage === 'quiz') {
+    const all = a.quiz.questions.every(q => answers[q.id] !== undefined);
     body = (
-      <form onSubmit={e => { e.preventDefault(); go(() => loopApi.submitCheck(check.questions.map(q => answers[q.id]))); }}>
-        {check.questions.map((q, i) => (
+      <form onSubmit={e => { e.preventDefault(); go('quiz', () => loopApi.submitQuiz(a.quiz.questions.map(q => answers[q.id]))); }}>
+        <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 1 of 2: the quiz</p>
+        {a.quiz.questions.map((q, i) => (
           <fieldset key={q.id} className="pf-quizq">
             <legend><b>{i + 1}.</b> {q.q}</legend>
-            {q.options.map((o, k) => <label key={k} className="pf-row" style={{ gap: 8, padding: '4px 0' }}><input type="radio" name={q.id} checked={answers[q.id] === k} onChange={() => setAnswers(a => ({ ...a, [q.id]: k }))} />{o}</label>)}
+            {q.options.map((o, k) => <label key={k} className="pf-row" style={{ gap: 8, padding: '4px 0' }}><input type="radio" name={q.id} checked={answers[q.id] === k} onChange={() => setAnswers(x => ({ ...x, [q.id]: k }))} />{o}</label>)}
           </fieldset>
         ))}
-        <button type="submit" className="pf-btn sm" disabled={busy || !all}>{busy ? 'Marking…' : all ? 'Submit my answers' : 'Answer every question'}</button>
+        <button type="submit" className="pf-btn sm" disabled={busy === 'quiz' || !all}>{busy === 'quiz' ? 'Marking…' : all ? 'Submit my answers' : 'Answer every question'}</button>
+      </form>
+    );
+  } else if (a.stage === 'work') {
+    body = (
+      <form onSubmit={e => { e.preventDefault(); go('work', () => loopApi.submitWork(text.trim(), link.trim())); }}>
+        <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 2 of 2: show what you can do · quiz score {pct(a.quiz.score)}</p>
+        <p style={{ margin: '0 0 6px' }}><b>{a.task.prompt}</b></p>
+        <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>{a.task.expects}. You will be judged on: {a.task.rubric.join(', ')}.</p>
+        <label className="pf-sr" htmlFor="work-text">Your answer</label>
+        <textarea id="work-text" className="pf-textarea" rows={7} maxLength={3000} value={text} onChange={e => setText(e.target.value)} placeholder="Write in your own words…" />
+        <div className="pf-small pf-muted" style={{ textAlign: 'right' }}>{text.trim().length} / 3000</div>
+        <label className="pf-sr" htmlFor="work-link">A link to something you made (optional)</label>
+        <input id="work-link" className="pf-input" type="url" inputMode="url" placeholder="Link to something you made (optional)" value={link} onChange={e => setLink(e.target.value)} style={{ marginTop: 6 }} />
+        <button type="submit" className="pf-btn sm" style={{ marginTop: 10 }} disabled={text.trim().length < 20}>{text.trim().length < 20 ? 'Write a little more' : 'Submit my work'}</button>
       </form>
     );
   } else {
-    const pct = Math.round(check.score * 100);
+    const j = a.task && a.task.judgement;
+    const rows = a.quiz.questions;
     body = (
       <>
-        <p style={{ marginTop: 0 }}><b>{pct}%</b> · {pct >= 80 ? 'Great work. Next week moves ahead.' : pct >= 50 ? 'Good going. Next week revises what you missed, then continues.' : 'That is fine. Next week goes over these again, a little slower.'}</p>
-        <ol style={{ margin: 0, paddingLeft: 18 }}>{check.questions.map(q => (
-          <li key={q.id} className="pf-small" style={{ marginBottom: 8 }}>
-            {q.q} <Pill tone={q.correct ? 'leaf' : 'coral'}>{q.correct ? 'Right' : 'Not quite'}</Pill>
-            {!q.correct && <div>Answer: <b>{q.options[q.answer]}</b>. {q.explanation}</div>}
-          </li>
-        ))}</ol>
+        <p style={{ marginTop: 0 }}><b>Quiz: {pct(a.quiz.score)}</b> · {rows.filter(q => q.correct).length} of {rows.length} right</p>
+        {j && j.status === 'judged' && (
+          <div className="pf-judged">
+            <div className="pf-row pf-wrap" style={{ gap: 8 }}><b>Your work</b><Pill tone={BAND[j.overall][1]}>{BAND[j.overall][0]}</Pill></div>
+            <ul className="pf-list" style={{ marginTop: 8 }}>{j.criteria.map(c => <li key={c.name}><span className="pf-grow"><b>{c.name}</b><br /><span className="pf-small pf-muted">{c.comment}</span></span><Pill tone={BAND[c.band][1]}>{BAND[c.band][0]}</Pill></li>)}</ul>
+            {j.feedback && <p className="pf-small">{j.feedback}</p>}
+            {j.nextStep && <p className="pf-small"><b>Next step:</b> {j.nextStep}</p>}
+          </div>
+        )}
+        {j && j.status === 'unjudged' && <p className="pf-small" style={{ margin: '8px 0' }}>Your work is saved. We could not read it just now, so next week is planned from your quiz and your finished steps.</p>}
+        <details className="pf-milestone"><summary>See the quiz answers</summary>
+          <ol style={{ margin: '8px 0 0', paddingLeft: 18 }}>{rows.map(q => <li key={q.id} className="pf-small" style={{ marginBottom: 8 }}>{q.q} <Pill tone={q.correct ? 'leaf' : 'coral'}>{q.correct ? 'Right' : 'Not quite'}</Pill>{!q.correct && <div>Answer: <b>{q.options[q.answer]}</b>. {q.explanation}</div>}</li>)}</ol>
+        </details>
       </>
     );
   }
-  return <Card><CardHead title="Week check" icon="clipboard" />{body}{err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}</Card>;
+  return <Card><CardHead title="Week assessment" icon="clipboard" />{body}{err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}</Card>;
+}
+
+const NEXT_STEPS = ['Looking at how your week went…', 'Adjusting the plan to your pace…', 'Writing next week’s steps…', 'Choosing the best videos for each topic…'];
+/** After the assessment: review the week and plan the next, with a loader while it works. */
+function NextWeek({ next, act }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  if (busy) return <Card ai><Working title="Planning your next week" steps={NEXT_STEPS} /></Card>;
+  return (
+    <Card ai>
+      <span className="tag"><Icon name="sparkles" size={14} />Ready for the next week</span>
+      <p style={{ margin: '8px 0 10px' }}>{next.assessed ? 'Your assessment is done. Your plan will now adapt to how this week went: faster, steadier, or with some revision.' : 'This week has ended. You can plan the next one now; without an assessment, your plan continues at the same pace.'}</p>
+      <button type="button" className="pf-btn" onClick={async () => { setBusy(true); setErr(''); try { await act(() => loopApi.planNext()); } catch (e) { setErr(messageFor(e)); setBusy(false); } }}>Plan my next week</button>
+      {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}
+    </Card>
+  );
 }
 
 export default function LoopPlanPage() {
   const { loop, loading, closed, error, act } = useLoop();
-  const [replanState, setReplan] = useState('');
-  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<Link className="pf-btn sm ghost" to="roadmap">My journey</Link>}>Small steps that fit your free time. Learn from a free video, show what you learned, tick it off, then take the week check.</PageHead>;
-  if (loading) return <>{head}<p role="status">Loading your week… (a new week takes a few seconds to plan)</p></>;
+  const [replan, setReplan] = useState('');
+  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<Link className="pf-btn sm ghost" to="roadmap">My progress</Link>}>This is your week. Learn from the videos, show what you learned, then take the assessment. Your next week is built from how it goes.</PageHead>;
+  if (loading) return <PageSkeleton label="Loading your week" />;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Weekly plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
   if (loop.mode === 'chat') return <>{head}<Card><Empty icon="target" title={loop.currentGoal ? 'You are planning a new goal' : 'Tell your guide what you want to become'}>{loop.currentGoal ? 'Finish the chat on My goal, or keep your current goal.' : 'A short chat, then your plan appears here.'}</Empty><p style={{ textAlign: 'center' }}><Link className="pf-btn sm" to="../goal">Go to My goal</Link></p></Card></>;
 
   const w = loop.week, g = loop.goal;
-  const byDay = DAYS.map((_, d) => w.items.filter(i => i.day === d));
-  const pct = w.plannedMinutes ? Math.round((w.doneMinutes / w.plannedMinutes) * 100) : 0;
+  const days = [...new Set(w.items.map(i => i.date))].sort();
+  const done = w.plannedMinutes ? Math.round((w.doneMinutes / w.plannedMinutes) * 100) : 0;
   const pace = PACE[g.pace] || PACE['on-track'];
+  const note = w.summary || (g.adaptations.length ? g.adaptations[g.adaptations.length - 1].summary : '');
+  const changes = g.adaptations.length && g.adaptations[g.adaptations.length - 1].week === w.weekNumber - 1 ? g.adaptations[g.adaptations.length - 1].changes : [];
   return (
     <>
       {head}
+      {w.weekNumber > 1 && note && <Card ai style={{ marginBottom: 12 }}><span className="tag"><Icon name="sparkles" size={14} />What changed for this week</span><p style={{ margin: '8px 0 0' }}>{note}</p>{changes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{changes.map(c => <li key={c}>{c}</li>)}</ul>}</Card>}
       {w.notices.map(n => <div key={n.key} className="pf-note" role="note" style={{ marginBottom: 10 }}>{n.text}</div>)}
       <div className="pf-grid g-main">
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <Card>
             <div className="pf-row pf-wrap pf-weekhead" style={{ gap: 10 }}>
-              <div className="pf-grow"><b>Week {w.weekNumber} · {g.title}</b><div className="pf-small pf-muted">{w.focus || g.phases[Math.min(g.progress.phaseIndex, g.phases.length - 1)].title} · {fmtMinutes(w.doneMinutes)} of {fmtMinutes(w.plannedMinutes)} done{w.mode === 'exam' ? ' · exam week' : w.mode === 'reset' ? ' · lighter week' : ''}</div></div>
-              <button type="button" className="pf-btn sm ghost" disabled={replanState === 'busy'} onClick={async () => { setReplan('busy'); try { await act(() => loopApi.replan()); setReplan('done'); } catch (e) { setReplan(messageFor(e)); } }}>{replanState === 'busy' ? 'Re-planning…' : 'Re-plan the rest of this week'}</button>
+              <div className="pf-grow"><b>Week {w.weekNumber} · {g.title}</b><div className="pf-small pf-muted">{fmtShort(w.weekStart)} to {fmtShort(w.weekEnd)} · {w.focus || g.phase.title} · {fmtMinutes(w.doneMinutes)} of {fmtMinutes(w.plannedMinutes)} done{w.mode === 'exam' ? ' · exam week' : w.mode === 'reset' ? ' · lighter week' : ''}</div></div>
+              <button type="button" className="pf-btn sm ghost" disabled={replan === 'busy'} onClick={async () => { setReplan('busy'); try { await act(() => loopApi.replan()); setReplan('done'); } catch (e) { setReplan(messageFor(e)); } }}>{replan === 'busy' ? 'Re-planning…' : 'Re-plan the rest of this week'}</button>
             </div>
-            <div style={{ marginTop: 10 }}><Progress value={pct} label="This week" /></div>
-            {replanState && replanState !== 'busy' && <p className="pf-small" role="status" style={{ marginTop: 6 }}>{replanState === 'done' ? 'Planned again around your current week.' : replanState}</p>}
+            <div style={{ marginTop: 10 }}><Progress value={done} label="This week" /></div>
+            {replan && replan !== 'busy' && <p className="pf-small" role="status" style={{ marginTop: 6 }}>{replan === 'done' ? 'Planned again around your current week.' : replan}</p>}
           </Card>
           {w.items.length === 0 && <Card><Empty icon="calendar" title="Nothing planned this week">{w.notices.length ? 'See the note above.' : 'Add some free time to your week on My goal.'}</Empty></Card>}
-          {byDay.map((items, d) => (items.length ? (
-            <Card key={d} className={d === w.todayIndex ? 'pf-today' : ''}>
-              <CardHead title={`${DAYS[d]}${d === w.todayIndex ? ' · today' : ''}`} icon="calendar" />
-              <div style={{ display: 'grid', gap: 10 }}>{items.map(i => <Item key={i.id} item={i} act={act} />)}</div>
+          {days.map(date => (
+            <Card key={date} className={w.items.find(i => i.date === date).day === w.todayIndex ? 'pf-today' : ''}>
+              <CardHead title={`${weekdayOf(date)}, ${fmtShort(date)}${w.items.find(i => i.date === date).day === w.todayIndex ? ' · today' : ''}`} icon="calendar" />
+              <div style={{ display: 'grid', gap: 10 }}>{w.items.filter(i => i.date === date).map(i => <Item key={i.id} item={i} act={act} />)}</div>
             </Card>
-          ) : null))}
+          ))}
         </div>
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
-          <WeekCheck check={loop.check} act={act} />
-          <Card><CardHead title="Your journey" icon="trend" action="Open" to="roadmap" />
-            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">phase {Math.min(g.progress.phaseIndex + 1, g.progress.phases)} of {g.progress.phases}</span></div>
+          {loop.next.canPlan && <NextWeek next={loop.next} act={act} />}
+          <Assessment a={loop.assessment} act={act} />
+          <Card><CardHead title="Where you are" icon="trend" action="Details" to="roadmap" />
+            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">phase {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
             <p className="pf-small" style={{ margin: '0 0 8px' }}>{g.progress.topicsDone} of {g.progress.topicsTotal} topics studied, {g.progress.mastered} mastered</p>
             <Progress value={g.progress.topicsTotal ? (g.progress.topicsDone / g.progress.topicsTotal) * 100 : 0} label="Topics studied" />
           </Card>
+          {loop.history.length > 0 && <Card><CardHead title="Past weeks" icon="chart" /><ul className="pf-list">{loop.history.map(h => <li key={h.weekNumber}><span className="pf-grow"><b>Week {h.weekNumber}</b><br /><span className="pf-small pf-muted">{h.completion === null ? '' : `${pct(h.completion)} finished`}{h.quiz === null ? '' : ` · quiz ${pct(h.quiz)}`}</span></span>{h.work && BAND[h.work] && <Pill tone={BAND[h.work][1]}>Work: {BAND[h.work][0]}</Pill>}</li>)}</ul></Card>}
           {w.source === 'fallback' && <div className="pf-note" role="note"><Icon name="info" size={15} /> This week was planned simply from your topics, because the guide could not be reached. Next week is planned in full.</div>}
+          {!w.videos && !w.items.some(i => i.type === 'learn' && i.video) && <div className="pf-note" role="note"><Icon name="info" size={15} /> Use “Find a free video” on each step to find something good to watch.</div>}
         </div>
       </div>
     </>

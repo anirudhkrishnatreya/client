@@ -3,8 +3,17 @@ import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill } from '../../ui/kit';
 import { usePlatform } from '../../data/store';
 import { loopApi, useLoop, messageFor, DAYS, SHORT_DAYS, PACE, fmtMinutes, fmtDay } from './loopApi';
+import { Working, PageSkeleton } from './Loader';
 
 const MINUTE_CHOICES = [0, 15, 30, 45, 60, 90, 120, 180, 240];
+
+const PLAN_STEPS = ['Working out where you are starting from\u2026', 'Choosing an end point you can reach in your time\u2026', 'Shaping the road between the two\u2026', 'Checking it against real career data\u2026'];
+/** The guide's typing dots; if it takes a while (it may be writing the plan), say what it is doing. */
+function Thinking() {
+  const [long, setLong] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setLong(true), 4000); return () => clearTimeout(t); }, []);
+  return long ? <div className="pf-msg ai" style={{ padding: 0, background: 'transparent', border: 0 }}><Working compact title="Your guide is thinking" steps={PLAN_STEPS} /></div> : <div className="pf-msg ai pf-typing" aria-label="The guide is typing"><span /><span /><span /></div>;
+}
 
 /** The career chat: the guide asks one question at a time; quick replies for common answers. */
 function Chat({ intake, act }) {
@@ -29,7 +38,7 @@ function Chat({ intake, act }) {
       <div className="pf-chat pf-loopchat" ref={log} role="log" aria-label="Conversation with your guide" aria-live="polite">
         {intake.messages.map((m, i) => <div key={i} className={`pf-msg ${m.role === 'user' ? 'me' : 'ai'}`}>{m.text}</div>)}
         {pending && <div className="pf-msg me">{pending}</div>}
-        {busy && <div className="pf-msg ai pf-typing" aria-label="The guide is typing"><span /><span /><span /></div>}
+        {busy && <Thinking />}
       </div>
       {!busy && last && last.role === 'assistant' && last.quickReplies && last.quickReplies.length > 0 && (
         <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 10 }}>{last.quickReplies.map(q => <button key={q} type="button" className="pf-chipbtn" onClick={() => send(q)}>{q}</button>)}</div>
@@ -44,10 +53,13 @@ function Chat({ intake, act }) {
   );
 }
 
-/** The drafted plan: from where they are to a concrete end point, in phases. */
+const START_STEPS = ['Writing your first week\u2026', 'Picking good free videos for each topic\u2026', 'Fitting everything into your real free time\u2026'];
+/** The drafted plan: where they start and where they are heading. The steps in between are shown one week at a time, not all at once. */
 function Proposal({ plan, act, onStarted }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const start = async () => { setBusy(true); setErr(''); try { await act(() => loopApi.confirm()); onStarted(); } catch (e) { setErr(messageFor(e)); setBusy(false); } };
+  if (busy) return <Card style={{ marginTop: 16 }}><Working title="Starting your plan" steps={START_STEPS} /></Card>;
   return (
     <Card style={{ marginTop: 16 }} ai>
       <span className="tag"><Icon name="sparkles" size={14} />Your plan</span>
@@ -57,12 +69,11 @@ function Proposal({ plan, act, onStarted }) {
         <div className="pf-point end"><div className="pf-eyebrow">End point · about {plan.endPoint.horizonWeeks} weeks</div><p style={{ margin: '4px 0 0' }}>{plan.endPoint.summary}</p></div>
       </div>
       {plan.endPoint.outcomes.length > 0 && <><h4 style={{ margin: '14px 0 6px' }}>By the end, you will be able to show</h4><ul style={{ margin: 0, paddingLeft: 18 }}>{plan.endPoint.outcomes.map(o => <li key={o} className="pf-small">{o}</li>)}</ul></>}
-      <h4 style={{ margin: '14px 0 6px' }}>The phases</h4>
-      <ol className="pf-phases">{plan.phases.map(ph => <li key={ph.id}><b>{ph.title}</b> <span className="pf-small pf-muted">· {ph.weeks} week{ph.weeks === 1 ? '' : 's'}</span><div className="pf-small pf-muted">{ph.topics.map(t => t.title).join(' · ')}</div></li>)}</ol>
-      {plan.longPath && <p className="pf-small" style={{ marginTop: 12 }}><b>The longer road:</b> {plan.longPath}</p>}
+      <p className="pf-small" style={{ marginTop: 14 }}><b>How it works:</b> you get one week at a time. After each week you do a short assessment, and the next week is built from how it went, faster if you are flying, slower if you need time. The road between here and the end point changes with you.</p>
+      {plan.longPath && <p className="pf-small"><b>The longer road:</b> {plan.longPath}</p>}
       {plan.notes.length > 0 && <ul className="pf-small pf-muted" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{plan.notes.map(n => <li key={n}>{n}</li>)}</ul>}
       <div className="pf-row pf-wrap" style={{ gap: 10, marginTop: 16 }}>
-        <button type="button" className="pf-btn" disabled={busy} onClick={async () => { setBusy(true); setErr(''); try { await act(() => loopApi.confirm()); onStarted(); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } }}>{busy ? 'Starting…' : 'Start this plan'}</button>
+        <button type="button" className="pf-btn" onClick={start}>Start this plan</button>
         <span className="pf-small pf-muted">Want something different? Tell the guide in the chat above.</span>
       </div>
       {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}
@@ -118,7 +129,7 @@ export default function LoopGoalPage() {
   const [justStarted, setJustStarted] = useState(false);
   const refreshDashboard = () => { if (platform && platform.actions && platform.actions.reload) platform.actions.reload(); };
   const head = <PageHead eyebrow="My goal" title="Where do you want to get to?">Tell your guide what you want to become, any career at all. It asks a few questions, then drafts a plan from where you are to where you want to be, one week at a time.</PageHead>;
-  if (loading) return <>{head}<p role="status">Loading…</p></>;
+  if (loading) return <PageSkeleton label="Loading your goal" cards={2} />;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Goals and weekly plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
 
@@ -142,12 +153,12 @@ export default function LoopGoalPage() {
       <div className="pf-grid g-main-r">
         <Card><CardHead title="Your goal" icon="target" />
           <h3 style={{ margin: '4px 0' }}>{g.title}</h3>
-          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · phase {Math.min(g.progress.phaseIndex + 1, g.progress.phases)} of {g.progress.phases} · target {fmtDay(g.targetDate)}</span></div>
+          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · phase {g.phase.number} of {g.phase.total}: {g.phase.title} · target {fmtDay(g.targetDate)}</span></div>
           <div className="pf-grid g2">
             <div className="pf-point"><div className="pf-eyebrow">Started from</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.startPoint.summary}</p></div>
             <div className="pf-point end"><div className="pf-eyebrow">Heading to</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.endPoint.summary}</p></div>
           </div>
-          <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 14 }}><Link className="pf-btn" to="../plan">This week’s plan</Link><Link className="pf-btn ghost" to="../plan/roadmap">My journey</Link>
+          <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 14 }}><Link className="pf-btn" to="../plan">This week’s plan</Link><Link className="pf-btn ghost" to="../plan/roadmap">My progress</Link>
             <button type="button" className="pf-btn ghost" onClick={() => { if (window.confirm('Start planning a new goal? Your current goal stays until you start the new plan.')) act(() => loopApi.newGoal()); }}>Start a new goal</button></div>
         </Card>
         <Card><CardHead title="Your week" icon="calendar" />

@@ -16,7 +16,10 @@ export const loopApi = {
   skip: (id, skipReason) => api.post(`${unit(id)}/skip`, { skipReason }),
   undo: id => api.delete(unit(id)),
   openCheck: () => api.post('/v2/me/loop/check'),
-  submitCheck: answers => api.post('/v2/me/loop/check/answers', { answers })
+  submitQuiz: answers => api.post('/v2/me/loop/check/answers', { answers }),
+  submitWork: (text, link) => api.post('/v2/me/loop/check/work', { text, ...(link ? { link } : {}) }),
+  planNext: () => api.post('/v2/me/loop/next-week'),
+  anotherVideo: id => api.post(`${unit(id)}/video/another`)
 };
 
 export const codeOf = err => (err && err.response && err.response.data && (err.response.data.code || err.response.data.error)) || null;
@@ -49,6 +52,10 @@ export const SHORT_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const TYPE_LABEL = { learn: 'Learn', practise: 'Practise', make: 'Make', check: 'Check' };
 export const TYPE_TONE = { learn: '', practise: 'gold', make: 'leaf', check: 'grey' };
 export const TOPIC = { new: ['Not started', 'grey'], covered: ['Covered', ''], weak: ['Needs another look', 'coral'], mastered: ['Mastered', 'leaf'] };
+export const BAND = { strong: ['Strong', 'leaf'], 'getting-there': ['Getting there', 'gold'], 'not-yet': ['Not yet', 'coral'] };
 export const PACE = { ahead: ['Ahead of plan', 'leaf'], 'on-track': ['On track', 'leaf'], behind: ['A little behind', 'gold'], finished: ['Plan complete', 'leaf'] };
 export const fmtMinutes = m => (m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}` : `${m} min`);
 export const fmtDay = iso => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+export const fmtShort = iso => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+export const weekdayOf = iso => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'long' });
+export const pct = v => `${Math.round(v * 100)}%`;
