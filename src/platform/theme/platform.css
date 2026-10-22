@@ -277,3 +277,33 @@ button.pf-link { background: none; border: 0; padding: 0; color: var(--indigo); 
 .pf-hbar.warn i { background: var(--marigold); } .pf-hbar.bad i { background: var(--coral); }
 
 @media (max-width: 560px) { .pf-kpis { grid-template-columns: 1fr 1fr; gap: 10px; } .pf-kpi .v { font-size: 20px; } }
+
+/* ── the week as day cards, a page per day, and the assessment banner */
+.pf-daygrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.pf-daycard { display: block; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; text-decoration: none; color: inherit; box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+a.pf-daycard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--indigo); }
+.pf-daycard.today { border: 2px solid var(--indigo); }
+.pf-daycard.complete { background: linear-gradient(0deg, var(--leaf-t), var(--card) 60%); }
+.pf-daycard.behind { border-color: var(--marigold); }
+.pf-daycard.empty { box-shadow: none; background: transparent; border-style: dashed; }
+.pf-daycard-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pf-daycard-head b { font-family: 'Syne', sans-serif; font-size: 16px; }
+.pf-daysteps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pf-daysteps li { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.pf-daysteps li .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-daysteps li .m { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.pf-daysteps li.done .t { color: var(--muted); text-decoration: line-through; }
+.pf-daysteps li.more { color: var(--muted); padding-left: 14px; }
+.pf-daysteps .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sky); flex: none; }
+.pf-daysteps .dot.gold { background: var(--marigold); } .pf-daysteps .dot.leaf { background: var(--leaf); } .pf-daysteps .dot.coral { background: var(--coral); }
+.pf-daycard-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; }
+.pf-daycard-open { color: var(--indigo); font-weight: 600; display: inline-flex; align-items: center; gap: 2px; }
+.pf-assessbar { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--r); border: 1px solid var(--line); background: var(--card); flex-wrap: wrap; }
+.pf-assessbar.locked { background: var(--bg); }
+.pf-assessbar.ready { border: 2px solid var(--indigo); background: var(--indigo-t); }
+.pf-assessbar.ready.due { border-color: var(--marigold); background: var(--marigold-t); }
+.pf-assessbar.done { border-color: var(--leaf); background: var(--leaf-t); }
+.pf-steplist { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.pf-steplist > li { display: flex; gap: 12px; align-items: flex-start; }
+.pf-stepno { width: 30px; height: 30px; border-radius: 50%; background: var(--indigo-t); color: var(--indigo); display: grid; place-items: center; font-weight: 700; flex: none; margin-top: 18px; }
+@media (max-width: 560px) { .pf-stepno { display: none; } .pf-daygrid { grid-template-columns: 1fr; } }

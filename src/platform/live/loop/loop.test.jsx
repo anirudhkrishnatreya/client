@@ -117,15 +117,28 @@ describe('my goal with a plan', () => {
 });
 
 describe('the week', () => {
-  it('shows this week only, by date with today highlighted, and a safe search link when there is no video', async () => {
+  it('shows this week as day cards (today marked, free days shown), and each day opens its own page with the steps in full', async () => {
     routes['get /v2/me/loop'] = planState();
+    const user = userEvent.setup();
     at('/platform/student/plan');
-    expect(await screen.findByText(/Thursday, 22 Oct · today/)).toBeInTheDocument();
+    const today = await screen.findByRole('link', { name: /^Thursday, 22 Oct: 2 steps, 0 done$/ });
+    expect(within(today).getByText('Today')).toBeInTheDocument();
+    expect(within(today).getByText('Unit u1')).toBeInTheDocument();
     expect(screen.getByText(/19 Oct to 25 Oct/)).toBeInTheDocument();
-    expect(screen.getByText('Friday, 23 Oct')).toBeInTheDocument();
+    expect(screen.getByLabelText('Monday, 19 Oct: nothing planned')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^Friday, 23 Oct: 1 step, 0 done$/ })).toBeInTheDocument();
+    expect(screen.queryByRole('article', { name: 'Unit u1' })).toBeNull();                       // the steps themselves are on the day's page
+    await user.click(today);
+    expect(await screen.findByRole('heading', { name: 'Thursday, 22 Oct' })).toBeInTheDocument();
+    expect(screen.getByText(/Today you learn Gravity and orbits/)).toBeInTheDocument();
+    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument();
     const link = within(screen.getByRole('article', { name: 'Unit u1' })).getByRole('link', { name: /Find a free video/ });
     expect(link).toHaveAttribute('href', 'https://www.youtube.com/results?search_query=search%20u1');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    await user.click(screen.getByRole('link', { name: 'Next day: Friday' }));
+    expect(await screen.findByRole('heading', { name: 'Friday, 23 Oct' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Previous day: Thursday' })).toBeInTheDocument();
+    expect(screen.getByText(/^On Friday /)).toBeInTheDocument();
   });
   it('shows the chosen video with why it was chosen and what it covers; plays it here on request; and can swap it', async () => {
     const s = planState();
@@ -135,7 +148,7 @@ describe('the week', () => {
     const swapped = JSON.parse(JSON.stringify(s)); swapped.loop.week.items[0].video = video({ videoId: 'aaaaaaaaaaa', title: 'A different lesson', embedUrl: 'https://www.youtube-nocookie.com/embed/aaaaaaaaaaa?rel=0' });
     routes['post /v2/me/loop/units/u1/video/another'] = swapped;
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     const card = await screen.findByRole('article', { name: 'Unit u1' });
     expect(within(card).getByText('Gravity and orbits explained')).toBeInTheDocument();
     expect(within(card).getByText(/Great Teacher · 18 min/)).toBeInTheDocument();
@@ -154,10 +167,10 @@ describe('the week', () => {
     s.loop.week.items = [
       unit('u1', 3, { video: video(), sequence: { index: 1, of: 1 }, help: 'Pause and note three points.' }),
       unit('u2', 3, { type: 'practise', help: 'Start with the easy one, then try a harder one.', video: video({ videoId: 'bbbbbbbbbbb', title: 'Worked examples', role: 'practice', embedUrl: 'https://www.youtube-nocookie.com/embed/bbbbbbbbbbb?rel=0' }), rewatch: [{ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }] }),
-      unit('u3', 4, { type: 'check', help: 'Close the video and answer from memory.', rewatch: [{ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }] })
+      unit('u3', 3, { type: 'check', help: 'Close the video and answer from memory.', rewatch: [{ videoId: 'dQw4w9WgXcQ', title: 'Gravity and orbits explained', watchUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }] })
     ];
     routes['get /v2/me/loop'] = s;
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     const practise = await screen.findByRole('article', { name: 'Unit u2' });
     expect(within(practise).getByText(/Start with the easy one/)).toBeInTheDocument();
     expect(within(practise).getByText('How to go about it:')).toBeInTheDocument();
@@ -178,7 +191,7 @@ describe('the week', () => {
     made.loop.week.items[0].exercises = [{ kind: 'question', prompt: 'A ball falls 20 m. How long does it take?', hint: 'Use s = ½gt².', answer: 't = 2 s', checklist: null }, { kind: 'task', prompt: 'Draw the Earth and the Moon.', hint: 'Two arrows.', answer: null, checklist: ['Gravity arrow points to the Earth', 'Labels are clear'] }];
     let release; routes['post /v2/me/loop/units/u2/practice'] = () => new Promise(r => { release = r; });
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     const card = await screen.findByRole('article', { name: 'Unit u2' });
     const link = within(card).getByRole('link', { name: /The Physics Classroom/ });
     expect(link).toHaveAttribute('href', 'https://www.physicsclassroom.com/');
@@ -197,18 +210,20 @@ describe('the week', () => {
     expect(within(card).getByText('Labels are clear')).toBeVisible();
     expect(within(card).queryByRole('button', { name: 'Give me practice questions' })).toBeNull();
   });
-  it('a learning step has no practice button; the level-up proof shows where they are', async () => {
+  it('a learning step can have practice questions too; the level-up proof shows where they are', async () => {
     routes['get /v2/me/loop'] = planState();
-    at('/platform/student/plan');
+    const { unmount } = at('/platform/student/plan/day/2026-10-22');
     const card = await screen.findByRole('article', { name: 'Unit u1' });
-    expect(within(card).queryByRole('button', { name: 'Give me practice questions' })).toBeNull();
-    expect(screen.getByText('To move up a level:')).toBeInTheDocument();
+    expect(within(card).getByRole('button', { name: 'Give me practice questions' })).toBeInTheDocument();
+    unmount();
+    at('/platform/student/plan');
+    expect(await screen.findByText('To move up a level:')).toBeInTheDocument();
     expect(screen.getByText(/labelled diagram, why the Moon stays in orbit/)).toBeInTheDocument();
   });
   it('a level-up assessment is named as one, and passing it says the next level opens', async () => {
     const task = { prompt: 'Explain, with a labelled diagram, why the Moon stays in orbit.', expects: 'Your work', rubric: ['Correct ideas', 'Clear diagram'], submitted: true, levelUp: true, levelPassed: true, judgement: { status: 'judged', overall: 'strong', criteria: [{ name: 'Correct ideas', band: 'strong', comment: 'Good.' }], feedback: 'Well done.', nextStep: 'Next.' } };
     routes['get /v2/me/loop'] = planState({ next: { canPlan: true, assessed: true, over: false, finished: false }, assessment: { stage: 'done', quiz: { status: 'done', score: 1, questions: [] }, task } });
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     expect(await screen.findByText('Level-up assessment')).toBeInTheDocument();
     expect(screen.getByText('Level complete!')).toBeInTheDocument();
   });
@@ -217,7 +232,7 @@ describe('the week', () => {
     s.loop.week.items[0] = unit('u1', 3, { video: video({ embedUrl: 'https://evil.example/embed/dQw4w9WgXcQ' }) });
     routes['get /v2/me/loop'] = s;
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     const card = await screen.findByRole('article', { name: 'Unit u1' });
     await user.click(within(card).getByRole('button', { name: /Play:/ }));
     expect(card.querySelector('iframe')).toBeNull();
@@ -228,7 +243,7 @@ describe('the week', () => {
     routes['post /v2/me/loop/units/u1/done'] = { loop: { ...s.loop, week: { ...s.loop.week, doneMinutes: 30, items: s.loop.week.items.map(i => (i.id === 'u1' ? { ...i, status: 'done' } : i)) } } };
     routes['post /v2/me/loop/units/u2/skip'] = { loop: { ...s.loop, week: { ...s.loop.week, items: s.loop.week.items.map(i => (i.id === 'u2' ? { ...i, status: 'skipped' } : i)) } } };
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     const c1 = await screen.findByRole('article', { name: 'Unit u1' });
     await user.click(within(c1).getByRole('button', { name: 'I have done this' }));
     await user.click(within(c1).getByRole('button', { name: '5 out of 5' }));
@@ -258,6 +273,39 @@ describe('the week', () => {
   });
 });
 
+describe('the assessment banner and moving between pages', () => {
+  it('locked: says how it opens and that next week waits for it', async () => {
+    routes['get /v2/me/loop'] = planState({ assessment: { stage: 'locked', done: 1, need: 2 }, next: { canPlan: false, assessed: false, over: false, finished: false, needsAssessment: true } });
+    at('/platform/student/plan');
+    expect(await screen.findByText(/Opens after 2 finished steps \(1 so far\), or when the week ends on 25 Oct\. Your next week opens after the assessment\./)).toBeInTheDocument();
+  });
+  it('the week has ended without it: next week stays locked, and the banner leads to the assessment page', async () => {
+    routes['get /v2/me/loop'] = planState({ assessment: { stage: 'ready', done: 0, need: 2 }, next: { canPlan: false, assessed: false, over: true, finished: false, needsAssessment: true } });
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    expect(await screen.findByText('This week has ended: take your assessment')).toBeInTheDocument();
+    expect(screen.getByText(/Your next week stays locked until you take it/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Plan my next week' })).toBeNull();
+    await user.click(screen.getByRole('link', { name: 'Take the assessment' }));
+    expect(await screen.findByRole('heading', { name: 'Your week assessment' })).toBeInTheDocument();
+    expect(screen.getByText('opens after this assessment.')).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: '← Week 1' }));
+    expect(await screen.findByText('This week has ended: take your assessment')).toBeInTheDocument();
+  });
+  it('a finished day says so and points to the next day; the last one points to the assessment', async () => {
+    const s = planState({ assessment: { stage: 'ready', done: 2, need: 2 } });
+    s.loop.week.items = [unit('u1', 3, { status: 'done' }), unit('u2', 4, { status: 'done' })];
+    routes['get /v2/me/loop'] = s;
+    const user = userEvent.setup();
+    at('/platform/student/plan/day/2026-10-22');
+    expect(await screen.findByText('Day complete')).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'Go to Friday' }));
+    expect(await screen.findByRole('heading', { name: 'Friday, 23 Oct' })).toBeInTheDocument();
+    expect(screen.getByText(/That was the last day: your assessment is ready/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Take the assessment' })).toBeInTheDocument();
+  });
+});
+
 describe('the weekly assessment and the next week', () => {
   const quiz = [1, 2, 3].map(n => ({ id: `q${n}`, q: `Question ${n}?`, options: ['A', 'B', 'C', 'D'] }));
   const task = { prompt: 'Explain gravity to a younger student.', expects: 'About 100 words', rubric: ['Accuracy', 'Clarity', 'Own words'], submitted: false, judgement: null };
@@ -268,7 +316,7 @@ describe('the weekly assessment and the next week', () => {
     routes['post /v2/me/loop/check/answers'] = { loop: { ...base.loop, assessment: { stage: 'work', quiz: { status: 'done', score: 2 / 3, questions: [] }, task } } };
     routes['post /v2/me/loop/check/work'] = { loop: { ...base.loop, next: { canPlan: true, assessed: true, over: false, finished: false }, assessment: { stage: 'done', quiz: { status: 'done', score: 2 / 3, questions: quiz.map((q, i) => ({ ...q, answer: 1, yourAnswer: i === 2 ? 0 : 1, correct: i !== 2, explanation: 'Because B.' })) }, task: { ...task, submitted: true, judgement: { status: 'judged', overall: 'getting-there', criteria: [{ name: 'Accuracy', band: 'strong', comment: 'Correct ideas.' }, { name: 'Clarity', band: 'getting-there', comment: 'A little long.' }, { name: 'Own words', band: 'getting-there', comment: 'Mostly yours.' }], feedback: 'Good start, tighten the middle.', nextStep: 'Add one example.' } } } } };
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     await user.click(await screen.findByRole('button', { name: 'Start the assessment' }));
     expect(await screen.findByText(/Question 1\?/)).toBeInTheDocument();
     expect(screen.getByText(/Part 1 of 2/)).toBeInTheDocument();
@@ -278,7 +326,7 @@ describe('the weekly assessment and the next week', () => {
     expect(calls.find(c => c.url === '/v2/me/loop/check/answers').body).toEqual({ answers: [1, 1, 0] });
     expect(await screen.findByText(/Part 2 of 2/)).toBeInTheDocument();
     expect(screen.getByText('Explain gravity to a younger student.')).toBeInTheDocument();
-    expect(screen.getByText(/Accuracy, Clarity, Own words/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Accuracy, Clarity, Own words/).length).toBeGreaterThan(0);
     const submit = screen.getByRole('button', { name: 'Write a little more, or add a photo' });
     expect(submit).toBeDisabled();
     await user.type(screen.getByLabelText('Your answer'), 'Gravity pulls things toward each other, like the Earth pulls the Moon.');
@@ -295,7 +343,7 @@ describe('the weekly assessment and the next week', () => {
     routes['get /v2/me/loop'] = planState({ assessment: { stage: 'ready', done: 2, need: 2 } });
     let release; routes['post /v2/me/loop/check'] = () => new Promise(r => { release = r; });
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     await user.click(await screen.findByRole('button', { name: 'Start the assessment' }));
     expect(await screen.findByText('Preparing your assessment')).toBeInTheDocument();
     expect(screen.getByText(/Writing questions on what you studied/)).toBeInTheDocument();
@@ -330,7 +378,7 @@ describe('the weekly assessment and the next week', () => {
   });
   it('unjudged work says it was saved and next week uses the rest', async () => {
     routes['get /v2/me/loop'] = planState({ next: { canPlan: true, assessed: true, over: false, finished: false }, assessment: { stage: 'done', quiz: { status: 'done', score: 1, questions: [] }, task: { ...task, submitted: true, judgement: { status: 'unjudged' } } } });
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     expect(await screen.findByText(/Your work is saved/)).toBeInTheDocument();
   });
 });
@@ -342,7 +390,7 @@ describe('people around the plan', () => {
     routes['get /v2/me/loop'] = done(null);
     routes['post /v2/me/loop/feedback'] = done({ fair: false, note: 'I did give an example.', status: 'open', reply: null });
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     const group = await screen.findByRole('group', { name: 'Was this feedback fair?' });
     await user.click(within(group).getByRole('button', { name: 'Not really' }));
     await user.type(screen.getByLabelText(/What felt wrong/), 'I did give an example.');
@@ -352,7 +400,7 @@ describe('people around the plan', () => {
   });
   it('a reply from the mentor is shown in place of the question', async () => {
     routes['get /v2/me/loop'] = done({ fair: false, note: 'x', status: 'answered', reply: { text: 'You are right, well spotted.', by: 'mentor', at: '2026-10-23' } });
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     expect(await screen.findByText('Your mentor replied:')).toBeInTheDocument();
     expect(screen.getByText('You are right, well spotted.')).toBeInTheDocument();
     expect(screen.queryByRole('group', { name: /fair/ })).toBeNull();
@@ -363,7 +411,7 @@ describe('people around the plan', () => {
     routes['get /v2/me/loop'] = s;
     routes['post /v2/me/loop/feedback'] = s;
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/day/2026-10-22');
     await user.click(within(await screen.findByRole('group', { name: 'Was this practice fair?' })).getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(calls.find(c => c.url === '/v2/me/loop/feedback').body).toEqual({ target: 'practice', refId: 'u2', fair: true, note: '' }));
   });
@@ -400,19 +448,23 @@ describe('today’s AI meter', () => {
     at('/platform/student/plan');
     expect((await screen.findByRole('meter')).className).toMatch(/low/);
   });
-  it('when it is used up: says so, says when it comes back, keeps the plan usable and disables AI buttons', async () => {
-    const s = planState({ assessment: { stage: 'ready', done: 2, need: 2 }, next: { canPlan: true, assessed: false, over: true, finished: false } });
+  it('when it is used up: says so, says when it comes back, keeps the plan usable and disables AI buttons on every page', async () => {
+    const s = planState({ assessment: { stage: 'ready', done: 2, need: 2 }, next: { canPlan: true, assessed: true, over: true, finished: false } });
     s.loop.ai = ai({ used: 40, left: 0 });
     s.loop.week.items = [unit('u1', 3), unit('u2', 3, { type: 'practise', exercises: null, practice: [] })];
     routes['get /v2/me/loop'] = s;
-    at('/platform/student/plan');
+    const week = at('/platform/student/plan');
     expect(await screen.findByText('You have used today’s AI.')).toBeInTheDocument();
     expect(screen.getByRole('meter')).toHaveTextContent(/Today’s AI is used up · back at /);
     expect(screen.getByRole('button', { name: 'Plan my next week' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Start the assessment' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Give me practice questions' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Re-plan the rest of this week' })).toBeDisabled();
+    week.unmount();
+    const day = at('/platform/student/plan/day/2026-10-22');
+    expect(within(await screen.findByRole('article', { name: 'Unit u2' })).getByRole('button', { name: 'Give me practice questions' })).toBeDisabled();
     expect(within(screen.getByRole('article', { name: 'Unit u1' })).getByRole('button', { name: 'I have done this' })).toBeEnabled();
+    day.unmount();
+    at('/platform/student/plan/assessment');
+    expect(await screen.findByRole('button', { name: 'Start the assessment' })).toBeDisabled();
   });
   it('an action that needs more than is left explains it with the reset time', async () => {
     routes['get /v2/me/loop'] = { loop: { ...planState().loop, ai: ai({ used: 37, left: 3 }) } };
@@ -444,7 +496,7 @@ describe('proof of work', () => {
     routes['get /v2/me/loop'] = { loop: { ...base.loop, assessment: { id: 'c1', stage: 'work', quiz: { status: 'done', score: 1, questions: [] }, task } } };
     routes['post /v2/me/loop/check/work'] = { loop: base.loop };
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     const submit = await screen.findByRole('button', { name: 'Write a little more, or add a photo' });
     expect(submit).toBeDisabled();
     const input = screen.getByLabelText('Add a photo of your work');
@@ -463,7 +515,7 @@ describe('proof of work', () => {
     routes['get /v2/me/loop'] = done(null);
     routes['post /v2/me/loop/portfolio'] = { portfolio: { items: [], share: {} } };
     const user = userEvent.setup();
-    at('/platform/student/plan');
+    at('/platform/student/plan/assessment');
     expect(await screen.findByText('Not public: others cannot open it')).toBeInTheDocument();
     routes['get /v2/me/loop'] = done('p1');
     await user.click(screen.getByRole('button', { name: 'Add to my portfolio' }));
