@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AssessmentProvider } from './context/AssessmentContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -13,9 +13,16 @@ import ResetPassword  from './pages/ResetPassword';
 import Assessment    from './pages/Assessment';
 import Results       from './pages/Results';
 import UserDashboard from './pages/UserDashboard';
-import AdminLogin    from './pages/AdminLogin';
-import AdminDash     from './pages/AdminDash';
-import AdminUser     from './pages/AdminUser';
+import AdminSignIn   from './admin/AdminSignIn';
+import AdminShell    from './admin/AdminShell';
+import AdminOverview from './admin/Overview';
+import AdminAi       from './admin/AiUsage';
+import AdminUsers    from './admin/Users';
+import AdminUserPage from './admin/UserDetail';
+import AdminLoop     from './admin/Loop';
+import AdminAdmins   from './admin/Admins';
+import AdminAudit    from './admin/Audit';
+import AdminSettings from './admin/Settings';
 import { V4_ENABLED }  from './v4/config';
 import { PLATFORM_ENABLED } from './platform/config';
 import PlatformApp from './platform/PlatformApp';
@@ -39,6 +46,9 @@ function RequireUser({ children }) {
   if (loading) return null;
   return isLoggedIn ? children : <Navigate to="/login" replace />;
 }
+
+// ── Old links to an account page go to the console's
+function LegacyAdminUser() { const { id } = useParams(); return <Navigate to={`/admin/users/${id}`} replace />; }
 
 // ── Admin JWT guard
 function RequireAdmin({ children }) {
@@ -116,9 +126,18 @@ function AppRoutes() {
       {/* Admin */}
       <Route path="/unsubscribe"    element={<Unsubscribe />} />
       <Route path="/p/:token"       element={<PublicPortfolio />} />
-      <Route path="/admin/login"    element={<AdminLogin />} />
-      <Route path="/admin"          element={<RequireAdmin><AdminDash /></RequireAdmin>} />
-      <Route path="/admin/user/:id" element={<RequireAdmin><AdminUser /></RequireAdmin>} />
+      <Route path="/admin/login"    element={<AdminSignIn />} />
+      <Route path="/admin/user/:id" element={<LegacyAdminUser />} />
+      <Route path="/admin"          element={<RequireAdmin><AdminShell /></RequireAdmin>}>
+        <Route index                element={<AdminOverview />} />
+        <Route path="ai"            element={<AdminAi />} />
+        <Route path="users"         element={<AdminUsers />} />
+        <Route path="users/:id"     element={<AdminUserPage />} />
+        <Route path="loop"          element={<AdminLoop />} />
+        <Route path="admins"        element={<AdminAdmins />} />
+        <Route path="audit"         element={<AdminAudit />} />
+        <Route path="settings"      element={<AdminSettings />} />
+      </Route>
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />

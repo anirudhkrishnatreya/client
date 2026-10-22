@@ -22,6 +22,16 @@ api.interceptors.request.use(cfg => {
 api.interceptors.response.use(
   res => res,
   err => {
+    // an admin whose session ended (expired, signed out everywhere, deactivated) goes back to the admin sign-in
+    const url = err.config?.url || '';
+    if (err.response?.status === 401 && url.startsWith('/admin') && !url.startsWith('/admin/login') && localStorage.getItem('im_admin_token')) {
+      localStorage.removeItem('im_admin_token');
+      localStorage.removeItem('im_admin');
+      const to = new URL(window.location.href);
+      to.hash = '/admin/login?ended=1';
+      window.location.replace(to.toString());
+      return Promise.reject(err);
+    }
     if (err.response?.status === 401 && err.response?.data?.code === 'TOKEN_EXPIRED') {
       localStorage.removeItem('im_user_token');
       localStorage.removeItem('im_user');
