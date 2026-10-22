@@ -59,6 +59,7 @@ export const retakeAssessment = ()     => api.post('/user/retake');
 export const adminLogin      = (data)   => api.post('/admin/login',     data);
 export const adminGetUsers   = (params) => api.get('/admin/users',      { params });
 export const adminGetUser    = (id)     => api.get(`/admin/user/${id}`);
+export const adminSetUserAi  = (id, body) => api.post(`/admin/user/${id}/ai`, body);
 export const adminGetStats   = ()       => api.get('/admin/stats');
 export const adminLoopMetrics   = (days = 30) => api.get('/admin/loop/metrics', { params: { days } });
 export const adminLoopAttention = ()          => api.get('/admin/loop/attention');

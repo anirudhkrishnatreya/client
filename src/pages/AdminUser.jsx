@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { adminGetUser } from '../api';
+import { adminGetUser, adminSetUserAi } from '../api';
 
 function Section({ title, children }) {
   return (
@@ -17,6 +17,31 @@ function Row({ label, value }) {
       <span style={{ minWidth: 200, color: 'var(--slate)', fontWeight: 500 }}>{label}</span>
       <span style={{ color: 'var(--navy)', fontWeight: 600 }}>{value ?? '—'}</span>
     </div>
+  );
+}
+
+/** Today's AI use for this account, a reset, and the account's own daily limit (for testers or students who need more). */
+function AiLimit({ id, ai: start }) {
+  const [ai, setAi] = useState(start);
+  const [custom, setCustom] = useState('');
+  const [msg, setMsg] = useState('');
+  const run = async (body, done) => { setMsg(''); try { const r = await adminSetUserAi(id, body); setAi(r.data.ai); setMsg(done); } catch (e) { setMsg(e.response?.data?.details ? Object.values(e.response.data.details)[0] : 'That did not work.'); } };
+  if (!ai) return null;
+  const btn = { padding: '8px 14px', borderRadius: 8, border: '1.5px solid var(--border)', background: 'var(--white)', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' };
+  return (
+    <Section title="✨ AI use today">
+      <Row label="Used today" value={ai.unlimited ? `${ai.used} (no limit on this account)` : `${ai.used} of ${ai.limit} (${ai.left} left)`} />
+      <Row label="Resets" value={new Date(ai.resetsAt).toLocaleString('en-IN', { hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' })} />
+      {ai.paused && <Row label="Budget" value="Today's or this month's AI budget is spent: AI is paused for everyone." />}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 14 }}>
+        <button type="button" style={btn} onClick={() => run({ reset: true }, 'Reset: today’s count starts again from now.')}>Reset today’s limit</button>
+        <input aria-label="Daily AI limit for this account" type="number" min="-1" max="1000" placeholder="Own daily limit" value={custom} onChange={e => setCustom(e.target.value)} style={{ width: 150, padding: '8px 10px', border: '1.5px solid var(--border)', borderRadius: 8, fontFamily: 'inherit' }} />
+        <button type="button" style={btn} disabled={custom === ''} onClick={() => run({ dailyCalls: Number(custom) }, 'Saved this account’s own limit.')}>Set limit</button>
+        <button type="button" style={btn} onClick={() => run({ dailyCalls: null }, 'Back to the default limit.')}>Use default</button>
+      </div>
+      <p style={{ fontSize: 12, color: 'var(--slate)', marginTop: 8 }}>-1 means no daily limit (for the team’s own testing). The spending caps for the whole app still apply.</p>
+      {msg && <p role="status" style={{ fontSize: 13, marginTop: 6 }}>{msg}</p>}
+    </Section>
   );
 }
 
@@ -83,6 +108,8 @@ export default function AdminUser() {
             </span>
           </div>
         </div>
+
+        <AiLimit id={id} ai={data.ai} />
 
         {/* Onboarding Data */}
         <Section title="📋 Onboarding Information">

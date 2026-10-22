@@ -4,6 +4,7 @@ import { Card, CardHead, Empty, Icon, PageHead, Pill } from '../../ui/kit';
 import { usePlatform } from '../../data/store';
 import { loopApi, useLoop, messageFor, DAYS, SHORT_DAYS, PACE, fmtMinutes, fmtDay } from './loopApi';
 import { Working, PageSkeleton } from './Loader';
+import { AiMeter, aiOut } from './AiMeter';
 
 const MINUTE_CHOICES = [0, 15, 30, 45, 60, 90, 120, 180, 240];
 
@@ -16,7 +17,7 @@ function Thinking() {
 }
 
 /** The career chat: the guide asks one question at a time; quick replies for common answers. */
-function Chat({ intake, act }) {
+function Chat({ intake, act, ai }) {
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -41,13 +42,14 @@ function Chat({ intake, act }) {
         {busy && <Thinking />}
       </div>
       {!busy && last && last.role === 'assistant' && last.quickReplies && last.quickReplies.length > 0 && (
-        <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 10 }}>{last.quickReplies.map(q => <button key={q} type="button" className="pf-chipbtn" onClick={() => send(q)}>{q}</button>)}</div>
+        <div className="pf-row pf-wrap" style={{ gap: 8, marginTop: 10 }}>{last.quickReplies.map(q => <button key={q} type="button" className="pf-chipbtn" disabled={aiOut(ai)} onClick={() => send(q)}>{q}</button>)}</div>
       )}
       <form className="pf-row" style={{ gap: 8, marginTop: 12 }} onSubmit={e => { e.preventDefault(); send(text); }}>
         <label className="pf-sr" htmlFor="chat-input">Your message</label>
         <input id="chat-input" className="pf-input pf-grow" value={text} maxLength={500} placeholder={intake.status === 'proposed' ? 'Tell me what to change, or start the plan below' : 'Type your answer…'} onChange={e => setText(e.target.value)} disabled={busy} autoComplete="off" />
-        <button type="submit" className="pf-btn" disabled={busy || !text.trim()}>Send</button>
+        <button type="submit" className="pf-btn" disabled={busy || !text.trim() || aiOut(ai)}>Send</button>
       </form>
+      <div style={{ marginTop: 10 }}><AiMeter ai={ai} /></div>
       {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}
     </Card>
   );
@@ -161,7 +163,7 @@ export default function LoopGoalPage() {
       <>
         {head}
         {loop.currentGoal && <div className="pf-note" role="note" style={{ marginBottom: 14 }}>You are planning a new goal. Your current goal, <b>{loop.currentGoal.title}</b>, stays until you start the new plan. <button type="button" className="pf-link" onClick={() => act(() => loopApi.cancelNewGoal())}>Keep my current goal</button></div>}
-        <Chat intake={loop.intake} act={act} />
+        <Chat intake={loop.intake} act={act} ai={loop.ai} />
         {loop.intake.proposal && <Proposal plan={loop.intake.proposal} act={act} onStarted={() => { setJustStarted(true); refreshDashboard(); }} />}
       </>
     );

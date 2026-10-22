@@ -384,6 +384,58 @@ describe('people around the plan', () => {
   });
 });
 
+describe('today’s AI meter', () => {
+  const ai = over => ({ used: 10, limit: 40, left: 30, unlimited: false, resetsAt: '2026-10-23T00:00:00.000Z', paused: false, ...over });
+  it('shows how much of today’s AI is used, turning amber when it runs low', async () => {
+    routes['get /v2/me/loop'] = { loop: { ...planState().loop, ai: ai() } };
+    const { unmount } = at('/platform/student/plan');
+    const meter = await screen.findByRole('meter', { name: 'Today’s AI use' });
+    expect(meter).toHaveAttribute('aria-valuenow', '25');
+    expect(meter).toHaveTextContent('25% of today’s AI used');
+    expect(meter.className).not.toMatch(/low|out/);
+    expect(meter.getAttribute('title')).toMatch(/^Resets at /);
+    unmount();
+    routes['get /v2/me/loop'] = { loop: { ...planState().loop, ai: ai({ used: 32, left: 8 }) } };
+    at('/platform/student/plan');
+    expect((await screen.findByRole('meter')).className).toMatch(/low/);
+  });
+  it('when it is used up: says so, says when it comes back, keeps the plan usable and disables AI buttons', async () => {
+    const s = planState({ assessment: { stage: 'ready', done: 2, need: 2 }, next: { canPlan: true, assessed: false, over: true, finished: false } });
+    s.loop.ai = ai({ used: 40, left: 0 });
+    s.loop.week.items = [unit('u1', 3), unit('u2', 3, { type: 'practise', exercises: null, practice: [] })];
+    routes['get /v2/me/loop'] = s;
+    at('/platform/student/plan');
+    expect(await screen.findByText('You have used today’s AI.')).toBeInTheDocument();
+    expect(screen.getByRole('meter')).toHaveTextContent(/Today’s AI is used up · back at /);
+    expect(screen.getByRole('button', { name: 'Plan my next week' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Start the assessment' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Give me practice questions' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Re-plan the rest of this week' })).toBeDisabled();
+    expect(within(screen.getByRole('article', { name: 'Unit u1' })).getByRole('button', { name: 'I have done this' })).toBeEnabled();
+  });
+  it('an action that needs more than is left explains it with the reset time', async () => {
+    routes['get /v2/me/loop'] = { loop: { ...planState().loop, ai: ai({ used: 37, left: 3 }) } };
+    routes['post /v2/me/loop/week/replan'] = fail(429, 'AI_DAILY_LIMIT', { left: 3, needed: 4, resetsAt: '2026-10-23T00:00:00.000Z' });
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    await user.click(await screen.findByRole('button', { name: 'Re-plan the rest of this week' }));
+    expect(await screen.findByText(/needs a bit more of today’s AI than you have left\. It comes back at /)).toBeInTheDocument();
+  });
+  it('the chat shows the meter and stops sending when it is used up; accounts with no limit see no meter', async () => {
+    routes['get /v2/me/loop'] = { loop: { ...chatState([greeting]).loop, ai: ai({ used: 40, left: 0 }) } };
+    const { unmount } = at('/platform/student/goal');
+    expect(await screen.findByRole('meter')).toBeInTheDocument();
+    await userEvent.setup().type(screen.getByLabelText('Your message'), 'Hello');
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'AI engineer' })).toBeDisabled();
+    unmount();
+    routes['get /v2/me/loop'] = { loop: { ...chatState([greeting]).loop, ai: ai({ unlimited: true, limit: null, left: null }) } };
+    at('/platform/student/goal');
+    await screen.findByText('Hi Asha! What do you want to become?');
+    expect(screen.queryByRole('meter')).toBeNull();
+  });
+});
+
 describe('loading', () => {
   it('shows the shape of the page instead of the word "Loading"', async () => {
     let release; routes['get /v2/me/loop'] = () => new Promise(r => { release = r; });

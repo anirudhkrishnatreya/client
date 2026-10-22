@@ -239,3 +239,12 @@ button.pf-link { background: none; border: 0; padding: 0; color: var(--indigo); 
 
 .pf-fair { margin-top: 10px; }
 .pf-fair.answered { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--blue, #1d4ed8) 7%, transparent); font-size: 14px; }
+
+.pf-aimeter { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line, #e5e7eb); background: var(--card, #fff); font-size: 12.5px; color: var(--muted, #667085); max-width: 100%; }
+.pf-aimeter svg { color: var(--blue, #1d4ed8); flex: none; }
+.pf-aimeter-bar { position: relative; width: 72px; height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--blue, #1d4ed8) 12%, transparent); overflow: hidden; flex: none; }
+.pf-aimeter-bar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--blue, #1d4ed8); transition: width .4s ease; }
+.pf-aimeter.low svg { color: #b54708; } .pf-aimeter.low .pf-aimeter-bar i { background: #f79009; }
+.pf-aimeter.out { border-color: color-mix(in srgb, var(--coral, #e5484d) 40%, transparent); color: var(--coral, #c4320a); }
+.pf-aimeter.out svg { color: var(--coral, #c4320a); } .pf-aimeter.out .pf-aimeter-bar i { background: var(--coral, #e5484d); }
+.pf-aimeter-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

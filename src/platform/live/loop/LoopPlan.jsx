@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill, Progress } from '../../ui/kit';
 import { loopApi, useLoop, messageFor, TYPE_LABEL, TYPE_TONE, PACE, BAND, fmtMinutes, fmtShort, weekdayOf, pct } from './loopApi';
 import { Working, PageSkeleton, Orbit } from './Loader';
+import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 
 const SKIPS = [['already-know', 'I already know this'], ['covered-elsewhere', 'Covered in school or coaching'], ['not-relevant', 'Not relevant for me'], ['too-hard', 'Too hard for now'], ['other', 'Another reason']];
 const mmss = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -89,7 +90,7 @@ function Fair({ target, refId, fair, act, what }) {
 
 const PRACTICE_STEPS = ['The Practice Maker is writing exercises at your level…', 'The Practice Checker is solving each one first…', 'Keeping only the ones that passed…'];
 /** Practice questions for this step, made on request (one tap, then kept): hints and answers stay hidden until asked for. */
-function Exercises({ item, act }) {
+function Exercises({ item, act, off }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const make = async () => { setBusy(true); setErr(''); try { await act(() => loopApi.makePractice(item.id)); } catch (e) { setErr(messageFor(e)); } finally { setBusy(false); } };
@@ -97,7 +98,7 @@ function Exercises({ item, act }) {
   if (!item.exercises) {
     return (
       <div style={{ marginTop: 10 }}>
-        <button type="button" className="pf-btn sm ghost" onClick={make}><Icon name="sparkles" size={14} />Give me practice questions</button>
+        <button type="button" className="pf-btn sm ghost" onClick={make} disabled={off} title={off ? 'Comes back when today’s AI resets' : undefined}><Icon name="sparkles" size={14} />Give me practice questions</button>
         {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
       </div>
     );
@@ -119,7 +120,7 @@ function Exercises({ item, act }) {
 }
 
 /** One unit: what, why, the video, and the done/skip actions. */
-function Item({ item, act }) {
+function Item({ item, act, off }) {
   const [mode, setMode] = useState(null);
   const [link, setLink] = useState('');
   const [rating, setRating] = useState(0);
@@ -147,7 +148,7 @@ function Item({ item, act }) {
       {!finished && item.help && <p className="pf-help"><b>{item.type === 'learn' ? 'Tip:' : 'How to go about it:'}</b> {item.help}</p>}
       {item.video && !(finished && item.status === 'skipped') && <Video unit={item} act={act} />}
       {!finished && item.practice && item.practice.length > 0 && <Places places={item.practice} />}
-      {!finished && item.type !== 'learn' && <Exercises item={item} act={act} />}
+      {!finished && item.type !== 'learn' && <Exercises item={item} act={act} off={off} />}
       {!finished && item.rewatch && item.rewatch.length > 0 && (
         <p className="pf-small" style={{ margin: '8px 0 0' }}><b>Stuck? Go back to:</b> {item.rewatch.map((r, k) => <span key={r.videoId}>{k > 0 && ' · '}<a href={r.watchUrl} target="_blank" rel="noopener noreferrer">{r.title}</a></span>)}</p>
       )}
@@ -188,7 +189,7 @@ const QUIZ_STEPS = ['Writing questions on what you studied…', 'Writing a short
 const WORK_STEPS = ['Reading what you wrote…', 'Comparing it with the rubric…', 'Writing feedback to help you improve…'];
 
 /** The week's assessment: a short quiz, then a piece of work, then feedback. Its results shape next week. */
-function Assessment({ a, act }) {
+function Assessment({ a, act, off }) {
   const [answers, setAnswers] = useState({});
   const [text, setText] = useState('');
   const [link, setLink] = useState('');
@@ -199,7 +200,7 @@ function Assessment({ a, act }) {
   if (busy === 'open') body = <Working title="Preparing your assessment" steps={QUIZ_STEPS} />;
   else if (busy === 'work') body = <Working title="Judging your work" steps={WORK_STEPS} />;
   else if (a.stage === 'locked') body = <p className="pf-small" style={{ margin: 0 }}>Unlocks after you finish {a.need} of this week’s steps ({a.done} done so far). It is a 5-question quiz and one short piece of work, and the result decides how next week is planned.</p>;
-  else if (a.stage === 'ready') body = <><p className="pf-small" style={{ marginTop: 0 }}>A 5-question quiz and one short piece of work on what you learned this week. About 15 minutes. Your result decides next week: faster, steadier, or a little revision.</p><button type="button" className="pf-btn sm" onClick={() => go('open', () => loopApi.openCheck())}>Start the assessment</button></>;
+  else if (a.stage === 'ready') body = <><p className="pf-small" style={{ marginTop: 0 }}>A 5-question quiz and one short piece of work on what you learned this week. About 15 minutes. Your result decides next week: faster, steadier, or a little revision.</p><button type="button" className="pf-btn sm" disabled={off} onClick={() => go('open', () => loopApi.openCheck())}>Start the assessment</button></>;
   else if (a.stage === 'quiz') {
     const all = a.quiz.questions.every(q => answers[q.id] !== undefined);
     body = (
@@ -259,7 +260,7 @@ function Assessment({ a, act }) {
 
 const NEXT_STEPS = ['Looking at how your week went…', 'Adjusting the plan to your pace…', 'The Week Planner is writing next week…', 'A Week Critic is checking it…', 'Scouts are finding videos and practice…'];
 /** After the assessment: review the week and plan the next, with a loader while it works. */
-function NextWeek({ next, act }) {
+function NextWeek({ next, act, off }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (busy) return <Card ai><Working title="Planning your next week" steps={NEXT_STEPS} /></Card>;
@@ -267,7 +268,7 @@ function NextWeek({ next, act }) {
     <Card ai>
       <span className="tag"><Icon name="sparkles" size={14} />Ready for the next week</span>
       <p style={{ margin: '8px 0 10px' }}>{next.assessed ? 'Your assessment is done. Your plan will now adapt to how this week went: faster, steadier, or with some revision.' : 'This week has ended. You can plan the next one now; without an assessment, your plan continues at the same pace.'}</p>
-      <button type="button" className="pf-btn" onClick={async () => { setBusy(true); setErr(''); try { await act(() => loopApi.planNext()); } catch (e) { setErr(messageFor(e)); setBusy(false); } }}>Plan my next week</button>
+      <button type="button" className="pf-btn" disabled={off} onClick={async () => { setBusy(true); setErr(''); try { await act(() => loopApi.planNext()); } catch (e) { setErr(messageFor(e)); setBusy(false); } }}>Plan my next week</button>
       {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', marginTop: 8 }}>{err}</p>}
     </Card>
   );
@@ -276,7 +277,7 @@ function NextWeek({ next, act }) {
 export default function LoopPlanPage() {
   const { loop, loading, closed, error, act } = useLoop();
   const [replan, setReplan] = useState('');
-  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<Link className="pf-btn sm ghost" to="roadmap">My progress</Link>}>This is your week. Learn from the videos, show what you learned, then take the assessment. Your next week is built from how it goes.</PageHead>;
+  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<div className="pf-row pf-wrap" style={{ gap: 10, justifyContent: 'flex-end' }}>{loop && <AiMeter ai={loop.ai} />}<Link className="pf-btn sm ghost" to="roadmap">My progress</Link></div>}>This is your week. Learn from the videos, show what you learned, then take the assessment. Your next week is built from how it goes.</PageHead>;
   if (loading) return <PageSkeleton label="Loading your week" />;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Weekly plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
@@ -292,13 +293,14 @@ export default function LoopPlanPage() {
     <>
       {head}
       {w.weekNumber > 1 && note && <Card ai style={{ marginBottom: 12 }}><span className="tag"><Icon name="sparkles" size={14} />What changed for this week</span><p style={{ margin: '8px 0 0' }}>{note}</p>{changes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{changes.map(c => <li key={c}>{c}</li>)}</ul>}</Card>}
+      <AiOutNote ai={loop.ai} />
       {w.notices.map(n => <div key={n.key} className="pf-note" role="note" style={{ marginBottom: 10 }}>{n.text}</div>)}
       <div className="pf-grid g-main">
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <Card>
             <div className="pf-row pf-wrap pf-weekhead" style={{ gap: 10 }}>
               <div className="pf-grow"><b>Week {w.weekNumber} · {g.title}</b><div className="pf-small pf-muted">{fmtShort(w.weekStart)} to {fmtShort(w.weekEnd)} · {w.focus || g.phase.title} · {fmtMinutes(w.doneMinutes)} of {fmtMinutes(w.plannedMinutes)} done{w.mode === 'exam' ? ' · exam week' : w.mode === 'reset' ? ' · lighter week' : ''}</div></div>
-              <button type="button" className="pf-btn sm ghost" disabled={replan === 'busy'} onClick={async () => { setReplan('busy'); try { await act(() => loopApi.replan()); setReplan('done'); } catch (e) { setReplan(messageFor(e)); } }}>{replan === 'busy' ? 'Re-planning…' : 'Re-plan the rest of this week'}</button>
+              <button type="button" className="pf-btn sm ghost" disabled={replan === 'busy' || aiOut(loop.ai)} onClick={async () => { setReplan('busy'); try { await act(() => loopApi.replan()); setReplan('done'); } catch (e) { setReplan(messageFor(e)); } }}>{replan === 'busy' ? 'Re-planning…' : 'Re-plan the rest of this week'}</button>
             </div>
             <div style={{ marginTop: 10 }}><Progress value={done} label="This week" /></div>
             {replan && replan !== 'busy' && <p className="pf-small" role="status" style={{ marginTop: 6 }}>{replan === 'done' ? 'Planned again around your current week.' : replan}</p>}
@@ -307,13 +309,13 @@ export default function LoopPlanPage() {
           {days.map(date => (
             <Card key={date} className={w.items.find(i => i.date === date).day === w.todayIndex ? 'pf-today' : ''}>
               <CardHead title={`${weekdayOf(date)}, ${fmtShort(date)}${w.items.find(i => i.date === date).day === w.todayIndex ? ' · today' : ''}`} icon="calendar" />
-              <div style={{ display: 'grid', gap: 10 }}>{w.items.filter(i => i.date === date).map(i => <Item key={i.id} item={i} act={act} />)}</div>
+              <div style={{ display: 'grid', gap: 10 }}>{w.items.filter(i => i.date === date).map(i => <Item key={i.id} item={i} act={act} off={aiOut(loop.ai)} />)}</div>
             </Card>
           ))}
         </div>
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
-          {loop.next.canPlan && <NextWeek next={loop.next} act={act} />}
-          <Assessment a={loop.assessment} act={act} />
+          {loop.next.canPlan && <NextWeek next={loop.next} act={act} off={aiOut(loop.ai)} />}
+          <Assessment a={loop.assessment} act={act} off={aiOut(loop.ai)} />
           <Card><CardHead title="Where you are" icon="trend" action="Details" to="roadmap" />
             <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Level {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
             {g.phase.levelUp && <p className="pf-small" style={{ margin: '0 0 8px' }}><b>{g.phase.levelUpDue ? 'Level-up proof due this week:' : 'To move up a level:'}</b> {g.phase.levelUp.proof}</p>}

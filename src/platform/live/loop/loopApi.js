@@ -31,6 +31,7 @@ export function messageFor(err) {
   const c = codeOf(err);
   if (c === 'LOOP_DISABLED') return 'Goals and weekly plans are not open yet. They are coming soon.';
   if (c === 'AI_OFF') return 'The guide is switched off right now. Please try again later.';
+  if (c === 'AI_DAILY_LIMIT') { const d = detailsOf(err); const at = d.resetsAt ? new Date(d.resetsAt).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toLowerCase() : 'tomorrow morning'; return `This needs a bit more of today’s AI than you have left. It comes back at ${at}.`; }
   if (c === 'AI_BUSY') return 'The guide has done a lot today and is resting. Please try again tomorrow.';
   if (c === 'AI_UNAVAILABLE') return 'The guide could not answer just now. Your message is safe: please send it again.';
   if (c === 'VALIDATION_FAILED') return Object.values(detailsOf(err))[0] || 'Please check what you entered.';
