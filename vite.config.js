@@ -15,6 +15,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.js'],
+    // tests must not depend on a developer's .env: feature switches start off, and a test turns on what it needs
+    env: { VITE_LOOP: 'off' },
     include: ['src/**/*.test.{js,jsx}'],
     css: false
   }
