@@ -1,5 +1,6 @@
 import { REC_ENABLED } from '../live/careers/config';
 import { LOOP_ENABLED } from '../live/loop/config';
+import { PAY_ENABLED } from '../../pay/payApi';
 
 // Sidebar structure for each role.
 export const NAV = {
@@ -9,6 +10,7 @@ export const NAV = {
       { to: 'tasks', label: 'Tasks', icon: 'tasks', badge: 'tasks' }, { to: 'assessments', label: 'Assessments', icon: 'clipboard' }, { to: 'library', label: 'Learning library', icon: 'book' }] },
     { section: 'Grow', items: [
       ...(LOOP_ENABLED ? [{ to: 'portfolio', label: 'My portfolio', icon: 'award' }] : []),
+      ...(PAY_ENABLED ? [{ to: 'billing', label: 'My plan', icon: 'bolt' }] : []),
       { to: 'reports', label: 'Reports', icon: 'chart' }, { to: 'mentor', label: 'Mentor', icon: 'users' }, { to: 'coach', label: 'AI coach', icon: 'sparkles' }] },
     ...(REC_ENABLED ? [{ section: 'Careers', items: [
       { to: 'careers', label: 'Suggested for you', icon: 'sparkles' }, { to: 'explore', label: 'Explore careers', icon: 'search' },

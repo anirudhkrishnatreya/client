@@ -5,6 +5,7 @@ import { usePlatform } from '../../data/store';
 import { loopApi, useLoop, messageFor, DAYS, SHORT_DAYS, PACE, fmtMinutes, fmtDay } from './loopApi';
 import { Working, PageSkeleton } from './Loader';
 import { AiMeter, aiOut } from './AiMeter';
+import Locked from '../../../pay/Locked';
 
 const MINUTE_CHOICES = [0, 15, 30, 45, 60, 90, 120, 180, 240];
 
@@ -149,12 +150,13 @@ function Schedule({ profile, act, intro }) {
 }
 
 export default function LoopGoalPage() {
-  const { loop, loading, closed, error, act } = useLoop();
+  const { loop, loading, closed, error, locked, act } = useLoop();
   const platform = usePlatform();
   const [justStarted, setJustStarted] = useState(false);
   const refreshDashboard = () => { if (platform && platform.actions && platform.actions.reload) platform.actions.reload(); };
   const head = <PageHead eyebrow="My goal" title="Where do you want to get to?">Tell your guide what you want to become, any career at all. It asks a few questions, then drafts a plan from where you are to where you want to be, one week at a time.</PageHead>;
   if (loading) return <PageSkeleton label="Loading your goal" cards={2} />;
+  if (locked) return <>{head}<Locked {...locked} /></>;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Goals and weekly plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
 

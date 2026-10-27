@@ -2,13 +2,15 @@ import { Link } from 'react-router-dom';
 import { Card, Empty, PageHead, Pill } from '../../ui/kit';
 import { useLoop, messageFor, PACE, BAND, fmtDay, fmtShort, pct } from './loopApi';
 import { PageSkeleton } from './Loader';
+import Locked from '../../../pay/Locked';
 
 /** Progress: where the student started, where they are heading, what has happened, and how the plan has adapted. The road in
  *  between is not shown: it changes after every week, so only the current week is ever shown in full. */
 export default function LoopProgressPage() {
-  const { loop, loading, closed, error } = useLoop();
+  const { loop, loading, closed, error, locked } = useLoop();
   const head = <PageHead eyebrow="My progress" title={loop && loop.goal ? loop.goal.title : 'Your progress'} actions={<Link className="pf-btn sm ghost" to="..">This week</Link>}>From where you started to where you are heading, at your own pace.</PageHead>;
   if (loading) return <PageSkeleton label="Loading your progress" cards={2} />;
+  if (locked) return <>{head}<Locked {...locked} /></>;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Goals and plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
   if (loop.mode === 'chat') return <>{head}<Card><Empty icon="target" title="No plan yet" /><p style={{ textAlign: 'center' }}><Link className="pf-btn sm" to="../../goal">Go to My goal</Link></p></Card></>;

@@ -3,16 +3,18 @@ import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill, Progress } from '../../ui/kit';
 import { loopApi, useLoop, messageFor, PACE, BAND, fmtMinutes, fmtShort, pct } from './loopApi';
 import { PageSkeleton } from './Loader';
+import Locked from '../../../pay/Locked';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { NextWeek } from './NextWeek';
 import { DayCard, AssessmentBanner, daysOf, doneOf } from './DayBits';
 
 /** The week at a glance: how far along, the assessment that opens next week, and one card per day. Each day opens its own page. */
 export default function LoopPlanPage() {
-  const { loop, loading, closed, error, act } = useLoop();
+  const { loop, loading, closed, error, locked, act } = useLoop();
   const [replan, setReplan] = useState('');
   const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<div className="pf-row pf-wrap" style={{ gap: 10, justifyContent: 'flex-end' }}>{loop && <AiMeter ai={loop.ai} />}<Link className="pf-btn sm ghost" to="roadmap">My progress</Link></div>}>Open a day to see its steps in full. Finish the week with the assessment: your next week is built from it.</PageHead>;
   if (loading) return <PageSkeleton label="Loading your week" />;
+  if (locked) return <>{head}<Locked {...locked} /></>;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Weekly plans are not open yet.</Empty></Card></>;
   if (error) return <>{head}<p role="alert">{messageFor(error)}</p></>;
   if (loop.mode === 'chat') return <>{head}<Card><Empty icon="target" title={loop.currentGoal ? 'You are planning a new goal' : 'Tell your guide what you want to become'}>{loop.currentGoal ? 'Finish the chat on My goal, or keep your current goal.' : 'A short chat, then your plan appears here.'}</Empty><p style={{ textAlign: 'center' }}><Link className="pf-btn sm" to="../goal">Go to My goal</Link></p></Card></>;

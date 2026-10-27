@@ -23,6 +23,7 @@ import hero5 from '../assets/landing/hero-5.png';
 import hero6 from '../assets/landing/hero-6-photo.png';
 import hero7 from '../assets/landing/hero-7.png';
 
+import { PAY_ENABLED } from '../pay/payApi';
 const goTo = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
 const SIGNUP = V4_ENABLED ? '/v4/register' : '/register';
 const toTop = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -61,6 +62,7 @@ function HeroDesktop() {
           <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About</button>
           <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact</button>
           <Link to="/career-xray" className="lp-hlink">Career X-Ray</Link>
+          {PAY_ENABLED && <Link to="/pricing" className="lp-hlink">Pricing</Link>}
         </nav>
         <Link to={acct.to} className="lp-hlogin">{acct.label}</Link>
       </header>

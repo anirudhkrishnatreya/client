@@ -22,6 +22,7 @@ import Overview from './Overview';
 import Users from './Users';
 import UserDetail from './UserDetail';
 import Admins from './Admins';
+import Payments from './Payments';
 import Settings from './Settings';
 
 const fail = (status, data) => Object.assign(new Error('x'), { response: { status, data } });
@@ -33,6 +34,7 @@ const at = path => render(
         <Route index element={<Overview />} />
         <Route path="users" element={<Users />} />
         <Route path="users/:id" element={<UserDetail />} />
+        <Route path="payments" element={<Payments />} />
         <Route path="admins" element={<Admins />} />
         <Route path="settings" element={<Settings />} />
       </Route>
@@ -153,6 +155,44 @@ describe('accounts', () => {
     expect(screen.getByText('1,400')).toBeInTheDocument();
     expect(screen.getByText(/210 calls · 2,10,000 in · 42,000 out/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Reset today’s limit' })).toBeNull();
+  });
+});
+
+describe('payments', () => {
+  const OV = {
+    setup: { razorpay: true, webhook: false, gatingOn: false, gst: false }, offerEndsAt: '2027-01-31T18:29:59.000Z',
+    revenue: { today: { paise: 279800, orders: 2 }, month: { paise: 1099700, orders: 6 }, all: { paise: 1099700, orders: 6 } }, failed24: 1, pending: 2, plansActive: { 'plan-1m': 3, 'plan-6m': 1 },
+    orders: [{ id: 'o1', userId: 'u1', name: 'Asha Verma', email: 'asha@example.com', productId: 'plan-1m', amount: 139900, status: 'paid', source: 'checkout', couponCode: 'LAUNCH25', receiptNo: 'IM-2026-000001', at: '2026-10-23T10:00:00Z', paidAt: '2026-10-23T10:01:00Z' }],
+    coupons: [{ id: 'c1', code: 'GREENFIELD20', label: 'Greenfield pilot', type: 'seat', value: 0, products: [], grantProduct: 'plan-3m', uses: 7, maxUses: 20, validTo: null, paused: false }]
+  };
+  it('shows revenue and plans, what is not ready to go live, orders, and the school codes; a code can be created and paused', async () => {
+    meAs('superadmin');
+    routes['get /admin/console/payments'] = OV;
+    routes['post /admin/console/coupons'] = { coupon: { id: 'c2', code: 'SCHOOL-TWO' } };
+    routes['post /admin/console/coupons/c1/pause'] = { success: true };
+    const user = userEvent.setup();
+    at('/admin/payments');
+    expect(await screen.findByText('₹2,798')).toBeInTheDocument();
+    expect(screen.getByText('3 × Plan, 1 month · 1 × Plan, 6 months')).toBeInTheDocument();
+    const setup = screen.getByText('Webhook secret set').closest('li');
+    expect(within(setup).getByText('Not yet')).toBeInTheDocument();
+    expect(within(screen.getByText('Razorpay keys set').closest('li')).getByText('On')).toBeInTheDocument();
+    expect(screen.getByText('Unlocks Plan, 3 months')).toBeInTheDocument();
+    expect(screen.getByText('7 of 20')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Asha Verma' })).toHaveAttribute('href', '/admin/users/u1');
+    await user.click(screen.getByRole('button', { name: 'Pause' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/admin/console/coupons/c1/pause').body).toEqual({ paused: true }));
+    await user.type(screen.getByLabelText('Code'), 'school-two');
+    await user.click(screen.getByRole('button', { name: 'Create code' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/admin/console/coupons').body).toMatchObject({ code: 'school-two', type: 'seat', grantProduct: 'plan-3m', maxUses: 20 }));
+  });
+  it('a viewer sees the numbers but no way to create or pause codes', async () => {
+    meAs('viewer');
+    routes['get /admin/console/payments'] = OV;
+    at('/admin/payments');
+    await screen.findByText('Recent orders');
+    expect(screen.queryByRole('button', { name: 'Create code' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pause' })).toBeNull();
   });
 });
 

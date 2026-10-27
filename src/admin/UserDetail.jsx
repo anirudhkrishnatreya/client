@@ -15,6 +15,7 @@ function Actions({ p, reload, me }) {
   const [reason, setReason] = useState('');
   const [confirm, setConfirm] = useState('');
   const [temp, setTemp] = useState(null);
+  const [product, setProduct] = useState('plan-3m');
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
   const run = async (fn, done) => { setBusy(true); setMsg(''); try { const r = await fn(); setMode(null); setReason(''); setConfirm(''); if (done) setMsg(typeof done === 'function' ? done(r) : done); await reload(); } catch (e) { setMsg(errOf(e)); } finally { setBusy(false); } };
@@ -27,6 +28,8 @@ function Actions({ p, reload, me }) {
           : <button type="button" className="pf-btn sm ghost pf-danger" onClick={() => setMode('pause')}><Icon name="lock" size={14} />Pause account</button>}
         <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => { if (window.confirm(`Sign ${p.name} out on every device? They will need to sign in again.`)) run(() => adminApi.signOut(p.id), 'Signed out everywhere.'); }}><Icon name="logout" size={14} />Sign out everywhere</button>
         <button type="button" className="pf-btn sm ghost" onClick={() => setMode('password')}><Icon name="lock" size={14} />Reset password</button>
+        <button type="button" className="pf-btn sm ghost" onClick={() => setMode('grant')}><Icon name="bolt" size={14} />Give access</button>
+        {can(me, 'manage') && <button type="button" className="pf-btn sm ghost" onClick={() => setMode('revoke')}><Icon name="lock" size={14} />End access</button>}
         {!p.isVerified && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => run(() => adminApi.verifyEmail(p.id), 'Email marked as confirmed.')}><Icon name="mail" size={14} />Confirm email</button>}
         {can(me, 'manage') && <button type="button" className="pf-btn sm ghost pf-danger" onClick={() => setMode('delete')}><Icon name="x" size={14} />Delete account</button>}
       </div>
@@ -55,6 +58,23 @@ function Actions({ p, reload, me }) {
           <div className="pf-secret">{temp}</div>
           <div className="pf-row" style={{ gap: 8, marginTop: 8 }}><button type="button" className="pf-btn sm" onClick={() => navigator.clipboard && navigator.clipboard.writeText(temp)}>Copy</button><button type="button" className="pf-btn sm ghost" onClick={() => setTemp(null)}>Done</button></div>
         </div>
+      )}
+      {mode === 'grant' && (
+        <form className="pf-unit-form" onSubmit={e => { e.preventDefault(); run(() => adminApi.grant(p.id, product, reason.trim()), 'Access given.'); }}>
+          <label className="pf-label" htmlFor="grant-product">What to give</label>
+          <select id="grant-product" className="pf-select" value={product} onChange={e => setProduct(e.target.value)}>{[['plan-1m', 'Plan, 1 month'], ['plan-3m', 'Plan, 3 months (with the assessment)'], ['plan-6m', 'Plan, 6 months (with the assessment)'], ['plan-12m', 'Plan, 12 months (with the assessment)'], ['assessment', 'Career Assessment']].map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
+          <label className="pf-label" htmlFor="grant-reason" style={{ marginTop: 8 }}>Why? (kept in the audit log)</label>
+          <input id="grant-reason" className="pf-input" maxLength={300} value={reason} onChange={e => setReason(e.target.value)} placeholder="For example: school pilot, partner trial, fixing a missed payment" />
+          <div className="pf-row" style={{ gap: 8, marginTop: 8 }}><button type="submit" className="pf-btn sm" disabled={busy || reason.trim().length < 3}>Give access</button><button type="button" className="pf-btn sm ghost" onClick={() => setMode(null)}>Cancel</button></div>
+        </form>
+      )}
+      {mode === 'revoke' && (
+        <form className="pf-unit-form" onSubmit={e => { e.preventDefault(); run(() => adminApi.revoke(p.id, reason.trim()), 'Access ended.'); }}>
+          <p className="pf-small" style={{ marginTop: 0 }}>This ends every plan and purchase access this person has, now. It does not refund money: do that in Razorpay.</p>
+          <label className="pf-label" htmlFor="revoke-reason">Why? (kept in the audit log)</label>
+          <input id="revoke-reason" className="pf-input" maxLength={300} value={reason} onChange={e => setReason(e.target.value)} />
+          <div className="pf-row" style={{ gap: 8, marginTop: 8 }}><button type="submit" className="pf-btn sm pf-danger" disabled={busy || reason.trim().length < 3}>End access</button><button type="button" className="pf-btn sm ghost" onClick={() => setMode(null)}>Cancel</button></div>
+        </form>
       )}
       {mode === 'delete' && (
         <form className="pf-unit-form" onSubmit={e => { e.preventDefault(); run(async () => { await adminApi.deleteUser(p.id); nav('/admin/users'); }); }}>

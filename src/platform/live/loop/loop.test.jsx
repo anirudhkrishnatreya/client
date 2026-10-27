@@ -541,6 +541,39 @@ describe('proof of work', () => {
   });
 });
 
+describe('when a plan is needed', () => {
+  const needs = data => Object.assign(new Error('x'), { response: { status: 402, data } });
+  it('the weekly plan, a day and the assessment show a calm "part of a plan" card with the way to the plans', async () => {
+    routes['get /v2/me/loop'] = needs({ code: 'PAYMENT_REQUIRED', product: 'plan', state: 'none' });
+    const { unmount } = at('/platform/student/plan');
+    expect(await screen.findByText('This is part of an iMenteo Plan')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'See plans and prices' })).toHaveAttribute('href', '/platform/student/billing');
+    expect(screen.queryByText('Something went wrong. Please try again.')).toBeNull();
+    unmount();
+    const day = at('/platform/student/plan/day/2026-10-22');
+    expect(await screen.findByText('This is part of an iMenteo Plan')).toBeInTheDocument();
+    day.unmount();
+    at('/platform/student/plan/assessment');
+    expect(await screen.findByText('This is part of an iMenteo Plan')).toBeInTheDocument();
+  });
+  it('an ended plan says it ended and offers to renew, and keeps the rest of the page', async () => {
+    routes['get /v2/me/loop'] = needs({ code: 'PLAN_ENDED', product: 'plan', state: 'expired', endsAt: '2026-10-20T00:00:00Z' });
+    at('/platform/student/goal');
+    expect(await screen.findByText('Your plan has ended')).toBeInTheDocument();
+    expect(screen.getByText(/ended on 20 October 2026/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Renew my plan' })).toBeInTheDocument();
+    expect(screen.getByText('Where do you want to get to?')).toBeInTheDocument();
+  });
+  it('an action refused because the plan ended says so in plain words', async () => {
+    routes['get /v2/me/loop'] = planState();
+    routes['post /v2/me/loop/week/replan'] = needs({ code: 'PLAN_ENDED', product: 'plan', state: 'grace' });
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    await user.click(await screen.findByRole('button', { name: 'Re-plan the rest of this week' }));
+    expect(await screen.findByText('Your plan has ended, so this is read-only now. Renew your plan to keep planning.')).toBeInTheDocument();
+  });
+});
+
 describe('loading', () => {
   it('shows the shape of the page instead of the word "Loading"', async () => {
     let release; routes['get /v2/me/loop'] = () => new Promise(r => { release = r; });

@@ -20,6 +20,7 @@ import AdminAi       from './admin/AiUsage';
 import AdminUsers    from './admin/Users';
 import AdminUserPage from './admin/UserDetail';
 import AdminLoop     from './admin/Loop';
+import AdminPayments from './admin/Payments';
 import AdminAdmins   from './admin/Admins';
 import AdminAudit    from './admin/Audit';
 import AdminSettings from './admin/Settings';
@@ -34,6 +35,8 @@ import GuardianConsent from './v4/pages/GuardianConsent';
 import VerifyEmail      from './v4/pages/VerifyEmail';
 import Unsubscribe      from './pages/Unsubscribe';
 import PublicPortfolio  from './pages/PublicPortfolio';
+import Pricing          from './pay/Pricing';
+import { PAY_ENABLED }  from './pay/payApi';
 import SchoolHome      from './v4/pages/SchoolHome';
 import SchoolClass     from './v4/pages/SchoolClass';
 import SchoolStudent   from './v4/pages/SchoolStudent';
@@ -126,6 +129,7 @@ function AppRoutes() {
       {/* Admin */}
       <Route path="/unsubscribe"    element={<Unsubscribe />} />
       <Route path="/p/:token"       element={<PublicPortfolio />} />
+      {PAY_ENABLED && <Route path="/pricing" element={<Pricing />} />}
       <Route path="/admin/login"    element={<AdminSignIn />} />
       <Route path="/admin/user/:id" element={<LegacyAdminUser />} />
       <Route path="/admin"          element={<RequireAdmin><AdminShell /></RequireAdmin>}>
@@ -134,6 +138,7 @@ function AppRoutes() {
         <Route path="users"         element={<AdminUsers />} />
         <Route path="users/:id"     element={<AdminUserPage />} />
         <Route path="loop"          element={<AdminLoop />} />
+        <Route path="payments"      element={<AdminPayments />} />
         <Route path="admins"        element={<AdminAdmins />} />
         <Route path="audit"         element={<AdminAudit />} />
         <Route path="settings"      element={<AdminSettings />} />

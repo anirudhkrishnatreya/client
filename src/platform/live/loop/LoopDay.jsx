@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Card, Empty, Icon, PageHead, Pill, Progress } from '../../ui/kit';
 import { useLoop, messageFor, TYPE_LABEL, fmtMinutes, fmtShort, weekdayOf } from './loopApi';
 import { PageSkeleton } from './Loader';
+import Locked from '../../../pay/Locked';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { Item } from './Steps';
 import { daysOf, minutesOf, doneOf } from './DayBits';
@@ -19,8 +20,9 @@ function summaryOf(items, when) {
 /** One day in full: every step with its video, help, practice and practice questions, and the way to the next day. */
 export default function LoopDayPage() {
   const { date } = useParams();
-  const { loop, loading, error, act } = useLoop();
+  const { loop, loading, error, locked, act } = useLoop();
   if (loading) return <PageSkeleton label="Loading your day" cards={2} />;
+  if (locked) return <Locked {...locked} />;
   if (error) return <p role="alert">{messageFor(error)}</p>;
   if (!loop || loop.mode !== 'plan') return <Card><Empty icon="calendar" title="No plan yet">Start one from <Link relative="path" to="../../../goal">My goal</Link>.</Empty></Card>;
   const w = loop.week;

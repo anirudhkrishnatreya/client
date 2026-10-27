@@ -6,7 +6,7 @@ import { Icon, Pill } from '../platform/ui/kit';
 import { adminApi, storedAdmin, ROLE, can } from './adminApi';
 
 const NAV = [
-  { section: 'Watch', items: [{ to: '', label: 'Overview', icon: 'grid', end: true }, { to: 'ai', label: 'AI usage', icon: 'sparkles' }, { to: 'loop', label: 'Learning loop', icon: 'target' }] },
+  { section: 'Watch', items: [{ to: '', label: 'Overview', icon: 'grid', end: true }, { to: 'ai', label: 'AI usage', icon: 'sparkles' }, { to: 'loop', label: 'Learning loop', icon: 'target' }, { to: 'payments', label: 'Payments', icon: 'bolt' }] },
   { section: 'People', items: [{ to: 'users', label: 'Accounts', icon: 'users' }, { to: 'schools', label: 'Schools', icon: 'cap', href: '/admin/orgs', manage: true }] },
   { section: 'Control', items: [{ to: 'admins', label: 'Admins', icon: 'shield', manage: true }, { to: 'audit', label: 'Audit log', icon: 'file' }, { to: 'settings', label: 'Settings', icon: 'settings' }] }
 ];

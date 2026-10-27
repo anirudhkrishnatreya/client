@@ -2,14 +2,16 @@ import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill, Progress } from '../../ui/kit';
 import { useLoop, messageFor, fmtShort } from './loopApi';
 import { PageSkeleton } from './Loader';
+import Locked from '../../../pay/Locked';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { Assessment } from './Assessment';
 import { NextWeek } from './NextWeek';
 
 /** The week's assessment on its own page: what it is, why it matters (it opens next week), then the quiz, the work and the feedback. */
 export default function LoopAssessmentPage() {
-  const { loop, loading, error, act } = useLoop();
+  const { loop, loading, error, locked, act } = useLoop();
   if (loading) return <PageSkeleton label="Loading your assessment" cards={2} />;
+  if (locked) return <Locked {...locked} />;
   if (error) return <p role="alert">{messageFor(error)}</p>;
   if (!loop || loop.mode !== 'plan') return <Card><Empty icon="clipboard" title="No plan yet">Start one from <Link relative="path" to="../../goal">My goal</Link>.</Empty></Card>;
   const a = loop.assessment, w = loop.week, levelUp = a.task && a.task.levelUp;

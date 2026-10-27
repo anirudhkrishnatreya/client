@@ -24,6 +24,7 @@ import LiveParentReports from './live/parent/Reports';
 import LiveParentMentor from './live/parent/Mentor';
 import { REC_ENABLED } from './live/careers/config';
 import { LOOP_ENABLED } from './live/loop/config';
+import { PAY_ENABLED } from '../pay/payApi';
 import './theme/platform.css';
 import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/500.css';
@@ -63,6 +64,8 @@ const LoopPlan = lazy(() => import('./live/loop/LoopPlan'));
 const LoopRoadmap = lazy(() => import('./live/loop/LoopRoadmap'));
 const LoopPortfolio = lazy(() => import('./live/loop/LoopPortfolio'));
 const LoopDay = lazy(() => import('./live/loop/LoopDay'));
+const Billing = lazy(() => import('../pay/Billing'));
+const Receipt = lazy(() => import('../pay/Billing').then(m => ({ default: m.Receipt })));
 const LoopAssessment = lazy(() => import('./live/loop/LoopAssessment'));
 const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
@@ -127,6 +130,7 @@ export default function PlatformApp() {
         {LOOP_ENABLED
           ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /><Route path="plan/day/:date" element={later(<LoopDay />)} /><Route path="plan/assessment" element={later(<LoopAssessment />)} /><Route path="portfolio" element={later(<LoopPortfolio />)} /></>
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
+        {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
         <Route path="tasks" element={<StudentTasks />} />
         <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
         {REC_ENABLED && <>

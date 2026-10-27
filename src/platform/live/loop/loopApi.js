@@ -39,6 +39,8 @@ export function messageFor(err) {
   if (c === 'PHOTO_NOT_ALLOWED') return detailsOf(err).photos || 'This photo cannot be used. Please photograph only your work.';
   if (c === 'NOT_EARNED') return 'Only work judged “Strong” or “Getting there”, or a passed level-up, can go in your portfolio.';
   if (c === 'PORTFOLIO_SHARE_MINOR') return 'Sharing a public link is not available for students under 18 yet.';
+  if (c === 'PLAN_ENDED') return 'Your plan has ended, so this is read-only now. Renew your plan to keep planning.';
+  if (c === 'PAYMENT_REQUIRED') return 'This is part of an iMenteo Plan. See My plan to get started.';
   if (c === 'AI_BUSY') return 'The guide has done a lot today and is resting. Please try again tomorrow.';
   if (c === 'AI_UNAVAILABLE') return 'The guide could not answer just now. Your message is safe: please send it again.';
   if (c === 'VALIDATION_FAILED') return Object.values(detailsOf(err))[0] || 'Please check what you entered.';
@@ -49,10 +51,11 @@ export function messageFor(err) {
 
 /** The student's loop state, plus `act(fn)`: run a change and take the fresh state the server sends back. */
 export function useLoop() {
-  const [s, setS] = useState({ loop: null, loading: true, closed: false, error: null });
+  const [s, setS] = useState({ loop: null, loading: true, closed: false, error: null, locked: null });
   const load = useCallback(() => loopApi.state()
-    .then(({ data }) => setS({ loop: data.loop, loading: false, closed: false, error: null }))
-    .catch(e => setS({ loop: null, loading: false, closed: codeOf(e) === 'LOOP_DISABLED', error: e })), []);
+    .then(({ data }) => setS({ loop: data.loop, loading: false, closed: false, error: null, locked: null }))
+    // a plan that is needed (or has ended) is not an error: the page shows a calm "this is part of a plan" card
+    .catch(e => setS({ loop: null, loading: false, closed: codeOf(e) === 'LOOP_DISABLED', error: e, locked: ['PAYMENT_REQUIRED', 'PLAN_ENDED'].includes(codeOf(e)) ? { product: e.response.data.product, state: e.response.data.state, endsAt: e.response.data.endsAt } : null })), []);
   useEffect(() => { load(); }, [load]);
   const act = useCallback(async fn => { const { data } = await fn(); setS(x => ({ ...x, loop: data.loop })); return data.loop; }, []);
   return { ...s, act, reload: load };
