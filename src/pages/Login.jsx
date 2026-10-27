@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAssessment } from '../context/AssessmentContext';
 import { V4_ENABLED } from '../v4/config';
 import { PLATFORM_ENABLED } from '../platform/config';
+import { PAY_ENABLED, takeChoice } from '../pay/payApi';
 import AuthLayout from '../components/AuthLayout';
 
 export default function Login() {
@@ -32,6 +33,9 @@ export default function Login() {
       saveSession(data.token, data.user);
       dispatch({ type: 'SET_USER', id: data.user.id, name: data.user.fullName });
 
+      // a plan chosen on the home page before signing in: open My plan with it ready
+      const chosen = PAY_ENABLED && PLATFORM_ENABLED && (data.user.role || 'student') === 'student' ? takeChoice() : null;
+      if (chosen) { nav(`/platform/student/billing?buy=${chosen}`); return; }
       if (PLATFORM_ENABLED && ['student', 'mentor', 'parent'].includes(data.user.role || 'student')) { nav(`/platform/${data.user.role || 'student'}`); return; }
       if (V4_ENABLED && data.user.role === 'counsellor') { nav('/v4/school'); return; }
       if (V4_ENABLED && data.user.track) { nav('/v4'); return; }       // v4 students have their own dashboard

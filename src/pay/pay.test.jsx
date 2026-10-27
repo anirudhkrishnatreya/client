@@ -39,36 +39,59 @@ beforeEach(() => {
 });
 const show = (ui, path = '/') => render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 
+const planCard = () => screen.findByRole('article', { name: 'iMenteo Plan' });
+const pick = async (user, length) => { await user.click(screen.getByRole('button', { name: new RegExp(`^${length}`) })); return screen.getByRole('article', { name: 'iMenteo Plan' }); };
+
 describe('the price list', () => {
-  it('shows every product with the regular price struck through only while the offer is on, the per-month price, mentor sessions and the end date', async () => {
-    show(<Plans signedIn={false} />);
-    const month = await screen.findByRole('article', { name: 'Plan, 1 month' });
-    expect(within(month).getByLabelText('Regular price ₹2,799')).toBeInTheDocument();
-    expect(within(month).getByText('₹1,399')).toBeInTheDocument();
-    expect(within(month).getByText('50% off')).toBeInTheDocument();
-    expect(within(month).getByText(/4 mentor sessions/)).toBeInTheDocument();
-    const six = screen.getByRole('article', { name: 'Plan, 6 months' });
-    expect(within(six).getByText('Most families choose this')).toBeInTheDocument();
-    expect(within(six).getByText(/about ₹1,167 a month/)).toBeInTheDocument();
+  it('opens on the most chosen plan, with the regular price struck through while the offer is on, the monthly cost, sessions and savings', async () => {
+    show(<Plans billing={billing()} />);
+    const plan = await planCard();
+    expect(screen.getByRole('button', { name: /^6 months/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(plan).getByLabelText('Regular price ₹13,999')).toBeInTheDocument();
+    expect(within(plan).getByText('₹6,999')).toBeInTheDocument();
+    expect(within(plan).getByText('50% off')).toBeInTheDocument();
+    expect(plan).toHaveTextContent('About ₹1,167 a month · 26 one-to-one mentor sessions · 17% less than month by month');
+    expect(within(plan).getByText('Career Assessment and report included')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^3 months.*Save 12%/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^12 months.*Save 29%/ })).toBeInTheDocument();
+    expect(within(plan).getByRole('button', { name: 'Choose 6 months' })).toBeInTheDocument();
     expect(within(screen.getByRole('article', { name: 'Career Assessment' })).getByText('60% off')).toBeInTheDocument();
     expect(screen.getByText(/Launch offer/).closest('p')).toHaveTextContent('31 January 2027');
-    expect(screen.getByText(/No GST is added/)).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Sign in to buy' })).toHaveLength(5);
+    expect(screen.getByText(/No GST added/)).toBeInTheDocument();
+  });
+  it('switching the length changes the price, sessions and what is included', async () => {
+    const user = userEvent.setup();
+    show(<Plans billing={billing()} />);
+    await planCard();
+    const plan = await pick(user, '1 month');
+    expect(within(plan).getByText('₹1,399')).toBeInTheDocument();
+    expect(within(plan).getByLabelText('Regular price ₹2,799')).toBeInTheDocument();
+    expect(plan).toHaveTextContent('4 one-to-one mentor sessions');
+    expect(plan).not.toHaveTextContent(/a month ·|less than month by month/);
+    expect(within(plan).queryByText('Career Assessment and report included')).toBeNull();
+    expect(within(plan).getByRole('button', { name: 'Choose 1 month' })).toBeInTheDocument();
+  });
+  it('a plan chosen on the home page is the one shown', async () => {
+    show(<Plans billing={billing()} initial="plan-12m" />);
+    await planCard();
+    expect(screen.getByRole('button', { name: /^12 months/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(await planCard()).getByText('₹11,999')).toBeInTheDocument();
   });
   it('after the offer there is no struck-through price and no offer line', async () => {
     routes['get /v2/payments/catalog'] = catalog({ offerEndsAt: null, products: PRODUCTS.map(p => ({ ...p, amount: p.regular, regular: null, offerOn: false, discountPercent: 0 })) });
-    show(<Plans signedIn={false} />);
-    const month = await screen.findByRole('article', { name: 'Plan, 1 month' });
-    expect(within(month).getByText('₹2,799')).toBeInTheDocument();
-    expect(within(month).queryByText(/% off/)).toBeNull();
+    const user = userEvent.setup();
+    show(<Plans billing={billing()} />);
+    await planCard();
+    const plan = await pick(user, '1 month');
+    expect(within(plan).getByText('₹2,799')).toBeInTheDocument();
+    expect(within(plan).queryByText(/% off/)).toBeNull();
     expect(screen.queryByText(/Launch offer/)).toBeNull();
   });
   it('before payment is open it says so and the buttons are off', async () => {
     routes['get /v2/payments/catalog'] = catalog({ checkoutReady: false });
-    routes['get /v2/payments/me'] = { billing: billing() };
-    show(<Plans signedIn billing={billing()} />);
+    show(<Plans billing={billing()} />);
     expect(await screen.findByText(/Online payment is opening soon/)).toBeInTheDocument();
-    for (const b of screen.getAllByRole('button', { name: /Choose this plan|Get the assessment/ })) expect(b).toBeDisabled();
+    for (const b of screen.getAllByRole('button', { name: /^Choose|Get the assessment/ })) expect(b).toBeDisabled();
   });
 });
 
@@ -78,8 +101,9 @@ describe('paying', () => {
     routes['post /v2/payments/orders/o1/verify'] = { status: 'paid' };
     const paid = vi.fn();
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={paid} />);
-    await user.click(within(await screen.findByRole('article', { name: 'Plan, 1 month' })).getByRole('button', { name: 'Choose this plan' }));
+    show(<Plans billing={billing()} onPaid={paid} />);
+    await planCard();
+    await user.click(within(await pick(user, '1 month')).getByRole('button', { name: 'Choose 1 month' }));
     await waitFor(() => expect(razor.opened).toHaveLength(1));
     expect(calls.find(c => c.url === '/v2/payments/orders').body).toEqual({ productId: 'plan-1m' });            // only the product: never a price
     expect(razor.opened[0]).toMatchObject({ key: 'rzp_test_1', order_id: 'order_X', amount: 139900, currency: 'INR', name: 'iMenteo', description: 'Plan, 1 month' });
@@ -90,7 +114,7 @@ describe('paying', () => {
   it('closing the payment window leaves everything as it was; a failed payment says nothing was charged', async () => {
     routes['post /v2/payments/orders'] = { free: false, orderId: 'o2', razorpayOrderId: 'order_Y', amount: 59900, currency: 'INR', key: 'k', prefill: {} };
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={vi.fn()} />);
+    show(<Plans billing={billing()} onPaid={vi.fn()} />);
     const card = await screen.findByRole('article', { name: 'Career Assessment' });
     await user.click(within(card).getByRole('button', { name: 'Get the assessment' }));
     await waitFor(() => expect(razor.opened).toHaveLength(1));
@@ -100,11 +124,11 @@ describe('paying', () => {
     await waitFor(() => expect(within(card).getByRole('button', { name: 'Get the assessment' })).toBeEnabled());
   });
   it('if confirmation is slow, it says the payment is safe and not to pay again', async () => {
-    routes['post /v2/payments/orders'] = { free: false, orderId: 'o3', razorpayOrderId: 'order_Z', amount: 139900, currency: 'INR', key: 'k', prefill: {} };
+    routes['post /v2/payments/orders'] = { free: false, orderId: 'o3', razorpayOrderId: 'order_Z', amount: 699900, currency: 'INR', key: 'k', prefill: {} };
     routes['post /v2/payments/orders/o3/verify'] = fail(500, { code: 'X' });
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={vi.fn()} />);
-    await user.click(within(await screen.findByRole('article', { name: 'Plan, 1 month' })).getByRole('button', { name: 'Choose this plan' }));
+    show(<Plans billing={billing()} onPaid={vi.fn()} />);
+    await user.click(within(await planCard()).getByRole('button', { name: 'Choose 6 months' }));
     await waitFor(() => expect(razor.opened).toHaveLength(1));
     await razor.opened[0].handler({ razorpay_order_id: 'order_Z', razorpay_payment_id: 'p', razorpay_signature: 's' });
     expect(await screen.findByText(/We have your payment/)).toBeInTheDocument();
@@ -113,8 +137,8 @@ describe('paying', () => {
   it('an order the server cannot make says what happened and that nothing was charged', async () => {
     routes['post /v2/payments/orders'] = fail(502, { code: 'PAYMENT_PROVIDER_UNREACHABLE' });
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={vi.fn()} />);
-    await user.click(within(await screen.findByRole('article', { name: 'Plan, 1 month' })).getByRole('button', { name: 'Choose this plan' }));
+    show(<Plans billing={billing()} onPaid={vi.fn()} />);
+    await user.click(within(await planCard()).getByRole('button', { name: 'Choose 6 months' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('You have not been charged');
     expect(razor.opened).toHaveLength(0);
   });
@@ -122,8 +146,8 @@ describe('paying', () => {
     routes['post /v2/payments/orders'] = { free: true, orderId: 'o4', quote: { amount: 0 } };
     const paid = vi.fn();
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={paid} />);
-    await user.click(within(await screen.findByRole('article', { name: 'Plan, 1 month' })).getByRole('button', { name: 'Choose this plan' }));
+    show(<Plans billing={billing()} onPaid={paid} />);
+    await user.click(within(await planCard()).getByRole('button', { name: 'Choose 6 months' }));
     await waitFor(() => expect(paid).toHaveBeenCalled());
     expect(razor.opened).toHaveLength(0);
   });
@@ -134,8 +158,8 @@ describe('codes and credit', () => {
     routes['post /v2/payments/quote'] = ({ productId, coupon }) => (coupon === 'BAD' ? fail(400, { code: 'COUPON_INVALID', details: { code: 'This code has expired.' } }) : { quote: { productId, amount: Math.round(PRODUCTS.find(p => p.id === productId).amount * 0.75), couponLabel: 'Launch 25', listAmount: 0 } });
     routes['post /v2/payments/orders'] = { free: false, orderId: 'o5', razorpayOrderId: 'order_C', amount: 104925, currency: 'INR', key: 'k', prefill: {} };
     const user = userEvent.setup();
-    show(<Plans signedIn billing={billing()} onPaid={vi.fn()} />);
-    await screen.findByRole('article', { name: 'Plan, 1 month' });
+    show(<Plans billing={billing()} onPaid={vi.fn()} />);
+    await planCard();
     await user.type(screen.getByLabelText('Discount code'), 'BAD');
     await user.click(screen.getByRole('button', { name: 'Apply' }));
     expect(await screen.findByText('This code has expired.')).toBeInTheDocument();
@@ -143,18 +167,20 @@ describe('codes and credit', () => {
     await user.type(screen.getByLabelText('Discount code'), 'LAUNCH25');
     await user.click(screen.getByRole('button', { name: 'Apply' }));
     expect(await screen.findByText(/Code applied/)).toBeInTheDocument();
-    const month = screen.getByRole('article', { name: 'Plan, 1 month' });
+    const month = await pick(user, '1 month');
     expect(within(month).getByText('₹1,049.25')).toBeInTheDocument();
     expect(within(month).getByText(/With Launch 25: ₹349.75 less/)).toBeInTheDocument();
-    await user.click(within(month).getByRole('button', { name: 'Choose this plan' }));
+    await user.click(within(month).getByRole('button', { name: 'Choose 1 month' }));
     await waitFor(() => expect(calls.find(c => c.url === '/v2/payments/orders')).toBeTruthy());
     expect(calls.find(c => c.url === '/v2/payments/orders').body).toEqual({ productId: 'plan-1m', coupon: 'LAUNCH25' });
   });
   it('credit from a recent assessment is shown and applied to the plan prices', async () => {
     routes['post /v2/payments/quote'] = ({ productId }) => ({ quote: { productId, amount: PRODUCTS.find(p => p.id === productId).amount - 59900, couponLabel: null } });
-    show(<Plans signedIn billing={billing({ credit: { amount: 59900, until: '2026-11-20T00:00:00Z' } })} onPaid={vi.fn()} />);
+    const user = userEvent.setup();
+    show(<Plans billing={billing({ credit: { amount: 59900, until: '2026-11-20T00:00:00Z' } })} onPaid={vi.fn()} />);
     expect(await screen.findByText(/Your assessment payment of ₹599 comes off your first plan, until 20 November 2026/)).toBeInTheDocument();
-    expect(await within(screen.getByRole('article', { name: 'Plan, 1 month' })).findByText('₹800')).toBeInTheDocument();
+    await planCard();
+    expect(await within(await pick(user, '1 month')).findByText('₹800')).toBeInTheDocument();
   });
 });
 

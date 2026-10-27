@@ -22,9 +22,9 @@ api.interceptors.request.use(cfg => {
 api.interceptors.response.use(
   res => res,
   err => {
-    // the Career Assessment needs buying first: go to the price page (weekly-plan screens show their own "part of a plan" card instead)
+    // the Career Assessment needs buying first: go to My plan with it ready (weekly-plan screens show their own "part of a plan" card instead)
     if (err.response?.status === 402 && err.response?.data?.product === 'assessment' && import.meta.env.VITE_PAY === 'on') {
-      const to = new URL(window.location.href); to.hash = '/pricing'; window.location.assign(to.toString());
+      const to = new URL(window.location.href); to.hash = '/platform/student/billing?buy=assessment'; window.location.assign(to.toString());
       return Promise.reject(err);
     }
     // an admin whose session ended (expired, signed out everywhere, deactivated) goes back to the admin sign-in

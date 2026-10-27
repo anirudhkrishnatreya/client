@@ -40,7 +40,8 @@ describe('the full landing page', () => {
     expect(text).not.toMatch(/\$|US\$|₹|per month|\/month/i);
     expect(text).not.toMatch(/\d+%/);
     expect(text).not.toMatch(/10x|under 5 minutes|best mentors|monetise/i);
-    expect(text).toMatch(/Pricing is still being finalised/);
+    // prices are never written into the page: they come from the server (pricing.test.jsx), so they always match what is charged
+    expect(text).toMatch(/See Plans and prices above/);
   });
   it('has no leftover placeholder wording from the design', () => {
     const { container } = page();

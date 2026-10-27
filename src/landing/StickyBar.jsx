@@ -4,10 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
 import { goSection } from './ExtraSections';
+import { PAY_ENABLED } from '../pay/payApi';
 import logo from '../assets/landing/logo.png';
 
 export const BAR_H = 60;
-const ITEMS = [['about', 'About'], ['how-it-works', 'How it works'], ['get-started', 'The platform'], ['assessment', 'Assessment'], ['who', 'Who it’s for'], ['faq', 'FAQ']];
+const ITEMS = [['about', 'About'], ['how-it-works', 'How it works'], ['get-started', 'The platform'], ['assessment', 'Assessment'], ['who', 'Who it’s for'], ...(PAY_ENABLED ? [['pricing', 'Pricing']] : []), ['faq', 'FAQ']];
 const IDS = ITEMS.map(([id]) => id);
 
 /** The design's nav scrolls away with the first screen; this slim bar takes over once it has, with the section you are in highlighted. */

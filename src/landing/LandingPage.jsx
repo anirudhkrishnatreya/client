@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLATFORM_ENABLED } from '../platform/config';
@@ -8,6 +8,7 @@ import WeeksSection from './WeeksSection';
 import { GetStarted, Practice } from './LowerSections';
 import { Why, Assessment, Who, AiSection, Safety, Faq, FinalCta, Footer } from './ExtraSections';
 import StickyBar, { BAR_H } from './StickyBar';
+import PricingSection from './PricingSection';
 import { TAGS } from './config';
 import '@fontsource/syne/700.css';
 import '@fontsource/montserrat/600.css';
@@ -62,7 +63,7 @@ function HeroDesktop() {
           <button type="button" className="lp-hlink" onClick={() => goTo('about')}>About</button>
           <button type="button" className="lp-hlink" onClick={() => goTo('footer')}>Contact</button>
           <Link to="/career-xray" className="lp-hlink">Career X-Ray</Link>
-          {PAY_ENABLED && <Link to="/pricing" className="lp-hlink">Pricing</Link>}
+          {PAY_ENABLED && <button type="button" className="lp-hlink" onClick={() => goTo('pricing')}>Pricing</button>}
         </nav>
         <Link to={acct.to} className="lp-hlogin">{acct.label}</Link>
       </header>
@@ -110,6 +111,7 @@ function HeroMobile() {
             <button type="button" onClick={() => { setOpen(false); goTo('about'); }}>About</button>
             <button type="button" onClick={() => { setOpen(false); goTo('footer'); }}>Contact</button>
             <Link to="/career-xray" onClick={() => setOpen(false)}>Career X-Ray</Link>
+            {PAY_ENABLED && <button type="button" onClick={() => { setOpen(false); goTo('pricing'); }}>Pricing</button>}
             <Link to={acct.to} className="lp-login-m">{acct.label}</Link>
           </nav>
         )}
@@ -123,8 +125,10 @@ function HeroMobile() {
   );
 }
 
-export default function LandingPage() {
+/** The home page. `focus` names a section to scroll to on arrival (the old /pricing link lands on the prices). */
+export default function LandingPage({ focus }) {
   const wide = useMedia('(min-width: 1024px)', true);
+  useEffect(() => { if (!focus) return undefined; const t = setTimeout(() => goTo(focus), 80); return () => clearTimeout(t); }, [focus]);
   return (
     <div className="lp" id="top">
       <StickyBar />
@@ -137,6 +141,7 @@ export default function LandingPage() {
       <Practice />
       <AiSection />
       <Safety />
+      {PAY_ENABLED && <PricingSection />}
       <Faq />
       <FinalCta />
       <Footer />

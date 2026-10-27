@@ -1,42 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Icon, Pill } from '../platform/ui/kit';
+import { Icon } from '../platform/ui/kit';
 import { Working } from '../platform/live/loop/Loader';
 import { payApi, rupees, fmtDate, payError, loadRazorpay } from './payApi';
+import PriceBoard, { planLength } from './PriceBoard';
 import './pay.css';
 
 const CONFIRM_STEPS = ['Confirming your payment with the bank…', 'Opening your plan…'];
 
-/** One product card: the price (with the regular price struck through only while the offer is real), what is inside, and the button. */
-function Card({ p, quote, busy, canBuy, signedIn, onBuy }) {
-  const price = quote ? quote.amount : p.amount;
-  return (
-    <article className={`pay-card${p.highlight ? ' best' : ''}`} aria-label={p.name}>
-      {p.highlight && <span className="pay-flag">Most families choose this</span>}
-      <h3>{p.name}</h3>
-      <div className="pay-price">
-        {p.regular && <s aria-label={`Regular price ${rupees(p.regular)}`}>{rupees(p.regular)}</s>}
-        <b>{rupees(price)}</b>
-        {p.offerOn && <Pill tone="leaf">{p.discountPercent}% off</Pill>}
-      </div>
-      {quote && quote.amount !== p.amount && <p className="pf-small" style={{ margin: '0 0 6px', color: 'var(--leaf)' }}>With {quote.couponLabel || 'your code'}: {rupees(p.amount - quote.amount)} less</p>}
-      {p.perMonth && p.months > 1 && <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>about {rupees(Math.round(p.perMonth / 100) * 100)} a month</p>}
-      <ul className="pay-list">{p.includes.map(i => <li key={i}><Icon name="check" size={14} />{i}</li>)}</ul>
-      {p.mentorSessions > 0 && <p className="pf-small" style={{ margin: '8px 0 0' }}><b>{p.mentorSessions} mentor sessions</b>, one every week</p>}
-      <div style={{ marginTop: 'auto', paddingTop: 12 }}>
-        {!signedIn
-          ? <Link className="pf-btn" style={{ width: '100%', justifyContent: 'center' }} to="/login">Sign in to buy</Link>
-          : <button type="button" className={`pf-btn${p.highlight ? '' : ' ghost'}`} style={{ width: '100%', justifyContent: 'center' }} disabled={!canBuy || busy} onClick={() => onBuy(p)}>{busy ? 'Opening…' : p.kind === 'plan' ? 'Choose this plan' : 'Get the assessment'}</button>}
-      </div>
-    </article>
-  );
-}
-
 /**
- * The price list and checkout. Prices come from the server. A code (discount or credit) is checked on the server and shown before paying.
- * After paying, it waits for confirmation: the page can be closed safely, because the payment is also confirmed by Razorpay's own message.
+ * Choosing and paying, inside My plan. Prices come from the server. A code (discount or credit) is checked on the server and shown
+ * before paying. After paying, it waits for confirmation: the page can be closed safely, because Razorpay also tells the server.
+ * `initial` is a plan chosen on the home page before signing in: it is preselected and scrolled to, never paid for without a click.
  */
-export default function Plans({ signedIn, onPaid, billing }) {
+export default function Plans({ onPaid, billing, initial }) {
   const [cat, setCat] = useState(null);
   const [err, setErr] = useState('');             // a payment problem: shown above the prices, which stay on screen
   const [loadErr, setLoadErr] = useState('');
@@ -46,12 +22,14 @@ export default function Plans({ signedIn, onPaid, billing }) {
   const [busy, setBusy] = useState(null);
   const [phase, setPhase] = useState(null);        // null | 'confirming' | 'slow'
   const timer = useRef(null);
+  const box = useRef(null);
   useEffect(() => { payApi.catalog().then(r => setCat(r.data)).catch(() => setLoadErr('We could not load the prices. Please refresh.')); return () => clearTimeout(timer.current); }, []);
+  useEffect(() => { if (cat && initial && box.current && box.current.scrollIntoView) box.current.scrollIntoView({ block: 'start' }); }, [cat, initial]);
   // credit from a recent assessment shows in the prices of plans
   useEffect(() => {
-    if (!signedIn || !cat || !billing || !billing.credit) return;
+    if (!cat || !billing || !billing.credit) return;
     Promise.all(cat.products.filter(p => p.kind === 'plan').map(p => payApi.quote(p.id, code.trim() || undefined).then(r => [p.id, r.data.quote]))).then(es => setQuotes(Object.fromEntries(es))).catch(() => {});
-  }, [signedIn, cat, billing]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cat, billing]); // eslint-disable-line react-hooks/exhaustive-deps
   if (loadErr) return <p role="alert">{loadErr}</p>;
   if (!cat) return <p className="pf-muted" role="status">Loading prices…</p>;
 
@@ -93,29 +71,24 @@ export default function Plans({ signedIn, onPaid, billing }) {
   if (phase === 'slow') return <div className="pf-note" role="status"><b>We have your payment, and it is taking a little longer to confirm.</b> Your plan will open within a few minutes and we will email a receipt. You do not need to pay again. If it has not opened in 15 minutes, write to us and quote the time of payment.</div>;
 
   const ready = cat.checkoutReady;
-  const assessment = cat.products.find(p => p.kind === 'assessment');
-  const plans = cat.products.filter(p => p.kind === 'plan');
+  const cta = (p, className) => (
+    <button type="button" className={className} disabled={!ready || Boolean(busy)} onClick={() => buy(p)}>
+      {busy === p.id ? 'Opening…' : p.kind === 'plan' ? `Choose ${planLength(p.months)}` : 'Get the assessment'}<Icon name="chevronRight" size={18} />
+    </button>
+  );
   return (
-    <div>
+    <div ref={box} id="pay-choose" style={{ scrollMarginTop: 80 }}>
       {cat.offerEndsAt && <p className="pay-offer"><Icon name="flag" size={15} /><span><b>Launch offer</b> until {fmtDate(cat.offerEndsAt)}. After that date the regular prices apply.</span></p>}
       {!ready && <div className="pf-note" role="note" style={{ marginBottom: 14 }}>Online payment is opening soon. You can look at the plans now.</div>}
-      {signedIn && (
-        <form className="pay-code" onSubmit={apply}>
-          <label className="pf-sr" htmlFor="pay-code">Discount code</label>
-          <input id="pay-code" className="pf-input" placeholder="Have a discount code?" value={code} onChange={e => setCode(e.target.value)} maxLength={30} autoComplete="off" />
-          <button type="submit" className="pf-btn sm ghost">Apply</button>
-          {codeMsg && <span className="pf-small" role="status">{codeMsg}</span>}
-        </form>
-      )}
+      <form className="pay-code" onSubmit={apply}>
+        <label className="pf-sr" htmlFor="pay-code">Discount code</label>
+        <input id="pay-code" className="pf-input" placeholder="Have a discount code?" value={code} onChange={e => setCode(e.target.value)} maxLength={30} autoComplete="off" />
+        <button type="submit" className="pf-btn sm ghost">Apply</button>
+        {codeMsg && <span className="pf-small" role="status">{codeMsg}</span>}
+      </form>
       {billing && billing.credit && <p className="pf-note" role="note" style={{ margin: '0 0 14px' }}>Your assessment payment of {rupees(billing.credit.amount)} comes off your first plan, until {fmtDate(billing.credit.until)}.</p>}
       {err && <div className="pf-note" role="alert" style={{ marginBottom: 14, borderColor: 'var(--coral)' }}>{err}</div>}
-
-      <h2 className="pay-h">Just the Career Assessment</h2>
-      <div className="pay-grid one">{assessment && <Card p={assessment} quote={quotes[assessment.id]} busy={busy === assessment.id} canBuy={ready && !busy} signedIn={signedIn} onBuy={buy} />}</div>
-
-      <h2 className="pay-h">iMenteo Plan: the whole journey, with a mentor every week</h2>
-      <div className="pay-grid">{plans.map(p => <Card key={p.id} p={p} quote={quotes[p.id]} busy={busy === p.id} canBuy={ready && !busy} signedIn={signedIn} onBuy={buy} />)}</div>
-      <p className="pf-small pf-muted" style={{ marginTop: 14 }}>{cat.gst.note} Pay by UPI, card, net banking or wallet. Refunds: within 7 days of buying, if you have not started the assessment or used the plan. See the <a href="#refunds">refund policy</a> below.</p>
+      <PriceBoard products={cat.products} quotes={quotes} initial={initial} cta={cta} gstRegistered={cat.gst.registered} />
     </div>
   );
 }

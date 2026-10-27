@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill } from '../platform/ui/kit';
 import { PageSkeleton } from '../platform/live/loop/Loader';
 import { payApi, rupees, fmtDate, payError } from './payApi';
@@ -32,6 +32,8 @@ export default function Billing() {
   const [b, setB] = useState(null);
   const [err, setErr] = useState('');
   const [thanks, setThanks] = useState(false);
+  const [params] = useSearchParams();
+  const chosen = params.get('buy');                 // a plan chosen on the home page
   const load = () => payApi.me().then(r => setB(r.data.billing)).catch(() => setErr('We could not load your plan. Please refresh.'));
   useEffect(() => { load(); }, []);
   if (err) return <p role="alert">{err}</p>;
@@ -58,7 +60,7 @@ export default function Billing() {
         </Card>
       </div>
       <SchoolCode onDone={() => { setThanks(false); load(); }} />
-      <div style={{ margin: '18px 0' }}><Plans signedIn billing={b} onPaid={() => { setThanks(true); load(); }} /></div>
+      <div style={{ margin: '18px 0' }}><Plans billing={b} initial={chosen} onPaid={() => { setThanks(true); load(); }} /></div>
       <Card style={{ marginBottom: 18 }}>
         <CardHead title="Receipts" icon="file" />
         {b.orders.length === 0 ? <Empty icon="file" title="No payments yet">Your receipts will appear here.</Empty> : (

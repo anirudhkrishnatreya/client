@@ -14,6 +14,17 @@ export const payApi = {
 
 export const PAY_ENABLED = import.meta.env.VITE_PAY === 'on';
 
+// A plan chosen on the home page before signing in is kept for two days, so after sign-up or log-in the student lands on it.
+const CHOICE = 'imenteo.choice';
+export function rememberChoice(productId) { try { localStorage.setItem(CHOICE, JSON.stringify({ id: productId, at: Date.now() })); } catch { /* private window: they choose again */ } }
+export function takeChoice() {
+  try {
+    const v = JSON.parse(localStorage.getItem(CHOICE) || 'null');
+    localStorage.removeItem(CHOICE);
+    return v && Date.now() - v.at < 2 * 86400000 && /^[a-z0-9-]{3,24}$/.test(v.id) ? v.id : null;
+  } catch { return null; }
+}
+
 /** ₹1,399 or ₹2,799.50. */
 export const rupees = paise => `₹${(paise / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 export const fmtDate = d => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '');

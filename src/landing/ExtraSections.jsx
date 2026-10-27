@@ -5,6 +5,7 @@ import { PLATFORM_ENABLED } from '../platform/config';
 import { V4_ENABLED } from '../v4/config';
 import Icon from '../platform/ui/Icon';
 import { CONTACT_EMAIL, TAGS } from './config';
+import { PAY_ENABLED } from '../pay/payApi';
 import hero2 from '../assets/landing/hero-2-shape.png';
 import hero4 from '../assets/landing/hero-4-shape.png';
 import PHOTO from './photos';
@@ -183,7 +184,11 @@ const FAQ = [
   ['Why do you ask for a parent’s email?', 'Up to Class 12, a parent gets their own account so they can follow progress and reports. For under-18s, a parent’s consent is also needed before the student starts.'],
   ['Who sees my results?', 'You do. Your mentor and your parent can see your report and progress. Your school only sees an individual report if your parent agrees.'],
   ['Will AI replace teachers and mentors?', 'No. The platform handles the daily work of planning, practice and doubts. People guide the big decisions and review what the AI writes.'],
-  ['How much does it cost?', 'Pricing is still being finalised. Take the assessment first and see how it works.']
+  ...(PAY_ENABLED ? [
+    ['How much does it cost?', 'See Plans and prices above: the Career Assessment on its own, or a plan of 1, 3, 6 or 12 months with a one-to-one mentor session every week. You pay once, by UPI, card, net banking or wallet, and nothing renews on its own.'],
+    ['Can I get a refund?', 'Yes. Within 7 days of buying, if you have not started the assessment or used the plan, write to us for a full refund to the way you paid.'],
+    ['My school gave me a code. What do I do?', 'Log in, open My plan and enter the code. Your plan opens at once, with nothing to pay.']
+  ] : [['How much does it cost?', 'Pricing is still being finalised. Take the assessment first and see how it works.']])
 ];
 export function Faq() {
   const [open, setOpen] = useState(0);
@@ -239,7 +244,7 @@ export function Footer() {
           <p>An orbit charted fresh for every student, from the first step to the hardest one, at their own pace.</p>
           <ul className="lpx-trust"><li><Icon name="sparkles" size={15} />AI-powered</li><li><Icon name="users" size={15} />Real mentors</li><li><Icon name="cap" size={15} />Class 6 to college</li><li><Icon name="shield" size={15} />Privacy first</li></ul>
         </div>
-        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><Link to="/career-xray">Career X-Ray</Link><button type="button" onClick={to('safety')}>Safety</button><button type="button" onClick={to('faq')}>FAQ</button></nav>
+        <nav aria-label="Explore"><b>Explore</b><button type="button" onClick={to('about')}>Why iMenteo</button><button type="button" onClick={to('how-it-works')}>How it works</button><button type="button" onClick={to('assessment')}>Career assessment</button><Link to="/career-xray">Career X-Ray</Link><button type="button" onClick={to('safety')}>Safety</button>{PAY_ENABLED && <button type="button" onClick={to('pricing')}>Plans and prices</button>}<button type="button" onClick={to('faq')}>FAQ</button></nav>
         <nav aria-label="For you"><b>For you</b><button type="button" onClick={to('who')}>Students</button><button type="button" onClick={to('who')}>Mentors</button><button type="button" onClick={to('who')}>Parents</button><button type="button" onClick={to('who')}>Schools</button></nav>
         <nav aria-label="Account"><b>Account</b><Link to="/login">Log in</Link><Link to={SIGNUP}>Create an account</Link>
           {CONTACT_EMAIL ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> : <button type="button" onClick={to('faq')}>Questions? Read the FAQ</button>}</nav>

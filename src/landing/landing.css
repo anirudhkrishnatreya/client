@@ -305,6 +305,16 @@ button.lp-btn { cursor: pointer; font-family: 'DM Sans', sans-serif; }
 .lpx-pv-bars { display: flex; align-items: flex-end; gap: 12px; height: 130px; padding: 0 6px; } .lpx-pv-bars span { flex: 1; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #2051fd, #8aa4ff); }
 .lpx-pill { display: inline-flex; padding: 4px 10px; border-radius: 99px; background: #dfe6ff; color: #0f3ee4; font-size: 12px; font-weight: 600; } .lpx-pill.coral { background: #fde3dc; color: #b13a22; }
 
+/* plans and prices (the cards are in pay/priceboard.css) */
+.lpx-pricing .lpx-head { margin-bottom: 40px; }
+.lpx-pricing .lpx-note { margin-top: 20px; }
+.lpx-pricing-foot { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 14px !important; font-size: 14px; color: rgba(0, 0, 0, .6); text-align: center; }
+.lpx-pricing-foot svg { color: #0f3ee4; } .lpx-pricing-foot a { color: #0f3ee4; font-weight: 600; }
+.lpx-pricing-wait { height: 520px; border-radius: 20px; background: linear-gradient(90deg, #f4f5fb, #eef1ff, #f4f5fb); background-size: 200% 100%; animation: lpx-shim 1.4s linear infinite; }
+@keyframes lpx-shim { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .lpx-pricing-wait { animation: none; } }
+.lpx-pricing-msg { text-align: center; color: rgba(0, 0, 0, .66); }
+
 /* faq */
 .lpx-faq { width: min(820px, 100% - 40px); }
 .lpx-qs { display: grid; gap: 12px; }

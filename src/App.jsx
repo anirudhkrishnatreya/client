@@ -35,7 +35,6 @@ import GuardianConsent from './v4/pages/GuardianConsent';
 import VerifyEmail      from './v4/pages/VerifyEmail';
 import Unsubscribe      from './pages/Unsubscribe';
 import PublicPortfolio  from './pages/PublicPortfolio';
-import Pricing          from './pay/Pricing';
 import { PAY_ENABLED }  from './pay/payApi';
 import SchoolHome      from './v4/pages/SchoolHome';
 import SchoolClass     from './v4/pages/SchoolClass';
@@ -129,7 +128,7 @@ function AppRoutes() {
       {/* Admin */}
       <Route path="/unsubscribe"    element={<Unsubscribe />} />
       <Route path="/p/:token"       element={<PublicPortfolio />} />
-      {PAY_ENABLED && <Route path="/pricing" element={<Pricing />} />}
+      {PAY_ENABLED && <Route path="/pricing" element={<LandingPage focus="pricing" />} />}
       <Route path="/admin/login"    element={<AdminSignIn />} />
       <Route path="/admin/user/:id" element={<LegacyAdminUser />} />
       <Route path="/admin"          element={<RequireAdmin><AdminShell /></RequireAdmin>}>
