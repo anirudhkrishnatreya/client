@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
-import { Avatar, Card, CardHead, Empty, PageHead, Pill, Progress, Stat } from '../../ui/kit';
+import { Avatar, Card, CardHead, Empty, Icon, PageHead, Pill, Progress, Stat } from '../../ui/kit';
 import { fmtDate, greeting } from '../../ui/format';
 import { gradeLabel } from '../liveApi';
 
@@ -10,6 +10,7 @@ export default function LiveMentorOverview() {
   const S = data.students, active = S.filter(s => !s.limited), by = id => S.find(s => String(s.id) === String(id));
   const open = active.reduce((n, s) => n + s.tasks.open, 0), overdue = active.reduce((n, s) => n + s.tasks.overdue, 0);
   const attention = data.alerts.filter(a => a.level === 'high').length;
+  const review = active.reduce((n, s) => n + (s.tasks.review || 0), 0);
   if (S.length === 0) return <><PageHead eyebrow="Mentor overview" title={`${greeting()}, ${data.me.firstName}`}>You have no students yet.</PageHead><Card><Empty icon="users" title="No students assigned">An administrator assigns students to you. They will appear here as soon as they are.</Empty></Card></>;
   return (
     <>
@@ -17,8 +18,13 @@ export default function LiveMentorOverview() {
       <div className="pf-grid g4" style={{ marginBottom: 18 }}>
         <Stat label="Students" value={S.length} icon="users" hint="assigned to you" />
         <Stat label="Need attention" value={attention} icon="alert" up={false} hint="at risk this week" />
-        <Stat label="Open tasks" value={open} icon="tasks" hint={`${overdue} overdue`} />
+        <Stat label="Open tasks" value={open} icon="tasks" hint={`${overdue} overdue${review ? `, ${review} to review` : ''}`} />
         <Stat label="Sessions coming up" value={data.sessions.length} icon="calendar" hint="scheduled" />
+      </div>
+      <div className="pf-quick" style={{ marginBottom: 18 }}>
+        <Link className="pf-quick-item" to="../assistant"><Icon name="sparkles" size={20} /><span><b>Ask the assistant</b><br /><span className="pf-small pf-muted">Tasks, sessions and notes in plain words</span></span></Link>
+        <Link className="pf-quick-item" to="../tasks"><Icon name="clipboard" size={20} /><span><b>{review ? `Review ${review} handed-in task${review > 1 ? 's' : ''}` : 'Set a task'}</b><br /><span className="pf-small pf-muted">{review ? 'Approve or send back with feedback' : 'For one student or everyone at once'}</span></span></Link>
+        <Link className="pf-quick-item" to={active[0] ? `../students?open=${active[0].id}` : '../students'}><Icon name="file" size={20} /><span><b>Write weekly summaries</b><br /><span className="pf-small pf-muted">Open a student, then This week</span></span></Link>
       </div>
       <div className="pf-grid g-main">
         <div className="pf-grid" style={{ alignContent: 'start' }}>

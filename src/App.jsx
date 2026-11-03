@@ -21,6 +21,7 @@ import AdminUsers    from './admin/Users';
 import AdminUserPage from './admin/UserDetail';
 import AdminLoop     from './admin/Loop';
 import AdminPayments from './admin/Payments';
+import AdminMentors from './admin/Mentors';
 import AdminAdmins   from './admin/Admins';
 import AdminAudit    from './admin/Audit';
 import AdminSettings from './admin/Settings';
@@ -138,6 +139,7 @@ function AppRoutes() {
         <Route path="users/:id"     element={<AdminUserPage />} />
         <Route path="loop"          element={<AdminLoop />} />
         <Route path="payments"      element={<AdminPayments />} />
+        <Route path="mentors"       element={<AdminMentors />} />
         <Route path="admins"        element={<AdminAdmins />} />
         <Route path="audit"         element={<AdminAudit />} />
         <Route path="settings"      element={<AdminSettings />} />

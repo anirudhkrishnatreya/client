@@ -6,6 +6,7 @@ import Locked from '../../../pay/Locked';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { Item } from './Steps';
 import { daysOf, minutesOf, doneOf } from './DayBits';
+import { DayLog } from './Notes';
 
 /** A short, plain summary of the day: what is learned, then what is done with it. */
 function summaryOf(items, when) {
@@ -62,10 +63,11 @@ export default function LoopDayPage() {
           </li>
         ))}
       </ol>
+      {day.index <= w.todayIndex && <div style={{ marginTop: 14 }}><DayLog date={date} log={(w.logs || {})[date] || null} act={act} prompt={all ? 'Day done. Now, what did you learn?' : null} /></div>}
       {all && (
         <Card ai style={{ marginTop: 14 }}>
           <span className="tag"><Icon name="check" size={14} />Day complete</span>
-          <p style={{ margin: '8px 0 10px' }}>Well done. {next ? `Next up: ${weekdayOf(next.date)}.` : loop.assessment.stage === 'ready' ? 'That was the last day: your assessment is ready, and it opens your next week.' : 'That was the last planned day of this week.'}</p>
+          <p style={{ margin: '8px 0 10px' }}>Well done.{(w.logs || {})[date] ? '' : ' Write down what you learned above before you move on: it is how today sticks.'} {next ? `Next up: ${weekdayOf(next.date)}.` : loop.assessment.stage === 'ready' ? 'That was the last day: your assessment is ready, and it opens your next week.' : 'That was the last planned day of this week.'}</p>
           <div className="pf-row pf-wrap" style={{ gap: 8 }}>
             {next && <Link relative="path" className="pf-btn sm" to={`../${next.date}`}>Go to {weekdayOf(next.date)}</Link>}
             {['ready', 'quiz', 'work'].includes(loop.assessment.stage) && <Link relative="path" className="pf-btn sm" to="../../assessment">Take the assessment</Link>}

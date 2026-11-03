@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Icon from './ui/Icon';
+import { Card, PageHead } from './ui/kit';
 import AppShell from './shell/AppShell';
 import { PlatformProvider } from './data/store';
 import LiveProvider from './live/LiveProvider';
@@ -17,6 +18,8 @@ import LiveStudents from './live/mentor/Students';
 import LiveSessions from './live/mentor/Sessions';
 import LiveMentorTasks from './live/mentor/Tasks';
 import LiveInsights from './live/mentor/Insights';
+import LiveStudentTasks from './live/student/Tasks';
+import LiveLibrary from './live/student/Library';
 import LiveParentOverview from './live/parent/Overview';
 import LiveParentProgress from './live/parent/Progress';
 import LiveParentTasks from './live/parent/Tasks';
@@ -67,6 +70,7 @@ const LoopDay = lazy(() => import('./live/loop/LoopDay'));
 const Billing = lazy(() => import('../pay/Billing'));
 const Receipt = lazy(() => import('../pay/Billing').then(m => ({ default: m.Receipt })));
 const LoopAssessment = lazy(() => import('./live/loop/LoopAssessment'));
+const LiveAssistant = lazy(() => import('./live/mentor/Assistant'));
 const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
 const ROLES = [
@@ -96,6 +100,13 @@ function Chooser() {
     </div>
   );
 }
+
+/** The sample dashboard has no real students, so the assistant (which acts on real accounts) is described rather than run. */
+const PreviewAssistant = () => (
+  <><PageHead eyebrow="Assistant" title="Tell it what you want done">Plain words in, proposed actions out: tasks, sessions, notes and weekly summaries, each done only when you confirm it.</PageHead>
+    <Card ai><span className="tag"><Icon name="sparkles" size={14} />Works with real students</span><p style={{ margin: '8px 0 10px' }}>Sign in as a mentor to use the assistant with the students you mentor. For example:</p>
+      <ul className="pf-list"><li>“Give everyone a revision task for Friday, high priority”</li><li>“Book a session with Riya tomorrow at 5 pm”</li><li>“Draft this week’s summary for Aman”</li></ul></Card></>
+);
 
 const Role = ({ role, children }) => <PlatformProvider key={role} role={role}>{children}</PlatformProvider>;
 
@@ -131,15 +142,15 @@ export default function PlatformApp() {
           ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /><Route path="plan/day/:date" element={later(<LoopDay />)} /><Route path="plan/assessment" element={later(<LoopAssessment />)} /><Route path="portfolio" element={later(<LoopPortfolio />)} /></>
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
-        <Route path="tasks" element={<StudentTasks />} />
-        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={<StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
+        <Route path="tasks" element={<LiveStudentTasks />} />
+        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />
           <Route path="shortlist" element={later(<Shortlist />)} /><Route path="situation" element={later(<Situation />)} />
         </>}
       </Route>
       <Route path="mentor" element={<Gate role="mentor" />}>
-        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="insights" element={<LiveInsights />} />
+        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="assistant" element={later(<LiveAssistant />)} /><Route path="insights" element={<LiveInsights />} />
       </Route>
       <Route path="parent" element={<Gate role="parent" />}>
         <Route index element={<LiveParentOverview />} /><Route path="progress" element={<LiveParentProgress />} /><Route path="tasks" element={<LiveParentTasks />} /><Route path="reports" element={<LiveParentReports />} /><Route path="mentor" element={<LiveParentMentor />} />
@@ -153,7 +164,7 @@ export default function PlatformApp() {
         <Route path="assessments" element={<StudentAssessments />} /><Route path="library" element={<StudentLibrary />} /><Route path="reports" element={<StudentReports />} /><Route path="mentor" element={<StudentMentor />} /><Route path="coach" element={<StudentCoach />} />
       </Route>
       <Route path="preview/mentor" element={<Role role="mentor"><AppShell role="mentor" preview /></Role>}>
-        <Route index element={<MentorOverview />} /><Route path="students" element={<MentorStudents />} /><Route path="sessions" element={<MentorSessions />} /><Route path="tasks" element={<MentorTasks />} /><Route path="insights" element={<MentorInsights />} />
+        <Route index element={<MentorOverview />} /><Route path="students" element={<MentorStudents />} /><Route path="sessions" element={<MentorSessions />} /><Route path="tasks" element={<MentorTasks />} /><Route path="assistant" element={<PreviewAssistant />} /><Route path="insights" element={<MentorInsights />} />
       </Route>
       <Route path="preview/parent" element={<Role role="parent"><AppShell role="parent" preview /></Role>}>
         <Route index element={<ParentOverview />} /><Route path="progress" element={<ParentProgress />} /><Route path="tasks" element={<ParentTasks />} /><Route path="reports" element={<ParentReports />} /><Route path="mentor" element={<ParentMentor />} />

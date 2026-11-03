@@ -215,6 +215,7 @@ describe('my shortlist', () => {
 });
 
 describe('my situation', () => {
+  beforeEach(() => { routes['get /v2/me/situation'] = { situation: { about: {}, draft: null } }; routes['put /v2/me/situation'] = b => ({ success: true, situation: { about: b, draft: null } }); });
   it('loads what was saved, saves changes, keeps careers they excluded elsewhere, and confirms', async () => {
     routes['get /v2/me/context'] = { context: { budgetBand: 'low', exams: ['JEE Main'], notInterested: ['health_medicine', 'occ.29-1141.00'] } };
     routes['put /v2/me/context'] = b => ({ success: true, context: b });

@@ -9,7 +9,7 @@ export const minutesOf = items => items.reduce((a, i) => a + i.minutes, 0);
 export const doneOf = items => items.filter(i => i.status !== 'todo').length;
 
 /** One day of the week at a glance: the date, what is planned, how long, and how far along. Opens the day's page. */
-export function DayCard({ day, todayIndex }) {
+export function DayCard({ day, todayIndex, logged = false }) {
   const { date, index, items } = day;
   const today = index === todayIndex, past = index < todayIndex;
   if (!items.length) {
@@ -28,6 +28,7 @@ export function DayCard({ day, todayIndex }) {
         <b>{weekdayOf(date)}</b><span className="pf-small pf-muted">{fmtShort(date)}</span>
         {today && <Pill tone="sky">Today</Pill>}
         {all ? <Pill tone="leaf" icon="check">Done</Pill> : past ? <Pill tone="gold">Catch up</Pill> : null}
+        {logged ? <Pill tone="sky" icon="edit">Logged</Pill> : all ? <Pill tone="grey">Not logged yet</Pill> : null}
       </div>
       <p className="pf-small" style={{ margin: '8px 0 6px' }}>
         {learn.length > 0 && <>Learn: <b>{[...new Set(learn.map(i => i.topic || i.title))].join(', ')}</b>. </>}

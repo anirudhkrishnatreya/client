@@ -31,7 +31,7 @@ export async function loadStudent() {
     me: { id: d.me.id, name: d.me.fullName, firstName: firstName(d.me.fullName), klass: gradeLabel(d.me.grade).replace('Class ', ''), gradeLabel: gradeLabel(d.me.grade), grade: d.me.grade, track: d.me.track, joined: d.me.joined,
       consent: d.me.consent, parent: d.me.parent, parentEmail: d.me.parentEmailMasked },
     goal: { title: d.me.goal },
-    mentor: d.mentor, sessions: d.sessions, tasks: d.tasks, reports: d.reports, assessment: d.assessment,
+    mentor: d.mentor, sessions: d.sessions, tasks: d.tasks, reports: d.reports, assessment: d.assessment, mentorNotes: d.mentorNotes || [],
     library: LIBRARY.map(x => ({ ...x, progress: 0 })),
     notifications: nudges(d.tasks, d.sessions.next)
   };
@@ -60,6 +60,8 @@ export async function loadParent(childId) {
 export const studentApi = {
   addTask: t => send('post', 'tasks', t),
   setTaskStatus: (id, status) => send('patch', `tasks/${id}`, { status }),
+  updateTask: (id, body) => send('patch', `tasks/${id}`, body),
+  deleteTask: id => send('delete', `tasks/${id}`),
   setGoal: title => send('put', 'student/goal', { title })
 };
 export const mentorApi = {
@@ -69,7 +71,20 @@ export const mentorApi = {
   schedule: (id, s) => send('post', `mentor/students/${id}/sessions`, s),
   updateSession: (sessionId, body) => send('patch', `sessions/${sessionId}`, body),
   addNote: (id, n) => send('post', `mentor/students/${id}/notes`, n),
-  replyLoop: (id, feedbackId, text) => send('post', `mentor/students/${id}/loop-feedback/${feedbackId}`, { text })
+  replyLoop: (id, feedbackId, text) => send('post', `mentor/students/${id}/loop-feedback/${feedbackId}`, { text }),
+  updateTask: (taskId, body) => send('patch', `tasks/${taskId}`, body),
+  deleteTask: taskId => send('delete', `tasks/${taskId}`),
+  allTasks: () => get('mentor/tasks'),
+  bulkAssign: body => send('post', 'mentor/tasks', body),
+  digest: id => get(`mentor/students/${id}/digest`),
+  draftSummary: id => send('post', `mentor/students/${id}/summary/draft`),
+  assistant: messages => send('post', 'mentor/assistant', { messages }),
+  act: action => send('post', 'mentor/assistant/act', { action })
+};
+export const parentApi = {
+  addTask: (childId, t) => send('post', `parent/children/${childId}/tasks`, t),
+  updateTask: (taskId, body) => send('patch', `tasks/${taskId}`, body),
+  deleteTask: taskId => send('delete', `tasks/${taskId}`)
 };
 
 /** Reports are opened through the viewer's own route so each role reads them under its own access rule. */

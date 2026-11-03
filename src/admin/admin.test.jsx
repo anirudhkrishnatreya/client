@@ -24,6 +24,7 @@ import UserDetail from './UserDetail';
 import Admins from './Admins';
 import Payments from './Payments';
 import Settings from './Settings';
+import Mentors from './Mentors';
 
 const fail = (status, data) => Object.assign(new Error('x'), { response: { status, data } });
 const at = path => render(
@@ -37,6 +38,7 @@ const at = path => render(
         <Route path="payments" element={<Payments />} />
         <Route path="admins" element={<Admins />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="mentors" element={<Mentors />} />
       </Route>
     </Routes>
   </MemoryRouter>
@@ -229,5 +231,30 @@ describe('admins and your password', () => {
     await user.click(screen.getByRole('button', { name: 'Change password' }));
     expect(await screen.findByText(/Password changed/)).toBeInTheDocument();
     expect(localStorage.getItem('im_admin_token')).toBe('NEW');
+  });
+});
+
+describe('mentors', () => {
+  it('lists mentors with their student counts; a superadmin adds a mentor account', async () => {
+    meAs('superadmin');
+    routes['get /admin/mentors'] = { mentors: [{ id: 'm1', fullName: 'Dr. Neha Kapoor', email: 'neha@example.com', students: 3 }] };
+    routes['post /admin/mentors'] = b => ({ success: true, mentor: { id: 'm2', fullName: b.fullName, email: b.email } });
+    const user = userEvent.setup();
+    at('/admin/mentors');
+    expect(await screen.findByText('Dr. Neha Kapoor')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Full name'), 'Rahul Mehta');
+    await user.type(screen.getByLabelText('Email'), 'rahul@example.com');
+    await user.type(screen.getByLabelText('Password to start with'), 'MentorPass1');
+    await user.click(screen.getByRole('button', { name: 'Create mentor account' }));
+    await waitFor(() => expect(calls.find(c => c.method === 'post' && c.url === '/admin/mentors').body).toEqual({ fullName: 'Rahul Mehta', email: 'rahul@example.com', password: 'MentorPass1' }));
+    expect(await screen.findByText(/They can sign in now/)).toBeInTheDocument();
+  });
+  it('a viewer sees the list but cannot add a mentor', async () => {
+    meAs('viewer');
+    routes['get /admin/mentors'] = { mentors: [] };
+    at('/admin/mentors');
+    expect(await screen.findByText('No mentors yet.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create mentor account' })).toBeNull();
   });
 });

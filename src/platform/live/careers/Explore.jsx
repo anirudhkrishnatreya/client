@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Empty, PageHead, Pill } from '../../ui/kit';
+import { Card, Empty, Icon, PageHead, Pill } from '../../ui/kit';
 import { rec, messageFor, codeOf } from './recApi';
 import { useLoad, useShortlist } from './hooks';
 import { Closed, Problem, SaveButton } from './bits';
 
+// Newer careers students ask about, one tap each (they are in the catalogue under these names or as other names)
+const NEW_AGE = ['YouTuber', 'AI engineer', 'Data analyst', 'Game developer', 'App developer', 'Esports', 'Ethical hacker', 'Social media manager', 'Digital marketing', 'Video editor', 'Drone pilot', 'Product manager', 'UX designer', 'Podcaster', 'EV engineer', 'Fintech'];
+const INDIA_ROLES = new Set(['occ.in.civil-services-officer', 'occ.in.armed-forces-officer']);
 const ZONES = [[2, 'Short training'], [3, 'Some training or a diploma'], [4, 'A bachelor’s degree'], [5, 'An advanced degree']];
 
 /** Browse every career, search by name, and narrow by area or how long the preparation is. */
@@ -48,6 +51,10 @@ export default function Explore() {
             <select id="jz" className="pf-select" value={jobZone} onChange={e => setJobZone(e.target.value)}><option value="">Any</option>{ZONES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
         </div>
       </Card>
+      <div className="pf-chip-row" role="group" aria-label="Newer careers" style={{ margin: '-4px 0 14px' }}>
+        <span className="pf-small pf-muted" style={{ alignSelf: 'center' }}><Icon name="sparkles" size={14} /> New-age careers:</span>
+        {NEW_AGE.map(t => <button key={t} type="button" className="pf-chip" aria-pressed={q.toLowerCase() === t.toLowerCase()} onClick={() => setQ(q.toLowerCase() === t.toLowerCase() ? '' : t)}>{t}</button>)}
+      </div>
       {list.notice && <Problem>{list.notice}</Problem>}
       {err && <Problem>{codeOf(err) === 'VALIDATION_FAILED' ? 'Please check your search and try again.' : messageFor(err)}</Problem>}
       <Card>
@@ -56,7 +63,7 @@ export default function Explore() {
         {rows.map(o => (
           <div key={o.id} className="pf-row pf-wrap" style={{ gap: 8, padding: '10px 0', borderTop: '1px solid var(--line, #e7e9f0)' }}>
             <div className="pf-grow"><Link className="pf-link" to={`/platform/student/explore/${o.slug}`}><b>{o.title}</b></Link><div className="pf-small pf-muted">{o.clusterLabel}</div></div>
-            {o.standIn && <Pill tone="grey">India-specific</Pill>}
+            {o.standIn && (INDIA_ROLES.has(o.id) ? <Pill tone="grey">India-specific</Pill> : o.id !== 'occ.in.entrepreneur' ? <Pill tone="sky">New-age career</Pill> : null)}
             <SaveButton saved={list.has(o.id)} title={o.title} onClick={() => list.toggle(o.id)} />
           </div>
         ))}

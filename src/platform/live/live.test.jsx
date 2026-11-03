@@ -155,12 +155,16 @@ describe('student', () => {
     const user = userEvent.setup();
     at('/platform/student/tasks');
     await user.click(await screen.findByRole('button', { name: /Python loops set/ }));
-    await user.selectOptions(screen.getByLabelText('Status'), 'doing');
+    const drawer = await screen.findByRole('dialog');
+    await user.click(within(drawer).getByRole('button', { name: 'In progress' }));
     await waitFor(() => expect(calls.find(c => c.method === 'patch')).toMatchObject({ url: '/v2/platform/tasks/t1', body: { status: 'doing' } }));
+    expect(within(drawer).getByRole('radio', { name: 'High' })).toBeDisabled();          // set by the mentor: only they change its priority
+    await user.click(within(drawer).getByRole('button', { name: /Close/ }));
     await user.click(screen.getByRole('button', { name: /Add a task/ }));
     await user.type(screen.getByLabelText(/What do you want to do/), 'Revise algebra');
+    await user.click(screen.getByRole('radio', { name: 'High' }));
     await user.click(screen.getByRole('button', { name: 'Add task' }));
-    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/tasks', body: { title: 'Revise algebra' } }));
+    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/tasks', body: { title: 'Revise algebra', priority: 'high' } }));
   });
   it('a student without a mentor is told so, and unbuilt pages say they are coming', async () => {
     routes['get /v2/platform/student'] = studentBundle({ mentor: null });
@@ -215,9 +219,9 @@ describe('mentor', () => {
     const dialog = await screen.findByRole('dialog');
     await user.click(await within(dialog).findByRole('tab', { name: /Notes/ }));
     await user.type(within(dialog).getByLabelText('New note'), 'Needs a gentler pace');
-    await user.click(within(dialog).getByLabelText(/Share this note with the parent/));
+    await user.click(within(dialog).getByLabelText(/Share with the parent/));
     await user.click(within(dialog).getByRole('button', { name: 'Save note' }));
-    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/notes', body: { text: 'Needs a gentler pace', sharedWithParent: true } }));
+    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/notes', body: { text: 'Needs a gentler pace', sharedWithParent: true, sharedWithStudent: false } }));
   });
   it('the Weekly plan tab shows the level, recent weeks, and a "not fair" flag with the work, and the mentor replies', async () => {
     const loop = { goal: { title: 'Astronaut', endPoint: 'A strong physics base.', level: { number: 2, total: 4, title: 'Physics base', levelUp: 'Solve five mechanics problems.' } }, week: { number: 3, start: '2026-10-20', focus: 'x' }, lastActive: '2026-10-22T10:00:00Z',
@@ -239,14 +243,19 @@ describe('mentor', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Send reply' }));
     await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/mentor/students/s1/loop-feedback/f1')).toMatchObject({ method: 'post', body: { text: 'Your answer was right; I have noted it.' } }));
   });
-  it('assigns a task to the chosen student', async () => {
-    routes['post /v2/platform/mentor/students/s1/tasks'] = { success: true };
+  it('assigns a task to the chosen student, with a priority', async () => {
+    routes['get /v2/platform/mentor/tasks'] = { students: [{ id: 's1', name: 'Asha Verma', grade: '9' }], tasks: [] };
+    routes['post /v2/platform/mentor/tasks'] = b => ({ success: true, count: b.studentIds.length });
     const user = userEvent.setup();
     at('/platform/mentor/tasks');
-    await user.type(await screen.findByPlaceholderText(/What should they do/), 'Read chapter 3');
-    await user.click(screen.getByRole('button', { name: 'Assign task' }));
-    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/tasks', body: { title: 'Read chapter 3', priority: 'medium' } }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Assigned to Asha Verma');
+    await user.click(await screen.findByRole('button', { name: /New task/ }));
+    const drawer = await screen.findByRole('dialog');
+    await user.click(within(drawer).getByRole('button', { name: 'Asha Verma' }));
+    await user.type(within(drawer).getByPlaceholderText(/What should they do/), 'Read chapter 3');
+    await user.click(within(drawer).getByRole('radio', { name: 'High' }));
+    await user.click(within(drawer).getByRole('button', { name: 'Assign task' }));
+    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/tasks', body: { studentIds: ['s1'], title: 'Read chapter 3', priority: 'high' } }));
+    expect(await screen.findByText('Assigned to 1 student.')).toBeInTheDocument();
   });
   it('books a session', async () => {
     routes['post /v2/platform/mentor/students/s1/sessions'] = { success: true };

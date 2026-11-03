@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Ctx } from '../data/store';
-import { loadStudent, loadMentor, loadParent, studentApi, mentorApi } from './liveApi';
+import { loadStudent, loadMentor, loadParent, studentApi, mentorApi, parentApi } from './liveApi';
 
 /** Same shape as the sample provider ({ role, data, actions }), but backed by the server. Every change is saved, then the screen reloads. */
 export default function LiveProvider({ role, children }) {
@@ -23,7 +23,9 @@ export default function LiveProvider({ role, children }) {
     reload,
     markRead: () => setRead(new Set((data ? data.notifications : []).map(n => n.id))),
     // student
-    addTask: t => run(() => studentApi.addTask({ title: t.title, subject: t.subject, due: t.due, priority: t.priority })),
+    addTask: t => run(() => (role === 'parent' ? parentApi.addTask(data.child.id, t) : studentApi.addTask({ title: t.title, subject: t.subject, due: t.due, priority: t.priority, notes: t.notes }))),
+    updateTask: (id, body) => run(() => (role === 'mentor' ? mentorApi.updateTask(id, body) : role === 'parent' ? parentApi.updateTask(id, body) : studentApi.updateTask(id, body))),
+    deleteTask: id => run(() => (role === 'mentor' ? mentorApi.deleteTask(id) : role === 'parent' ? parentApi.deleteTask(id) : studentApi.deleteTask(id))),
     setTaskStatus: (id, status) => { setData(d => d && ({ ...d, tasks: d.tasks.map(t => (t.id === id ? { ...t, status } : t)) })); return run(() => (role === 'mentor' ? mentorApi.setTaskStatus(id, status) : studentApi.setTaskStatus(id, status))); },
     setGoal: title => run(() => studentApi.setGoal(title)),
     // mentor

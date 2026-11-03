@@ -26,7 +26,11 @@ export const loopApi = {
   anotherVideo: id => api.post(`${unit(id)}/video/another`),
   makePractice: id => api.post(`${unit(id)}/practice`),
   feedback: (target, refId, fair, note = '') => api.post('/v2/me/loop/feedback', { target, refId, fair, note }),
-  setEmails: on => api.put('/v2/me/loop/emails', { on })
+  setEmails: on => api.put('/v2/me/loop/emails', { on }),
+  logDay: (date, body) => api.put(`/v2/me/loop/days/${encodeURIComponent(date)}/log`, body),
+  saveNotes: (id, text) => api.put(`${unit(id)}/notes`, { text }),
+  revision: id => api.post(`${unit(id)}/revision`),
+  library: () => api.get('/v2/me/loop/library')
 };
 
 export const codeOf = err => (err && err.response && err.response.data && (err.response.data.code || err.response.data.error)) || null;

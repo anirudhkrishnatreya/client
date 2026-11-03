@@ -20,7 +20,9 @@ export default function LiveMentor() {
           <Card><div className="pf-row"><Avatar name={m.name} size={52} /><div><b>{m.name}</b><div className="pf-small pf-muted">Your mentor</div></div></div></Card>
           <Card ai><span className="tag"><Icon name="calendar" size={14} />Next session</span>
             {s.next ? <><h4 style={{ fontSize: 20, margin: '8px 0 2px' }}>{fmtDate(s.next.date)}{s.next.time ? `, ${s.next.time}` : ''}</h4>{s.next.topic && <p className="pf-small" style={{ margin: 0 }}>{s.next.topic}</p>}</> : <p className="pf-small" style={{ margin: '8px 0 0' }}>Nothing booked yet. Your mentor will set the next one.</p>}</Card>
-          <Card><CardHead title="Bring to the session" icon="bulb" /><ul className="pf-list"><li>The questions you saved this week</li><li>Your finished and unfinished tasks</li><li>One thing you are proud of</li></ul></Card>
+          {data.mentorNotes && data.mentorNotes.length > 0 && <Card><CardHead title="From your mentor" icon="message" />
+            <div className="pf-timeline">{data.mentorNotes.map(n => <div key={n.id} className="pf-tl"><b>{n.title || (n.kind === 'summary' ? 'Weekly summary' : 'Note')}</b> <span className="pf-small pf-muted">· {fmtDate(n.at)}</span><p className="pf-small" style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{n.text}</p></div>)}</div></Card>}
+          <Card><CardHead title="Bring to the session" icon="bulb" /><ul className="pf-list"><li>Your daily learning log: what clicked and what was hard</li><li>Your finished and unfinished tasks</li><li>One thing you are proud of</li></ul></Card>
         </div>
       </div>
     </>

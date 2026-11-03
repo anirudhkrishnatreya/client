@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHead, Icon, Pill } from '../../ui/kit';
-import { loopApi, messageFor, BAND, pct } from './loopApi';
+import { loopApi, messageFor, BAND, pct, weekdayOf } from './loopApi';
 import { Working } from './Loader';
 import AuthImage from './AuthImage';
 import { shrinkImage } from './photos';
@@ -9,6 +9,9 @@ import { Fair } from './Steps';
 
 // The week's assessment: a short quiz, then a piece of work, then feedback. Its result decides how next week is planned, and
 // next week only opens once it is done.
+/** Which day and lesson a question or the task is built on, so it reads as part of the week. */
+export const FromStep = ({ from }) => (from ? <span className="pf-from"><Icon name="calendar" size={12} />From {weekdayOf(from.date)}{from.video ? `’s video: ${from.video}` : `: ${from.title}`}</span> : null);
+
 const QUIZ_STEPS = ['Writing questions on what you studied…', 'Writing a short task for you…', 'Checking every answer is right…'];
 const WORK_STEPS = ['Reading what you wrote…', 'Comparing it with the rubric…', 'Writing feedback to help you improve…'];
 
@@ -56,7 +59,7 @@ export function Assessment({ a, act, off }) {
         <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 1 of 2: the quiz</p>
         {a.quiz.questions.map((q, i) => (
           <fieldset key={q.id} className="pf-quizq">
-            <legend><b>{i + 1}.</b> {q.q}</legend>
+            <legend><FromStep from={q.from} /><b>{i + 1}.</b> {q.q}</legend>
             {q.options.map((o, k) => <label key={k} className="pf-row" style={{ gap: 8, padding: '4px 0' }}><input type="radio" name={q.id} checked={answers[q.id] === k} onChange={() => setAnswers(x => ({ ...x, [q.id]: k }))} />{o}</label>)}
           </fieldset>
         ))}
@@ -67,6 +70,7 @@ export function Assessment({ a, act, off }) {
     body = (
       <form onSubmit={e => { e.preventDefault(); go('work', () => loopApi.submitWork(text.trim(), link.trim(), shots)); }}>
         <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Part 2 of 2: {a.task.levelUp ? 'your level-up proof' : 'show what you can do'} · quiz score {pct(a.quiz.score)}</p>
+        <FromStep from={a.task.from} />
         <p style={{ margin: '0 0 6px' }}><b>{a.task.prompt}</b></p>
         <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>{a.task.expects}. You will be judged on: {a.task.rubric.join(', ')}.</p>
         <label className="pf-sr" htmlFor="work-text">Your answer</label>
@@ -113,7 +117,7 @@ export function Assessment({ a, act, off }) {
           : <p className="pf-small" style={{ margin: '8px 0' }}><b>Not quite ready to move up.</b> Next week works on what the feedback says, then you get another go at the proof.</p>)}
         {j && j.status === 'unjudged' && <p className="pf-small" style={{ margin: '8px 0' }}>Your work is saved. We could not read it just now, so next week is planned from your quiz and your finished steps.</p>}
         <details className="pf-milestone"><summary>See the quiz answers</summary>
-          <ol style={{ margin: '8px 0 0', paddingLeft: 18 }}>{rows.map(q => <li key={q.id} className="pf-small" style={{ marginBottom: 8 }}>{q.q} <Pill tone={q.correct ? 'leaf' : 'coral'}>{q.correct ? 'Right' : 'Not quite'}</Pill>{!q.correct && <div>Answer: <b>{q.options[q.answer]}</b>. {q.explanation}</div>}</li>)}</ol>
+          <ol style={{ margin: '8px 0 0', paddingLeft: 18 }}>{rows.map(q => <li key={q.id} className="pf-small" style={{ marginBottom: 8 }}><FromStep from={q.from} />{q.q} <Pill tone={q.correct ? 'leaf' : 'coral'}>{q.correct ? 'Right' : 'Not quite'}</Pill>{!q.correct && <div>Answer: <b>{q.options[q.answer]}</b>. {q.explanation}</div>}</li>)}</ol>
         </details>
       </>
     );

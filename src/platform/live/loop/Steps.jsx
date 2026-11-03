@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Icon, Pill } from '../../ui/kit';
 import { loopApi, messageFor, TYPE_LABEL, TYPE_TONE, fmtMinutes } from './loopApi';
 import { Working } from './Loader';
+import { LessonNotes } from './Notes';
 
 // One step of the week in full: what and why, the video, practice places, practice questions, links back to the lessons, and
 // done / skip. Used on each day's page.
@@ -147,6 +148,7 @@ export function Item({ item, act, off }) {
       )}
       {!finished && item.help && <p className="pf-help"><b>{item.type === 'learn' ? 'Tip:' : 'How to go about it:'}</b> {item.help}</p>}
       {item.video && !(finished && item.status === 'skipped') && <Video unit={item} act={act} />}
+      {item.status !== 'skipped' && <LessonNotes item={item} act={act} off={off} />}
       {!finished && item.practice && item.practice.length > 0 && <Places places={item.practice} />}
       {!finished && <Exercises item={item} act={act} off={off} />}
       {!finished && item.rewatch && item.rewatch.length > 0 && (

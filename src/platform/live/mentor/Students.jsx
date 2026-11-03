@@ -5,6 +5,7 @@ import { Avatar, Card, Drawer, Empty, PageHead, Pill, Progress, Tabs } from '../
 import { dueLabel, fmtDate, fmtShort } from '../../ui/format';
 import { errMessage, gradeLabel, mentorApi } from '../liveApi';
 import AuthImage from '../loop/AuthImage';
+import { WeekTab, LogTab } from './Summary';
 
 const A = { submitted: ['leaf', 'Done'], in_progress: ['gold', 'Started'], not_started: ['grey', 'Not started'] };
 const ST = { todo: 'To do', doing: 'In progress', review: 'With mentor', done: 'Done' };
@@ -68,18 +69,18 @@ function Detail({ id }) {
   const { actions } = usePlatform();
   const [d, setD] = useState(null);
   const [tab, setTab] = useState('overview');
-  const [note, setNote] = useState(''); const [share, setShare] = useState(false); const [msg, setMsg] = useState('');
+  const [note, setNote] = useState(''); const [share, setShare] = useState(false); const [shareStudent, setShareStudent] = useState(false); const [msg, setMsg] = useState('');
   const load = () => actions.loadStudent(id).then(setD).catch(e => setMsg(errMessage(e)));
   useEffect(() => { setD(null); setTab('overview'); load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <p role="status" className="pf-muted">{msg || 'Loading…'}</p>;
   const s = d.student;
   const setStatus = async (t, status) => { try { await actions.setTaskStatus(t.id, status); await load(); } catch (e) { setMsg(errMessage(e)); } };
-  const saveNote = async e => { e.preventDefault(); try { await actions.addNote(id, { text: note, sharedWithParent: share }); setNote(''); setShare(false); await load(); } catch (err) { setMsg(errMessage(err)); } };
+  const saveNote = async e => { e.preventDefault(); try { await actions.addNote(id, { text: note, sharedWithParent: share, sharedWithStudent: shareStudent }); setNote(''); setShare(false); setShareStudent(false); await load(); } catch (err) { setMsg(errMessage(err)); } };
   return (
     <>
       <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div></div>
       {msg && <div className="pf-note" role="alert">{msg}</div>}
-      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'work', label: 'Work', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }]} />
+      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'week', label: 'This week' }, { id: 'log', label: 'Daily log', count: (d.logs || []).length || undefined }, { id: 'work', label: 'Tasks', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }, { id: 'situation', label: 'Situation' }]} />
       {tab === 'overview' && <>
         <div className="pf-grid g2"><div className="pf-note"><b>{s.tasks.done} of {s.tasks.total}</b><br />tasks done</div><div className="pf-note"><b>{s.tasks.overdue}</b><br />overdue</div></div>
         <h4 style={{ fontSize: 16, margin: '16px 0 6px' }}>Career assessment</h4>
@@ -88,16 +89,27 @@ function Detail({ id }) {
         <h4 style={{ fontSize: 16, margin: '16px 0 6px' }}>Parent</h4>
         <Pill tone={s.parent === 'linked' ? 'leaf' : 'gold'}>{s.parent === 'linked' ? 'Account set up' : s.parent === 'invited' ? 'Invited, not set up yet' : 'None'}</Pill></>}
       {tab === 'loop' && <LoopTab studentId={id} loop={d.loop} reload={load} />}
+      {tab === 'week' && <WeekTab studentId={id} studentName={s.name} onSaved={load} />}
+      {tab === 'log' && <LogTab logs={d.logs || []} />}
+      {tab === 'situation' && (!d.situation || !d.situation.draft ? <Empty icon="info" title="No plan drafted yet">When the student fills in My situation and drafts their full plan, you will see it here, to talk through together.</Empty> : <>
+        <p style={{ marginTop: 0 }}>{d.situation.draft.summary}</p>
+        <div className="pf-row pf-wrap" style={{ gap: 6, marginBottom: 10 }}>{d.situation.draft.careers.map(c => <Pill key={c} tone="sky">{c}</Pill>)}</div>
+        <div className="pf-timeline">{d.situation.draft.stages.map(st => <div key={st.when} className="pf-tl"><b>{st.when}</b> <span className="pf-small pf-muted">· {st.focus}</span><ul className="pf-small" style={{ margin: '4px 0 0', paddingLeft: 18 }}>{st.steps.map(x => <li key={x}>{x}</li>)}</ul></div>)}</div>
+        {d.situation.draft.askMentor.length > 0 && <><h4 style={{ fontSize: 15, margin: '12px 0 6px' }}>They may ask you</h4><ul className="pf-small" style={{ margin: 0, paddingLeft: 18 }}>{d.situation.draft.askMentor.map(q => <li key={q}>{q}</li>)}</ul></>}
+        <h4 style={{ fontSize: 15, margin: '12px 0 6px' }}>What they told us</h4>
+        <p className="pf-small pf-muted" style={{ margin: 0 }}>{[d.situation.about.city, d.situation.about.state].filter(Boolean).join(', ') || 'Place not given'}{d.situation.about.stream ? ` · ${d.situation.about.stream}` : ''}{d.situation.about.needScholarship ? ' · needs a scholarship or low-cost options' : ''}{d.situation.about.earnEarly ? ' · needs to earn early' : ''}{d.situation.about.worries ? ` · worried: “${d.situation.about.worries}”` : ''}</p>
+      </>)}
       {tab === 'work' && (d.tasks.length === 0 ? <Empty icon="tasks" title="No tasks yet">Give them one from Assign tasks.</Empty> :
-        <ul className="pf-list">{d.tasks.map(t => { const l = dueLabel(t.due, t.status === 'done'); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · by {t.by}</span></span><Pill tone={l.tone}>{l.text}</Pill>
+        <ul className="pf-list">{d.tasks.map(t => { const l = dueLabel(t.due, t.status === 'done'); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · by {t.source === 'mentor' ? 'you' : t.by.toLowerCase()} · {t.priority} priority{t.feedback ? ' · feedback given' : ''}</span>{t.studentNote && <span className="pf-small" style={{ display: 'block' }}>They wrote: “{t.studentNote}”</span>}</span><Pill tone={l.tone}>{l.text}</Pill>
           <select className="pf-select" style={{ width: 130 }} aria-label={`Status of ${t.title}`} value={t.status} onChange={e => setStatus(t, e.target.value)}>{Object.entries(ST).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></li>; })}</ul>)}
       {tab === 'sessions' && <>{d.sessions.upcoming.map(x => <p key={x.id} className="pf-small"><Pill tone="gold">Upcoming</Pill> {fmtDate(x.date)}{x.time ? `, ${x.time}` : ''} {x.topic && `· ${x.topic}`}</p>)}
         {d.sessions.history.length === 0 && d.sessions.upcoming.length === 0 ? <p className="pf-muted">No sessions yet. Book one from the Sessions page.</p> :
           <div className="pf-timeline">{d.sessions.history.map(h => <div key={h.id} className="pf-tl"><b>{fmtDate(h.date)}</b>{h.topic && <span className="pf-small pf-muted"> · {h.topic}</span>}<p className="pf-small" style={{ margin: '4px 0 0' }}>{h.summary}</p></div>)}</div>}</>}
       {tab === 'notes' && <><form onSubmit={saveNote}><textarea className="pf-input" rows="3" aria-label="New note" placeholder="Add a note" value={note} onChange={e => setNote(e.target.value)} maxLength={2000} />
-        <label className="pf-small" style={{ display: 'flex', gap: 8, margin: '8px 0' }}><input type="checkbox" checked={share} onChange={e => setShare(e.target.checked)} />Share this note with the parent</label>
+        <div className="pf-row pf-wrap" style={{ gap: 16, margin: '8px 0' }}><label className="pf-small" style={{ display: 'flex', gap: 8 }}><input type="checkbox" checked={shareStudent} onChange={e => setShareStudent(e.target.checked)} />Share with the student</label>
+          <label className="pf-small" style={{ display: 'flex', gap: 8 }}><input type="checkbox" checked={share} onChange={e => setShare(e.target.checked)} />Share with the parent</label></div>
         <button type="submit" className="pf-btn sm" disabled={!note.trim()}>Save note</button></form>
-        <ul className="pf-list" style={{ marginTop: 12 }}>{d.notes.map(n => <li key={n.id}><span>{n.text}<br /><span className="pf-small pf-faint">{fmtShort(n.at)} · {n.sharedWithParent ? 'shared with parent' : 'only you'}</span></span></li>)}{d.notes.length === 0 && <li className="pf-muted">No notes yet.</li>}</ul></>}
+        <ul className="pf-list" style={{ marginTop: 12 }}>{d.notes.map(n => <li key={n.id}><span>{n.title && <><b>{n.title}</b><br /></>}<span style={{ whiteSpace: 'pre-wrap' }}>{n.text}</span><br /><span className="pf-small pf-faint">{fmtShort(n.at)} · {n.kind === 'summary' ? 'weekly summary · ' : ''}{n.sharedWithParent || n.sharedWithStudent ? `shared with ${[n.sharedWithStudent && 'student', n.sharedWithParent && 'parent'].filter(Boolean).join(' and ')}` : 'only you'}</span></span></li>)}{d.notes.length === 0 && <li className="pf-muted">No notes yet.</li>}</ul></>}
     </>
   );
 }

@@ -19,7 +19,7 @@ export const NAV = {
   mentor: [
     { section: 'Mentoring', items: [
       { to: '', label: 'Overview', icon: 'home', end: true }, { to: 'students', label: 'My students', icon: 'users' }, { to: 'sessions', label: 'Sessions', icon: 'calendar', badge: 'sessions' },
-      { to: 'tasks', label: 'Assign tasks', icon: 'tasks' }, { to: 'insights', label: 'Insights', icon: 'chart' }] }
+      { to: 'tasks', label: 'Tasks', icon: 'tasks' }, { to: 'assistant', label: 'Assistant', icon: 'sparkles' }, { to: 'insights', label: 'Insights', icon: 'chart' }] }
   ],
   parent: [
     { section: 'Your child', items: [

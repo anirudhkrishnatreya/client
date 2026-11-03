@@ -49,7 +49,7 @@ export default function LoopPlanPage() {
           {loop.next.canPlan && <NextWeek next={loop.next} act={act} off={aiOut(loop.ai)} />}
           {w.items.length === 0
             ? <Card><Empty icon="calendar" title="Nothing planned this week">{w.notices.length ? 'See the note above.' : 'Add some free time to your week on My goal.'}</Empty></Card>
-            : <div className="pf-daygrid">{days.map(d => <DayCard key={d.date} day={d} todayIndex={w.todayIndex} />)}</div>}
+            : <div className="pf-daygrid">{days.map(d => <DayCard key={d.date} day={d} todayIndex={w.todayIndex} logged={Boolean((w.logs || {})[d.date])} />)}</div>}
         </div>
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <Card><CardHead title="Where you are" icon="trend" action="Details" to="roadmap" />
