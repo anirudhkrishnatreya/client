@@ -238,6 +238,7 @@ describe('mentors', () => {
   it('lists mentors with their student counts; a superadmin adds a mentor account', async () => {
     meAs('superadmin');
     routes['get /admin/mentors'] = { mentors: [{ id: 'm1', fullName: 'Dr. Neha Kapoor', email: 'neha@example.com', students: 3 }] };
+    routes['get /admin/mentors/waiting'] = { students: [] };
     routes['post /admin/mentors'] = b => ({ success: true, mentor: { id: 'm2', fullName: b.fullName, email: b.email } });
     const user = userEvent.setup();
     at('/admin/mentors');
@@ -253,8 +254,21 @@ describe('mentors', () => {
   it('a viewer sees the list but cannot add a mentor', async () => {
     meAs('viewer');
     routes['get /admin/mentors'] = { mentors: [] };
+    routes['get /admin/mentors/waiting'] = { students: [] };
     at('/admin/mentors');
     expect(await screen.findByText('No mentors yet.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Create mentor account' })).toBeNull();
+  });
+  it('students waiting for a mentor are listed, with any mentor they asked for, and can be assigned', async () => {
+    meAs('admin');
+    routes['get /admin/mentors'] = { mentors: [{ id: 'm1', fullName: 'Dr. Neha Kapoor', email: 'neha@example.com', students: 3 }] };
+    routes['get /admin/mentors/waiting'] = { students: [{ id: 's9', name: 'Ravi Kumar', email: 'ravi@example.com', grade: '9', joined: '2026-11-01T00:00:00Z', consent: 'granted', askedMentor: 'Dr. Neha Kapoor' }] };
+    routes['put /admin/students/s9/mentor'] = { success: true };
+    const user = userEvent.setup();
+    at('/admin/mentors');
+    expect(await screen.findByText('Ravi Kumar')).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Mentor for Ravi Kumar'), 'm1');
+    await user.click(screen.getByRole('button', { name: 'Assign' }));
+    await waitFor(() => expect(calls.find(c => c.method === 'put').body).toEqual({ mentorId: 'm1' }));
   });
 });

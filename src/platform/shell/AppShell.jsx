@@ -87,7 +87,8 @@ export default function AppShell({ role, preview = false }) {
   const me = data && data.me;
   const counts = data ? {
     tasks: role === 'student' ? data.tasks.filter(t => t.status !== 'done').length : 0,
-    sessions: role === 'mentor' ? (live ? data.sessions.length : data.sessions.filter(s => !s.prepped).length) : 0
+    sessions: role === 'mentor' ? (live ? (data.sessionRequests || []).length || data.sessions.length : data.sessions.filter(s => !s.prepped).length) : 0,
+    messages: data.inbox ? data.inbox.unread : 0
   } : {};
   const onSearch = e => { e.preventDefault(); const hit = items.find(i => i.label.toLowerCase().includes(q.trim().toLowerCase())); if (hit && q.trim()) { nav(`${base}/${hit.to}`); setQ(''); } };
 

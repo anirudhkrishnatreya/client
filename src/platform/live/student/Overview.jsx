@@ -38,8 +38,11 @@ export default function LiveStudentOverview() {
             <ul className="pf-list">{open.slice(0, 5).map(t => { const d = dueLabel(t.due); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · from {t.by}</span></span><Pill tone={d.tone}>{d.text}</Pill></li>; })}</ul>}</Card>
         <div className="pf-grid" style={{ alignContent: 'start' }}>
           <Card><CardHead title="Your mentor" action="Open" to="mentor" icon="users" />
-            {data.mentor ? <div className="pf-row"><Avatar name={data.mentor.name} /><div><b>{data.mentor.name}</b><div className="pf-small pf-muted">{next ? `Next: ${fmtDate(next.date)}${next.time ? `, ${next.time}` : ''}` : 'No session booked yet'}</div></div></div>
-              : <p className="pf-small pf-muted" style={{ margin: 0 }}>A mentor has not been assigned to you yet. You will see them here as soon as they are.</p>}</Card>
+            {data.mentor ? <><div className="pf-row"><Avatar name={data.mentor.name} /><div className="pf-grow"><b>{data.mentor.name}</b><div className="pf-small pf-muted">{next ? `Next: ${fmtDate(next.date)}${next.time ? `, ${next.time}` : ''}` : 'No session booked yet'}</div></div>{data.inbox && data.inbox.unread > 0 && <Pill tone="coral" icon="message">{data.inbox.unread} new</Pill>}</div>
+              {data.mentorNotes && data.mentorNotes[0] && <p className="pf-small" style={{ margin: '10px 0 0' }}><b>Latest:</b> {data.mentorNotes[0].title || data.mentorNotes[0].text.slice(0, 80)}</p>}
+              <div className="pf-row pf-wrap" style={{ gap: 6, marginTop: 10 }}><Link className="pf-btn sm ghost" to="mentor"><Icon name="message" size={14} />Message</Link>{!next && <Link className="pf-btn sm ghost" to="mentor">Ask for a session</Link>}</div></>
+              : data.mentorRequest ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Waiting for {data.mentorRequest.mentor ? data.mentorRequest.mentor.name : 'your mentor'} to accept your request.</p>
+                : <p className="pf-small pf-muted" style={{ margin: 0 }}>No mentor yet. <Link to="mentor">Have a mentor code? Enter it here.</Link> Otherwise the iMenteo team will give you one.</p>}</Card>
           <Card><CardHead title="Latest report" action="All reports" to="reports" icon="file" />
             {report ? <><b>Career Discovery Report</b><div className="pf-small pf-muted">{fmtDate(String(report.completedAt).slice(0, 10))}{report.hollandCode ? ` · interest code ${report.hollandCode}` : ''}</div></>
               : <p className="pf-small pf-muted" style={{ margin: 0 }}>Your first report appears here once you finish the career assessment. <Link to="/v4">Start it now</Link>.</p>}</Card>

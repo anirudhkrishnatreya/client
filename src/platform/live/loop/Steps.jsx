@@ -3,6 +3,8 @@ import { Icon, Pill } from '../../ui/kit';
 import { loopApi, messageFor, TYPE_LABEL, TYPE_TONE, fmtMinutes } from './loopApi';
 import { Working } from './Loader';
 import { LessonNotes } from './Notes';
+import { usePlatform } from '../../data/store';
+import { studentApi, errMessage } from '../liveApi';
 
 // One step of the week in full: what and why, the video, practice places, practice questions, links back to the lessons, and
 // done / skip. Used on each day's page.
@@ -120,6 +122,26 @@ function Exercises({ item, act, off }) {
   );
 }
 
+/** A question to the student's mentor about this step: it arrives in the mentor's inbox, tagged with the step. */
+function AskMentor({ item }) {
+  const ctx = usePlatform();
+  const mentor = ctx && ctx.data && ctx.data.mentor;
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
+  const [state, setState] = useState('');
+  if (!mentor) return null;
+  const send = async e => { e.preventDefault(); setState('sending'); try { await studentApi.sendMessage(text.trim(), { kind: 'step', id: item.id, title: item.title }); setText(''); setOpen(false); setState('sent'); } catch (x) { setState(errMessage(x)); } };
+  if (!open) return <><button type="button" className="pf-btn sm ghost" onClick={() => { setOpen(true); setState(''); }}><Icon name="message" size={14} />Ask my mentor</button>{state === 'sent' && <span className="pf-small" role="status" style={{ color: 'var(--leaf)' }}>Sent. The reply will be under Mentor.</span>}</>;
+  return (
+    <form className="pf-unit-form" style={{ flexBasis: '100%' }} onSubmit={send}>
+      <label className="pf-label" htmlFor={`ask-${item.id}`}>Your question for {mentor.name.split(' ').slice(-2).join(' ')} about this step</label>
+      <textarea id={`ask-${item.id}`} className="pf-textarea" rows={3} maxLength={2000} value={text} onChange={e => setText(e.target.value)} placeholder="What are you stuck on?" />
+      <div className="pf-row" style={{ gap: 8, marginTop: 8 }}><button type="submit" className="pf-btn sm" disabled={state === 'sending' || text.trim().length < 2}>{state === 'sending' ? 'Sending…' : 'Send'}</button><button type="button" className="pf-btn sm ghost" onClick={() => setOpen(false)}>Cancel</button></div>
+      {state && !['sending', 'sent'].includes(state) && <p className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{state}</p>}
+    </form>
+  );
+}
+
 /** One unit: what, why, the video, and the done/skip actions. */
 export function Item({ item, act, off }) {
   const [mode, setMode] = useState(null);
@@ -160,6 +182,7 @@ export function Item({ item, act, off }) {
         {!finished && mode === null && <button type="button" className="pf-btn sm" onClick={() => setMode('done')}>I have done this</button>}
         {!finished && mode === null && <button type="button" className="pf-btn sm ghost" onClick={() => setMode('skip')}>Skip</button>}
         {finished && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => run(() => loopApi.undo(item.id))}>Undo</button>}
+        {mode === null && <AskMentor item={item} />}
       </div>
       {mode === 'done' && (
         <form className="pf-unit-form" onSubmit={e => { e.preventDefault(); run(() => loopApi.done(item.id, { ...(link.trim() ? { resourceUrl: link.trim() } : {}), ...(rating ? { rating } : {}) })); }}>

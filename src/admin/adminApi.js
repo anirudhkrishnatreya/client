@@ -19,6 +19,7 @@ export const adminApi = {
   deleteUser: id => api.delete(`/admin/user/${id}`),
   mentors: () => api.get('/admin/mentors'),
   createMentor: body => api.post('/admin/mentors', body),
+  waitingStudents: () => api.get('/admin/mentors/waiting'),
   assignMentor: (studentId, mentorId) => api.put(`/admin/students/${studentId}/mentor`, { mentorId }),
   payments: () => api.get(c('/payments')),
   createCoupon: body => api.post(c('/coupons'), body),

@@ -169,7 +169,9 @@ describe('student', () => {
   it('a student without a mentor is told so, and unbuilt pages say they are coming', async () => {
     routes['get /v2/platform/student'] = studentBundle({ mentor: null });
     at('/platform/student/mentor');
-    expect(await screen.findByText(/has not been assigned to you yet/)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Connect with your mentor' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Mentor code')).toBeInTheDocument();
+    expect(screen.getByText(/the iMenteo team gives every student a mentor/)).toBeInTheDocument();
   });
   it('the library is honest that it is not personalised yet, instead of showing a dead 0% progress bar', async () => {
     routes['get /v2/platform/student'] = studentBundle();

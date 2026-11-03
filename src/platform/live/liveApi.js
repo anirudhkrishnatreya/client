@@ -24,6 +24,19 @@ function nudges(tasks, session, who = '') {
   return out.slice(0, 8);
 }
 
+const recent = (at, days = 7) => at && Date.now() - new Date(at).getTime() < days * 86400000;
+/** What the mentor did that the student should hear about: messages, feedback, a summary, an answer to a session request. */
+function mentorNudges(d) {
+  const out = [];
+  const unread = (d.inbox && d.inbox.unread) || 0;
+  if (unread) out.push(note('msg', 'message', `${unread} new message${unread > 1 ? 's' : ''} from your mentor`, 'Mentor'));
+  for (const t of d.tasks.filter(x => x.feedback && recent(x.feedback.at))) out.push(note(`fb${t.id}`, 'check', `Your mentor gave feedback on “${t.title}”`, fmtDate(String(t.feedback.at).slice(0, 10))));
+  for (const n of (d.mentorNotes || []).filter(x => x.kind === 'summary' && recent(x.at))) out.push(note(`sum${n.id}`, 'file', `Your mentor sent a weekly summary: ${n.title || 'this week'}`, fmtDate(n.at)));
+  for (const s of ((d.sessions && d.sessions.declined) || [])) out.push(note(`dec${s.id}`, 'calendar', `Your mentor could not do ${fmtDate(s.date)}${s.note ? `: ${s.note}` : ''}`, 'Session'));
+  if (d.mentorRequest && d.mentorRequest.status === 'pending') out.push(note('req', 'users', `Waiting for ${d.mentorRequest.mentor ? d.mentorRequest.mentor.name : 'the mentor'} to accept your request`, 'Mentor'));
+  return out;
+}
+
 export async function loadStudent() {
   const d = await get('student');
   return {
@@ -32,8 +45,9 @@ export async function loadStudent() {
       consent: d.me.consent, parent: d.me.parent, parentEmail: d.me.parentEmailMasked },
     goal: { title: d.me.goal },
     mentor: d.mentor, sessions: d.sessions, tasks: d.tasks, reports: d.reports, assessment: d.assessment, mentorNotes: d.mentorNotes || [],
+    inbox: d.inbox || { unread: 0 }, mentorRequest: d.mentorRequest || null,
     library: LIBRARY.map(x => ({ ...x, progress: 0 })),
-    notifications: nudges(d.tasks, d.sessions.next)
+    notifications: [...mentorNudges(d), ...nudges(d.tasks, d.sessions.next)].slice(0, 10)
   };
 }
 
@@ -41,8 +55,8 @@ export async function loadMentor() {
   const d = await get('mentor');
   return {
     live: true,
-    me: { id: d.me.id, name: d.me.fullName, firstName: firstName(d.me.fullName) },
-    students: d.students, alerts: d.alerts, sessions: d.sessions,
+    me: { id: d.me.id, name: d.me.fullName, firstName: firstName(d.me.fullName), mentorCode: d.me.mentorCode || null },
+    students: d.students, alerts: d.alerts, sessions: d.sessions, sessionRequests: d.sessionRequests || [], board: d.board || [], requests: d.requests || [], inbox: d.inbox || { unread: 0 },
     notifications: d.alerts.filter(a => a.level !== 'good').slice(0, 8).map(a => note(a.id, a.level === 'high' ? 'alert' : 'info', a.text, ''))
   };
 }
@@ -53,7 +67,7 @@ export async function loadParent(childId) {
   const id = home.children.find(c => String(c.id) === String(childId)) ? childId : home.children[0] && home.children[0].id;
   if (!id) return { ...base, child: null, tasks: [], sessions: { next: null, upcoming: [], history: [] }, notes: [], reports: [], mentor: null, notifications: [] };
   const c = await get(`parent/children/${id}`);
-  return { ...base, child: { ...c.child, firstName: firstName(c.child.name), gradeLabel: gradeLabel(c.child.grade) }, mentor: c.mentor, loop: c.loop || null, tasks: c.tasks, sessions: c.sessions, notes: c.notes, reports: c.reports,
+  return { ...base, child: { ...c.child, firstName: firstName(c.child.name), gradeLabel: gradeLabel(c.child.grade) }, mentor: c.mentor, loop: c.loop || null, tasks: c.tasks, sessions: c.sessions, notes: c.notes, reports: c.reports, messages: c.messages || [],
     notifications: nudges(c.tasks, c.sessions.next, `${firstName(c.child.name)}: `) };
 }
 
@@ -62,6 +76,13 @@ export const studentApi = {
   setTaskStatus: (id, status) => send('patch', `tasks/${id}`, { status }),
   updateTask: (id, body) => send('patch', `tasks/${id}`, body),
   deleteTask: id => send('delete', `tasks/${id}`),
+  messages: () => get('student/messages'),
+  sendMessage: (text, ref) => send('post', 'student/messages', { text, ...(ref ? { ref } : {}) }),
+  requestMentor: (code, note) => send('post', 'student/mentor-request', { code, note }),
+  cancelMentorRequest: () => send('delete', 'student/mentor-request'),
+  requestSession: body => send('post', 'student/sessions', body),
+  cancelSession: id => send('delete', `student/sessions/${id}`),
+  addAgenda: (sessionId, text) => send('post', `sessions/${sessionId}/agenda`, { text }),
   setGoal: title => send('put', 'student/goal', { title })
 };
 export const mentorApi = {
@@ -79,7 +100,14 @@ export const mentorApi = {
   digest: id => get(`mentor/students/${id}/digest`),
   draftSummary: id => send('post', `mentor/students/${id}/summary/draft`),
   assistant: messages => send('post', 'mentor/assistant', { messages }),
-  act: action => send('post', 'mentor/assistant/act', { action })
+  act: action => send('post', 'mentor/assistant/act', { action }),
+  code: () => get('mentor/code'),
+  newCode: () => send('post', 'mentor/code'),
+  decide: (requestId, accept) => send('post', `mentor/requests/${requestId}`, { accept }),
+  inbox: () => get('mentor/inbox'),
+  thread: id => get(`mentor/students/${id}/messages`),
+  sendMessage: (id, text) => send('post', `mentor/students/${id}/messages`, { text }),
+  addAgenda: (sessionId, text) => send('post', `sessions/${sessionId}/agenda`, { text })
 };
 export const parentApi = {
   addTask: (childId, t) => send('post', `parent/children/${childId}/tasks`, t),

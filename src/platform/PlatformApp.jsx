@@ -71,6 +71,7 @@ const Billing = lazy(() => import('../pay/Billing'));
 const Receipt = lazy(() => import('../pay/Billing').then(m => ({ default: m.Receipt })));
 const LoopAssessment = lazy(() => import('./live/loop/LoopAssessment'));
 const LiveAssistant = lazy(() => import('./live/mentor/Assistant'));
+const LiveMessages = lazy(() => import('./live/mentor/Messages'));
 const later = el => <Suspense fallback={<p role="status">Loading…</p>}>{el}</Suspense>;
 
 const ROLES = [
@@ -150,7 +151,7 @@ export default function PlatformApp() {
         </>}
       </Route>
       <Route path="mentor" element={<Gate role="mentor" />}>
-        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="assistant" element={later(<LiveAssistant />)} /><Route path="insights" element={<LiveInsights />} />
+        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="messages" element={later(<LiveMessages />)} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="assistant" element={later(<LiveAssistant />)} /><Route path="insights" element={<LiveInsights />} />
       </Route>
       <Route path="parent" element={<Gate role="parent" />}>
         <Route index element={<LiveParentOverview />} /><Route path="progress" element={<LiveParentProgress />} /><Route path="tasks" element={<LiveParentTasks />} /><Route path="reports" element={<LiveParentReports />} /><Route path="mentor" element={<LiveParentMentor />} />
@@ -164,7 +165,7 @@ export default function PlatformApp() {
         <Route path="assessments" element={<StudentAssessments />} /><Route path="library" element={<StudentLibrary />} /><Route path="reports" element={<StudentReports />} /><Route path="mentor" element={<StudentMentor />} /><Route path="coach" element={<StudentCoach />} />
       </Route>
       <Route path="preview/mentor" element={<Role role="mentor"><AppShell role="mentor" preview /></Role>}>
-        <Route index element={<MentorOverview />} /><Route path="students" element={<MentorStudents />} /><Route path="sessions" element={<MentorSessions />} /><Route path="tasks" element={<MentorTasks />} /><Route path="assistant" element={<PreviewAssistant />} /><Route path="insights" element={<MentorInsights />} />
+        <Route index element={<MentorOverview />} /><Route path="students" element={<MentorStudents />} /><Route path="sessions" element={<MentorSessions />} /><Route path="tasks" element={<MentorTasks />} /><Route path="assistant" element={<PreviewAssistant />} /><Route path="messages" element={<Navigate to=".." relative="path" replace />} /><Route path="insights" element={<MentorInsights />} />
       </Route>
       <Route path="preview/parent" element={<Role role="parent"><AppShell role="parent" preview /></Role>}>
         <Route index element={<ParentOverview />} /><Route path="progress" element={<ParentProgress />} /><Route path="tasks" element={<ParentTasks />} /><Route path="reports" element={<ParentReports />} /><Route path="mentor" element={<ParentMentor />} />

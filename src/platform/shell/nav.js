@@ -11,14 +11,14 @@ export const NAV = {
     { section: 'Grow', items: [
       ...(LOOP_ENABLED ? [{ to: 'portfolio', label: 'My portfolio', icon: 'award' }] : []),
       ...(PAY_ENABLED ? [{ to: 'billing', label: 'My plan', icon: 'bolt' }] : []),
-      { to: 'reports', label: 'Reports', icon: 'chart' }, { to: 'mentor', label: 'Mentor', icon: 'users' }, { to: 'coach', label: 'AI coach', icon: 'sparkles' }] },
+      { to: 'reports', label: 'Reports', icon: 'chart' }, { to: 'mentor', label: 'Mentor', icon: 'users', badge: 'messages' }, { to: 'coach', label: 'AI coach', icon: 'sparkles' }] },
     ...(REC_ENABLED ? [{ section: 'Careers', items: [
       { to: 'careers', label: 'Suggested for you', icon: 'sparkles' }, { to: 'explore', label: 'Explore careers', icon: 'search' },
       { to: 'shortlist', label: 'My shortlist', icon: 'star' }, { to: 'situation', label: 'My situation', icon: 'info' }] }] : [])
   ],
   mentor: [
     { section: 'Mentoring', items: [
-      { to: '', label: 'Overview', icon: 'home', end: true }, { to: 'students', label: 'My students', icon: 'users' }, { to: 'sessions', label: 'Sessions', icon: 'calendar', badge: 'sessions' },
+      { to: '', label: 'Overview', icon: 'home', end: true }, { to: 'students', label: 'My students', icon: 'users' }, { to: 'messages', label: 'Messages', icon: 'message', badge: 'messages' }, { to: 'sessions', label: 'Sessions', icon: 'calendar', badge: 'sessions' },
       { to: 'tasks', label: 'Tasks', icon: 'tasks' }, { to: 'assistant', label: 'Assistant', icon: 'sparkles' }, { to: 'insights', label: 'Insights', icon: 'chart' }] }
   ],
   parent: [

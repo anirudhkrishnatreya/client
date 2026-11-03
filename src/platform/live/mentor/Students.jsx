@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
-import { Avatar, Card, Drawer, Empty, PageHead, Pill, Progress, Tabs } from '../../ui/kit';
+import { Avatar, Card, Drawer, Empty, Icon, PageHead, Pill, Progress, Tabs } from '../../ui/kit';
 import { dueLabel, fmtDate, fmtShort } from '../../ui/format';
 import { errMessage, gradeLabel, mentorApi } from '../liveApi';
 import AuthImage from '../loop/AuthImage';
@@ -65,20 +65,21 @@ function LoopTab({ studentId, loop, reload }) {
   );
 }
 
-function Detail({ id }) {
+function Detail({ id, initialTab = 'overview' }) {
   const { actions } = usePlatform();
   const [d, setD] = useState(null);
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState(initialTab);
   const [note, setNote] = useState(''); const [share, setShare] = useState(false); const [shareStudent, setShareStudent] = useState(false); const [msg, setMsg] = useState('');
   const load = () => actions.loadStudent(id).then(setD).catch(e => setMsg(errMessage(e)));
-  useEffect(() => { setD(null); setTab('overview'); load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setD(null); setTab(initialTab); load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <p role="status" className="pf-muted">{msg || 'Loading…'}</p>;
   const s = d.student;
   const setStatus = async (t, status) => { try { await actions.setTaskStatus(t.id, status); await load(); } catch (e) { setMsg(errMessage(e)); } };
   const saveNote = async e => { e.preventDefault(); try { await actions.addNote(id, { text: note, sharedWithParent: share, sharedWithStudent: shareStudent }); setNote(''); setShare(false); setShareStudent(false); await load(); } catch (err) { setMsg(errMessage(err)); } };
   return (
     <>
-      <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div></div>
+      <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div className="pf-grow"><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div>
+        <Link className="pf-btn sm ghost" to={`../messages?student=${s.id}`}><Icon name="message" size={14} />Message</Link><Link className="pf-btn sm ghost" to={`../sessions?student=${s.id}`}><Icon name="calendar" size={14} />Book</Link></div>
       {msg && <div className="pf-note" role="alert">{msg}</div>}
       <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'week', label: 'This week' }, { id: 'log', label: 'Daily log', count: (d.logs || []).length || undefined }, { id: 'work', label: 'Tasks', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }, { id: 'situation', label: 'Situation' }]} />
       {tab === 'overview' && <>
@@ -130,7 +131,7 @@ export default function LiveStudents() {
           {s.limited ? <td colSpan="3" className="pf-muted pf-small">Visible once a parent confirms</td> : <><td style={{ minWidth: 130 }}><Progress value={s.tasks.total ? (s.tasks.done / s.tasks.total) * 100 : 0} label={`${s.name} tasks`} /><span className="pf-small pf-muted">{s.tasks.done}/{s.tasks.total}</span></td><td><Pill tone={A[s.assessment.state][0]}>{A[s.assessment.state][1]}</Pill></td><td><Pill tone={s.parent === 'linked' ? 'leaf' : 'gold'}>{s.parent === 'linked' ? 'Set up' : 'Invited'}</Pill></td></>}
           <td>{s.limited ? <Pill tone="gold">Waiting</Pill> : s.tasks.overdue > 0 ? <Pill tone="coral">{s.tasks.overdue} overdue</Pill> : <Pill tone="leaf">On track</Pill>}</td></tr>)}
         {rows.length === 0 && <tr><td colSpan="6" className="pf-muted" style={{ padding: 24 }}>{data.students.length ? 'No students match.' : 'No students are assigned to you yet.'}</td></tr>}</tbody></table></div></Card>
-      <Drawer open={!!open} title={open ? open.name : ''} onClose={() => setSp({})}>{open && <Detail id={open.id} />}</Drawer>
+      <Drawer open={!!open} title={open ? open.name : ''} onClose={() => setSp({})}>{open && <Detail id={open.id} initialTab={sp.get('tab') || 'overview'} />}</Drawer>
     </>
   );
 }

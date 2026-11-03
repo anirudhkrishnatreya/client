@@ -7,6 +7,8 @@ import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { Item } from './Steps';
 import { daysOf, minutesOf, doneOf } from './DayBits';
 import { DayLog } from './Notes';
+import { usePlatform } from '../../data/store';
+import { dueLabel } from '../../ui/format';
 
 /** A short, plain summary of the day: what is learned, then what is done with it. */
 function summaryOf(items, when) {
@@ -22,6 +24,8 @@ function summaryOf(items, when) {
 export default function LoopDayPage() {
   const { date } = useParams();
   const { loop, loading, error, locked, act } = useLoop();
+  const ctx = usePlatform();
+  const alsoDue = ((ctx && ctx.data && ctx.data.tasks) || []).filter(t => t.due === date && t.status !== 'done');
   if (loading) return <PageSkeleton label="Loading your day" cards={2} />;
   if (locked) return <Locked {...locked} />;
   if (error) return <p role="alert">{messageFor(error)}</p>;
@@ -55,6 +59,12 @@ export default function LoopDayPage() {
         </div>
         <div style={{ marginTop: 10 }}><Progress value={(done / day.items.length) * 100} label="This day" /></div>
       </Card>
+      {alsoDue.length > 0 && (
+        <Card style={{ marginBottom: 14 }}>
+          <div className="pf-eyebrow" style={{ marginBottom: 6 }}>Also due this day</div>
+          <ul className="pf-list">{alsoDue.map(t => <li key={t.id}><Icon name="tasks" size={16} /><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.source === 'mentor' ? 'From your mentor' : t.source === 'parent' ? 'From your parent' : 'Added by you'} · {t.priority} priority</span></span><Pill tone={dueLabel(t.due).tone}>{dueLabel(t.due).text}</Pill></li>)}</ul>
+          <Link className="pf-small" relative="path" to="../../../tasks">Open your tasks</Link>
+        </Card>)}
       <ol className="pf-steplist">
         {day.items.map((i, k) => (
           <li key={i.id}>
