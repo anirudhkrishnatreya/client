@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
 import { Avatar, Card, CardHead, Drawer, Icon, PageHead } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
@@ -104,7 +104,8 @@ function JoinBanner({ list, name }) {
 /** The student's hub with their mentor: messages, the next session and its agenda, summaries and past sessions. */
 export default function LiveMentor() {
   const { data, actions } = usePlatform();
-  const [asking, setAsking] = useState(false);
+  const [sp] = useSearchParams();
+  const [asking, setAsking] = useState(sp.get('ask') === '1');           // the coach's "Ask for a session" card opens it straight away
   const [msg, setMsg] = useState('');
   const load = useCallback(() => studentApi.messages(), []);
   const send = useCallback(text => studentApi.sendMessage(text), []);

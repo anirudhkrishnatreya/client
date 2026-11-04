@@ -8,6 +8,7 @@ import AuthImage from '../loop/AuthImage';
 import { WeekTab, LogTab } from './Summary';
 import { StatusPill } from '../SessionParts';
 import { useLiveEvent } from '../events';
+import Markdown from '../coach/Markdown';
 
 const A = { submitted: ['leaf', 'Done'], in_progress: ['gold', 'Started'], not_started: ['grey', 'Not started'] };
 const ST = { todo: 'To do', doing: 'In progress', review: 'With mentor', done: 'Done' };
@@ -67,6 +68,31 @@ function LoopTab({ studentId, loop, reload }) {
   );
 }
 
+const COACH_KIND = { explain: 'explaining', quiz: 'practice quizzes', plan: 'planning time', career: 'careers', support: 'support', reflect: 'reflecting', other: 'other', safety: 'support with helplines', refused: 'refused' };
+/** The student's AI coach chats, read-only, with this week's counts. The student is told their mentor can read them. */
+function CoachTab({ studentId, name }) {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { mentorApi.coach(studentId).then(setD).catch(e => setErr(errMessage(e))); }, [studentId]);
+  if (!d) return <p className="pf-small pf-muted" role={err ? 'alert' : 'status'}>{err || 'Loading…'}</p>;
+  const kinds = Object.entries(d.week.kinds).sort((a, b) => b[1] - a[1]);
+  return (
+    <>
+      {d.week.flagged && <div className="pf-note" role="alert" style={{ borderColor: 'var(--coral)', marginBottom: 12 }}><b>{name} may need support.</b> Something they wrote to the coach this week worried it; the coach gave them helpline numbers and said you would check in. Please reach out kindly and privately.</div>}
+      <p className="pf-small" style={{ marginTop: 0 }}>This week: <b>{d.week.chats}</b> chat{d.week.chats === 1 ? '' : 's'}, <b>{d.week.replies}</b> repl{d.week.replies === 1 ? 'y' : 'ies'}{kinds.length ? ` (mostly ${kinds.slice(0, 3).map(([k, n]) => `${COACH_KIND[k] || k} ${n}`).join(', ')})` : ''}.</p>
+      {d.chats.length === 0 ? <Empty icon="sparkles" title="No coach chats yet">When {name} talks to the AI coach, the chats appear here, read-only.</Empty> :
+        d.chats.map(c => (
+          <details key={c.id} className="pf-coach-read">
+            <summary><b>{c.title}</b> <span className="pf-small pf-muted">· {new Date(c.lastAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · {c.messages.length} messages</span>{c.flagged && <> <Pill tone="coral">Support</Pill></>}{c.sharedAt && <> <Pill tone="sky">Shared with you</Pill></>}</summary>
+            <div className="pf-coach-log" style={{ maxHeight: 420 }}>{c.messages.map(m => (
+              <div key={m.i} className={`pf-cmsg ${m.role === 'student' ? 'me' : 'coach'}`}><div className="pf-cbub">{m.role === 'coach' ? <Markdown text={m.text} /> : m.text}
+                {m.quiz.length > 0 && <p className="pf-small pf-muted" style={{ margin: '6px 0 0' }}>Practice quiz, {m.quiz.length} questions{m.quizResult ? `: ${m.quizResult.score} of ${m.quizResult.of} right` : ', not answered'}.</p>}</div></div>))}</div>
+          </details>))}
+      <p className="pf-small pf-faint">Read-only. {name} is told on the coach page that you can read these chats.</p>
+    </>
+  );
+}
+
 function Detail({ id, initialTab = 'overview' }) {
   const { actions } = usePlatform();
   const [d, setD] = useState(null);
@@ -84,7 +110,7 @@ function Detail({ id, initialTab = 'overview' }) {
       <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div className="pf-grow"><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div>
         <Link className="pf-btn sm ghost" to={`../messages?student=${s.id}`}><Icon name="message" size={14} />Message</Link><Link className="pf-btn sm ghost" to={`../sessions?student=${s.id}`}><Icon name="calendar" size={14} />Book</Link></div>
       {msg && <div className="pf-note" role="alert">{msg}</div>}
-      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'week', label: 'This week' }, { id: 'log', label: 'Daily log', count: (d.logs || []).length || undefined }, { id: 'work', label: 'Tasks', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }, { id: 'situation', label: 'Situation' }]} />
+      <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'week', label: 'This week' }, { id: 'log', label: 'Daily log', count: (d.logs || []).length || undefined }, { id: 'work', label: 'Tasks', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }, { id: 'situation', label: 'Situation' }, { id: 'coach', label: 'AI coach' }]} />
       {tab === 'overview' && <>
         <div className="pf-grid g2"><div className="pf-note"><b>{s.tasks.done} of {s.tasks.total}</b><br />tasks done</div><div className="pf-note"><b>{s.tasks.overdue}</b><br />overdue</div></div>
         <h4 style={{ fontSize: 16, margin: '16px 0 6px' }}>Career assessment</h4>
@@ -95,6 +121,7 @@ function Detail({ id, initialTab = 'overview' }) {
       {tab === 'loop' && <LoopTab studentId={id} loop={d.loop} reload={load} />}
       {tab === 'week' && <WeekTab studentId={id} studentName={s.name} onSaved={load} />}
       {tab === 'log' && <LogTab logs={d.logs || []} />}
+      {tab === 'coach' && <CoachTab studentId={id} name={d.student.name.split(' ')[0]} />}
       {tab === 'situation' && (!d.situation || !d.situation.draft ? <Empty icon="info" title="No plan drafted yet">When the student fills in My situation and drafts their full plan, you will see it here, to talk through together.</Empty> : <>
         <p style={{ marginTop: 0 }}>{d.situation.draft.summary}</p>
         <div className="pf-row pf-wrap" style={{ gap: 6, marginBottom: 10 }}>{d.situation.draft.careers.map(c => <Pill key={c} tone="sky">{c}</Pill>)}</div>

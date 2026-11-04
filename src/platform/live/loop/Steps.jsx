@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Icon, Pill } from '../../ui/kit';
 import { loopApi, messageFor, TYPE_LABEL, TYPE_TONE, fmtMinutes } from './loopApi';
 import { Working } from './Loader';
@@ -182,6 +183,7 @@ export function Item({ item, act, off }) {
         {!finished && mode === null && <button type="button" className="pf-btn sm" onClick={() => setMode('done')}>I have done this</button>}
         {!finished && mode === null && <button type="button" className="pf-btn sm ghost" onClick={() => setMode('skip')}>Skip</button>}
         {finished && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={() => run(() => loopApi.undo(item.id))}>Undo</button>}
+        {mode === null && <Link className="pf-btn sm ghost" to={`/platform/student/coach?step=${encodeURIComponent(item.id)}`}><Icon name="sparkles" size={14} />Ask the coach</Link>}
         {mode === null && <AskMentor item={item} />}
       </div>
       {mode === 'done' && (

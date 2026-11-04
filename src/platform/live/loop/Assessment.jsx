@@ -95,6 +95,7 @@ export function Assessment({ a, act, off }) {
     body = (
       <>
         <p style={{ marginTop: 0 }}><b>Quiz: {pct(a.quiz.score)}</b> · {rows.filter(q => q.correct).length} of {rows.length} right</p>
+        {a.id && rows.some(q => !q.correct) && <p className="pf-small" style={{ marginTop: -4 }}><Link to={`/platform/student/coach?check=${a.id}`}><Icon name="sparkles" size={13} /> Go over what I got wrong with the AI coach</Link></p>}
         {j && j.status === 'judged' && (
           <div className="pf-judged">
             <div className="pf-row pf-wrap" style={{ gap: 8 }}><b>Your work</b><Pill tone={BAND[j.overall][1]}>{BAND[j.overall][0]}</Pill></div>

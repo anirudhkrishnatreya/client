@@ -106,6 +106,7 @@ function TaskDrawer({ task, onClose }) {
       {task.notes && <p style={{ whiteSpace: 'pre-wrap' }}>{task.notes}</p>}
       {task.feedback && <Card ai style={{ marginBottom: 14 }}><span className="tag"><Icon name="message" size={14} />Your mentor says</span><p style={{ margin: '8px 0 0', whiteSpace: 'pre-wrap' }}>{task.feedback.text}</p></Card>}
       {task.studentNote && <p className="pf-small pf-muted">You wrote when handing in: “{task.studentNote}”</p>}
+      {task.status !== 'done' && <p style={{ margin: '0 0 12px' }}><Link className="pf-btn sm ghost" to={`/platform/student/coach?task=${task.id}`}><Icon name="sparkles" size={14} />Help me with this</Link> <span className="pf-small pf-faint">The AI coach gives hints and steps, not the answer.</span></p>}
 
       <div className="pf-field"><span className="pf-label">Where it is</span>
         <div className="pf-row pf-wrap" style={{ gap: 6 }} role="group" aria-label="Status">{COLS.map(c => <button key={c.id} type="button" className="pf-chip" aria-pressed={task.status === c.id} onClick={() => (c.id === 'review' ? setHanding(true) : save({ status: c.id }))}>{c.label}</button>)}</div></div>

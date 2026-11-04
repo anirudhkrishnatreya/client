@@ -80,13 +80,27 @@ export const mentorApi = {
   inbox: () => get('mentor/inbox'),
   thread: id => get(`mentor/students/${id}/messages`),
   sendMessage: (id, text) => send('post', `mentor/students/${id}/messages`, { text }),
-  addAgenda: (sessionId, text) => send('post', `sessions/${sessionId}/agenda`, { text })
+  addAgenda: (sessionId, text) => send('post', `sessions/${sessionId}/agenda`, { text }),
+  coach: id => get(`mentor/students/${id}/coach`)
 };
 /** The moves on a session, by either side (the server checks who may do what): accept, propose, decline, withdraw, respond,
  * reschedule, cancel, complete, missed, agenda. */
 export const sessionApi = {
   act: (id, action, body = {}) => send('post', `sessions/${id}/${action}`, body),
   calendar: id => api.get(`/v2/platform/sessions/${id}/calendar.ics`, { responseType: 'blob' }).then(r => r.data)
+};
+/** The AI coach (students): chats that know the plan; actions and quizzes are checked by the server. */
+const coach = (method, url = '', body) => api[method](`/v2/me/coach${url}`, body).then(r => r.data);
+export const coachApi = {
+  home: () => coach('get'),
+  start: focus => coach('post', '/chats', focus ? { focus } : {}),
+  get: id => coach('get', `/chats/${id}`),
+  remove: id => coach('delete', `/chats/${id}`),
+  send: (id, text) => coach('post', `/chats/${id}/messages`, { text }),
+  act: (id, body) => coach('post', `/chats/${id}/act`, body),
+  quiz: (id, index, answers) => coach('post', `/chats/${id}/quiz`, { index, answers }),
+  feedback: (id, index, value) => coach('post', `/chats/${id}/feedback`, { index, value }),
+  share: (id, note) => coach('post', `/chats/${id}/share`, note ? { note } : {})
 };
 export const notificationsApi = {
   list: () => get('notifications'),

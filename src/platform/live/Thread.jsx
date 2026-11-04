@@ -4,7 +4,7 @@ import { errMessage } from './liveApi';
 import { useLiveEvent, useLiveStatus } from './events';
 
 const when = at => { const d = new Date(at); const same = new Date().toDateString() === d.toDateString(); return d.toLocaleString('en-IN', same ? { hour: 'numeric', minute: '2-digit' } : { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); };
-const REF = { step: 'About a step of the plan', task: 'About a task', session: 'About a session' };
+const REF = { step: 'About a step of the plan', task: 'About a task', session: 'About a session', coach: 'About a chat with the AI coach' };
 
 /** The messages, oldest first, as bubbles. `me` is the side shown on the right. */
 export function Bubbles({ messages, me, names = {}, seen = false }) {

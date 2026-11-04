@@ -20,6 +20,7 @@ import LiveMentorTasks from './live/mentor/Tasks';
 import LiveInsights from './live/mentor/Insights';
 import LiveStudentTasks from './live/student/Tasks';
 import LiveLibrary from './live/student/Library';
+import LiveCoach from './live/student/Coach';
 import LiveParentOverview from './live/parent/Overview';
 import LiveParentProgress from './live/parent/Progress';
 import LiveParentTasks from './live/parent/Tasks';
@@ -127,8 +128,7 @@ function SignedIn() { const { isLoggedIn, loading } = useAuth(); if (loading) re
 function Home() { const { user, isLoggedIn, loading } = useAuth(); if (loading) return null; return <Navigate to={isLoggedIn ? HOME_OF[user.role || 'student'] || '/' : '/login'} replace />; }
 
 const soon = {
-  plan: <ComingSoon eyebrow="Weekly plan" title="Your week, planned for you" intro="A study plan built around your goal, your marks and the time you have." points={['A day-by-day plan with the exact sources to study from', 'Changes automatically when a check-in shows a gap', 'Every block explains why it is there']} icon="calendar" />,
-  coach: <ComingSoon eyebrow="AI coach" title="Ask anything about your plan" intro="A coach that knows your goal, your plan and your scores." points={['Explains topics in simple words', 'Adjusts your week when time is short', 'Suggests the next best step']} />
+  plan: <ComingSoon eyebrow="Weekly plan" title="Your week, planned for you" intro="A study plan built around your goal, your marks and the time you have." points={['A day-by-day plan with the exact sources to study from', 'Changes automatically when a check-in shows a gap', 'Every block explains why it is there']} icon="calendar" />
 };
 
 export default function PlatformApp() {
@@ -144,7 +144,7 @@ export default function PlatformApp() {
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
         <Route path="tasks" element={<LiveStudentTasks />} />
-        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={soon.coach} />
+        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<LiveCoach />} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />
           <Route path="shortlist" element={later(<Shortlist />)} /><Route path="situation" element={later(<Situation />)} />
