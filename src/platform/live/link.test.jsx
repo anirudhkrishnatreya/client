@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
@@ -26,6 +26,12 @@ const at = path => render(<MemoryRouter initialEntries={[path]}><AuthProvider><R
 const day = n => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 const NOSESSIONS = { next: null, upcoming: [], history: [], requested: [], declined: [] };
 const bundle = (over = {}) => ({ success: true, me: { id: 's1', fullName: 'Asha Verma', grade: '10', track: 'senior', goal: null, joined: new Date().toISOString(), consent: 'granted', parent: 'linked' }, mentor: { id: 'm1', name: 'Dr. Neha Kapoor' }, sessions: NOSESSIONS, tasks: [], reports: [], assessment: { state: 'submitted' }, mentorNotes: [], inbox: { unread: 0 }, mentorRequest: null, ...over });
+const H = 3600000;
+// a session as the server sends it (services/sessions.js view)
+const sess = (over = {}) => { const start = new Date(Date.now() + 26 * H).toISOString(), end = new Date(Date.now() + 26 * H + 45 * 60000).toISOString();
+  return { id: 'x1', studentId: 's1', mentorId: 'm1', start, end, durationMin: 45, date: day(1), time: '17:30', timeTbd: false, when: 'Thu, 6 Nov, 5:30 pm', status: 'scheduled', phase: 'upcoming', topic: '', note: '', requestedBy: 'mentor',
+    answerBy: null, askedStart: null, change: null, closed: null, missedBy: null, meetingUrl: null, hasLink: false, joinFrom: new Date(Date.parse(start) - 600000).toISOString(), joinUntil: new Date(Date.parse(end) + 900000).toISOString(),
+    agenda: [], timeline: [], summary: '', actions: [], tasksCreated: false, ...over }; };
 const msg = (id, from, text, extra = {}) => ({ id, from, text, at: new Date().toISOString(), read: false, ref: null, ...extra });
 
 beforeEach(() => { localStorage.clear(); sessionStorage.clear(); calls.length = 0; routes = {}; });
@@ -63,8 +69,10 @@ describe('student: working with their mentor', () => {
     expect(calls.find(c => c.method === 'post').body).toEqual({ text: 'Almost done, one question about arrows.' });
   });
 
-  it('adds a question to the next session, and asks for another session', async () => {
-    routes['get /v2/platform/student'] = bundle({ sessions: { ...NOSESSIONS, next: { id: 'x1', date: day(3), time: '17:30', topic: 'Week review', status: 'scheduled', agenda: [{ text: 'Look at your quiz', by: 'mentor' }] } } });
+  it('adds a question to the next session, and asks for another session at a day and time', async () => {
+    const next = sess({ topic: 'Week review', agenda: [{ text: 'Look at your quiz', by: 'mentor' }] });
+    routes['get /v2/platform/student'] = bundle({ sessions: { ...NOSESSIONS, next, upcoming: [next] } });
+    routes['get /v2/platform/student/slots'] = { hoursSet: false, length: 45, days: [] };
     routes['get /v2/platform/student/messages'] = { messages: [] };
     routes['post /v2/platform/sessions/x1/agenda'] = { success: true };
     routes['post /v2/platform/student/sessions'] = { success: true };
@@ -77,15 +85,19 @@ describe('student: working with their mentor', () => {
     await user.click(screen.getAllByRole('button', { name: /Ask for a session/ })[0]);
     const drawer = await screen.findByRole('dialog');
     await user.type(within(drawer).getByLabelText('What about?'), 'Stuck on vectors');
+    expect(within(drawer).getByRole('button', { name: 'Send the request' })).toBeDisabled();             // a time is needed
+    fireEvent.change(within(drawer).getByLabelText('Time'), { target: { value: '17:30' } });
     await user.click(within(drawer).getByRole('button', { name: 'Send the request' }));
-    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/student/sessions').body).toMatchObject({ topic: 'Stuck on vectors' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/student/sessions').body).toMatchObject({ time: '17:30', durationMin: 45, topic: 'Stuck on vectors' }));
   });
 
   it('a session the mentor declined says why', async () => {
-    routes['get /v2/platform/student'] = bundle({ sessions: { ...NOSESSIONS, declined: [{ id: 'x2', date: day(1), status: 'declined', note: 'I am away. Thursday works.', agenda: [] }] } });
+    const no = sess({ id: 'x2', status: 'declined', phase: null, closed: { by: 'mentor', reason: 'I am away. Thursday works.', at: new Date().toISOString(), late: false } });
+    routes['get /v2/platform/student'] = bundle({ sessions: { ...NOSESSIONS, closed: [no], declined: [no] } });
     routes['get /v2/platform/student/messages'] = { messages: [] };
     at('/platform/student/mentor');
-    expect(await screen.findByText(/I am away. Thursday works./)).toBeInTheDocument();
+    expect(await screen.findByText(/Your mentor said no\. “I am away\. Thursday works\.”/)).toBeInTheDocument();
+    expect(screen.getByText('Declined')).toBeInTheDocument();
   });
 
   it('asks the mentor about a step of the plan, and sees the mentor’s tasks due that day', async () => {
@@ -147,23 +159,25 @@ describe('mentor: the week with each student', () => {
 
   it('sessions: declines a request with a reason, and the write-up turns next steps into tasks', async () => {
     routes['get /v2/platform/mentor'] = home({ inbox: { unread: 0 },
-      sessionRequests: [{ id: 'q1', studentId: 's1', date: day(2), time: null, topic: 'Vectors', note: '', status: 'requested', requestedBy: 'student', agenda: [{ text: 'What is a unit vector?', by: 'student' }] }],
-      sessions: [{ id: 'x1', studentId: 's1', date: day(1), time: '17:00', topic: 'Review', status: 'scheduled', requestedBy: 'mentor', agenda: [] }] });
-    routes['patch /v2/platform/sessions/q1'] = { success: true };
-    routes['patch /v2/platform/sessions/x1'] = { success: true, tasksMade: 2 };
+      sessionRequests: [sess({ id: 'q1', status: 'requested', phase: null, requestedBy: 'student', topic: 'Vectors', answerBy: new Date(Date.now() + 20 * H).toISOString(), agenda: [{ text: 'What is a unit vector?', by: 'student' }] })],
+      sessions: [sess({ id: 'x1', topic: 'Review' })], writeup: [sess({ id: 'w1', topic: 'Last week', phase: 'writeup', start: new Date(Date.now() - 3 * H).toISOString(), end: new Date(Date.now() - 2 * H).toISOString() })] });
+    routes['post /v2/platform/sessions/q1/decline'] = { success: true };
+    routes['post /v2/platform/sessions/w1/complete'] = { success: true, tasksMade: 2 };
     const user = userEvent.setup();
     at('/platform/mentor/sessions');
     expect(await screen.findByText('What is a unit vector?')).toBeInTheDocument();
+    expect(screen.getByText(/Answer by/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Decline' }));
     await user.type(screen.getByLabelText('Reason'), 'Away that day. Thursday?');
     await user.click(screen.getAllByRole('button', { name: 'Decline' }).pop());
-    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/sessions/q1').body).toEqual({ status: 'declined', note: 'Away that day. Thursday?' }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/sessions/q1/decline').body).toEqual({ reason: 'Away that day. Thursday?' }));
+    await user.click(screen.getByRole('tab', { name: /To write up/ }));
     await user.click(screen.getByRole('button', { name: 'Write up' }));
     const drawer = await screen.findByRole('dialog');
     await user.type(within(drawer).getByLabelText('What happened'), 'We reviewed vectors.');
     await user.type(within(drawer).getByLabelText(/Next steps/), 'Do 5 vector problems\nRedo quiz question 3');
     await user.click(within(drawer).getByRole('button', { name: /Save and mark done/ }));
-    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/sessions/x1').body).toMatchObject({ status: 'done', actions: ['Do 5 vector problems', 'Redo quiz question 3'], createTasks: true }));
+    await waitFor(() => expect(calls.find(c => c.url === '/v2/platform/sessions/w1/complete').body).toMatchObject({ summary: 'We reviewed vectors.', actions: ['Do 5 vector problems', 'Redo quiz question 3'], createTasks: true }));
     expect(await screen.findByText(/2 next steps are now in Asha Verma’s tasks/)).toBeInTheDocument();
   });
 });

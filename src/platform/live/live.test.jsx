@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
@@ -264,8 +264,10 @@ describe('mentor', () => {
     const user = userEvent.setup();
     at('/platform/mentor/sessions');
     await user.type(await screen.findByPlaceholderText(/What will you cover/), 'Quiz review');
+    expect(screen.getByRole('button', { name: 'Book' })).toBeDisabled();                    // a time is needed
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '17:30' } });
     await user.click(screen.getByRole('button', { name: 'Book' }));
-    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/sessions', body: { topic: 'Quiz review' } }));
+    await waitFor(() => expect(calls.find(c => c.method === 'post')).toMatchObject({ url: '/v2/platform/mentor/students/s1/sessions', body: { topic: 'Quiz review', time: '17:30', durationMin: 45 } }));
   });
 });
 

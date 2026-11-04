@@ -6,6 +6,8 @@ import { dueLabel, fmtDate, fmtShort } from '../../ui/format';
 import { errMessage, gradeLabel, mentorApi } from '../liveApi';
 import AuthImage from '../loop/AuthImage';
 import { WeekTab, LogTab } from './Summary';
+import { StatusPill } from '../SessionParts';
+import { useLiveEvent } from '../events';
 
 const A = { submitted: ['leaf', 'Done'], in_progress: ['gold', 'Started'], not_started: ['grey', 'Not started'] };
 const ST = { todo: 'To do', doing: 'In progress', review: 'With mentor', done: 'Done' };
@@ -71,6 +73,7 @@ function Detail({ id, initialTab = 'overview' }) {
   const [tab, setTab] = useState(initialTab);
   const [note, setNote] = useState(''); const [share, setShare] = useState(false); const [shareStudent, setShareStudent] = useState(false); const [msg, setMsg] = useState('');
   const load = () => actions.loadStudent(id).then(setD).catch(e => setMsg(errMessage(e)));
+  useLiveEvent(['task.changed', 'session.changed'], ev => { if (!ev.studentId || String(ev.studentId) === String(id)) load(); });
   useEffect(() => { setD(null); setTab(initialTab); load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <p role="status" className="pf-muted">{msg || 'Loading…'}</p>;
   const s = d.student;
@@ -103,8 +106,8 @@ function Detail({ id, initialTab = 'overview' }) {
       {tab === 'work' && (d.tasks.length === 0 ? <Empty icon="tasks" title="No tasks yet">Give them one from Assign tasks.</Empty> :
         <ul className="pf-list">{d.tasks.map(t => { const l = dueLabel(t.due, t.status === 'done'); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · by {t.source === 'mentor' ? 'you' : t.by.toLowerCase()} · {t.priority} priority{t.feedback ? ' · feedback given' : ''}</span>{t.studentNote && <span className="pf-small" style={{ display: 'block' }}>They wrote: “{t.studentNote}”</span>}</span><Pill tone={l.tone}>{l.text}</Pill>
           <select className="pf-select" style={{ width: 130 }} aria-label={`Status of ${t.title}`} value={t.status} onChange={e => setStatus(t, e.target.value)}>{Object.entries(ST).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></li>; })}</ul>)}
-      {tab === 'sessions' && <>{d.sessions.upcoming.map(x => <p key={x.id} className="pf-small"><Pill tone="gold">Upcoming</Pill> {fmtDate(x.date)}{x.time ? `, ${x.time}` : ''} {x.topic && `· ${x.topic}`}</p>)}
-        {d.sessions.history.length === 0 && d.sessions.upcoming.length === 0 ? <p className="pf-muted">No sessions yet. Book one from the Sessions page.</p> :
+      {tab === 'sessions' && <>{[...(d.sessions.requested || []), ...d.sessions.upcoming, ...(d.sessions.writeup || [])].map(x => <p key={x.id} className="pf-small pf-row pf-wrap" style={{ gap: 6 }}><StatusPill s={x} role="mentor" /> {x.when || fmtDate(x.date)} {x.topic && `· ${x.topic}`} <Link to={`../sessions?session=${x.id}`}>Open</Link></p>)}
+        {d.sessions.history.length === 0 && d.sessions.upcoming.length === 0 ? <p className="pf-muted">No sessions yet. <Link to={`../sessions?student=${d.student.id}`}>Book one</Link>.</p> :
           <div className="pf-timeline">{d.sessions.history.map(h => <div key={h.id} className="pf-tl"><b>{fmtDate(h.date)}</b>{h.topic && <span className="pf-small pf-muted"> · {h.topic}</span>}<p className="pf-small" style={{ margin: '4px 0 0' }}>{h.summary}</p></div>)}</div>}</>}
       {tab === 'notes' && <><form onSubmit={saveNote}><textarea className="pf-input" rows="3" aria-label="New note" placeholder="Add a note" value={note} onChange={e => setNote(e.target.value)} maxLength={2000} />
         <div className="pf-row pf-wrap" style={{ gap: 16, margin: '8px 0' }}><label className="pf-small" style={{ display: 'flex', gap: 8 }}><input type="checkbox" checked={shareStudent} onChange={e => setShareStudent(e.target.checked)} />Share with the student</label>

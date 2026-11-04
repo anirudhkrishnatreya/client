@@ -2,6 +2,7 @@ import { Avatar, Card, CardHead, Icon } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
 import { WithChild } from './shared';
 import { Bubbles } from '../Thread';
+import { SessionCard } from '../SessionParts';
 
 export default function LiveParentMentor() {
   return (
@@ -19,7 +20,11 @@ export default function LiveParentMentor() {
               {d.messages.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>{d.child.firstName} and their mentor have not messaged yet.</p>
                 : <details><summary className="pf-small">Read the {d.messages.length} message{d.messages.length > 1 ? 's' : ''}</summary><div className="pf-thread-log" style={{ maxHeight: 360, marginTop: 8 }}><Bubbles messages={d.messages} me="mentor" names={{ mentor: d.mentor.name, student: d.child.firstName }} /></div></details>}
               <p className="pf-small pf-faint" style={{ margin: '8px 0 0' }}>You can read these so you know what is being discussed. Only {d.child.firstName} and their mentor write here.</p></Card>}
-            <Card ai><span className="tag"><Icon name="calendar" size={14} />Next session</span>{d.sessions.next ? <><h4 style={{ fontSize: 20, margin: '8px 0 2px' }}>{fmtDate(d.sessions.next.date)}{d.sessions.next.time ? `, ${d.sessions.next.time}` : ''}</h4><p className="pf-small" style={{ margin: 0 }}>{d.sessions.next.topic}</p></> : <p className="pf-small" style={{ margin: '8px 0 0' }}>Not booked yet.</p>}</Card>
+            <Card><CardHead title="Sessions" icon="calendar" />
+              {[...(d.sessions.upcoming || (d.sessions.next ? [d.sessions.next] : [])), ...(d.sessions.requested || [])].length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Not booked yet.</p>
+                : <div className="pf-sess-list">{[...(d.sessions.upcoming || (d.sessions.next ? [d.sessions.next] : [])), ...(d.sessions.requested || [])].map(x => <SessionCard key={x.id} s={x} role="parent" name={d.mentor ? d.mentor.name : 'Mentor'} onChanged={() => {}} />)}</div>}
+              {(d.sessions.closed || []).filter(x => x.status === 'cancelled' || x.status === 'missed').slice(0, 3).map(x => <p key={x.id} className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>{x.when}: {x.status === 'missed' ? 'did not happen' : `cancelled${x.closed && x.closed.late ? ' late' : ''}`}{x.closed && x.closed.reason ? ` (“${x.closed.reason}”)` : ''}.</p>)}
+            </Card>
           </div>
         </div>)}
     </WithChild>

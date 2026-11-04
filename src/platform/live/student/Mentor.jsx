@@ -1,12 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
-import { Avatar, Card, CardHead, Drawer, Icon, PageHead, Pill } from '../../ui/kit';
+import { Avatar, Card, CardHead, Drawer, Icon, PageHead } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
 import { errMessage, firstName, studentApi } from '../liveApi';
 import Thread from '../Thread';
-
-const inDays = n => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+import { Join, SessionCard, SlotPicker, TimeFields, todayIST, useNow } from '../SessionParts';
 
 /** No mentor yet: enter the code your mentor or school gave you, or wait for iMenteo to assign one. */
 function Connect() {
@@ -45,46 +44,60 @@ function Connect() {
   );
 }
 
-/** The next session with its agenda: what you want to talk about, and what your mentor added. */
-function NextSession({ s, onChange }) {
-  const [text, setText] = useState('');
+/** Ask for a session: one of the mentor's free times when they have set hours, or any day and time at least 3 hours ahead. */
+function RequestSession({ open, onClose, onDone, mentorName }) {
+  const [slots, setSlots] = useState(null);
+  const [pick, setPick] = useState('');
+  const [t, setT] = useState({ date: todayIST(), time: '', durationMin: 45 });
+  const [f, setF] = useState({ topic: '', note: '' });
+  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  const add = async e => { e.preventDefault(); setErr(''); try { await studentApi.addAgenda(s.id, text.trim()); setText(''); await onChange(); } catch (x) { setErr(errMessage(x)); } };
-  return (
-    <Card ai>
-      <span className="tag"><Icon name="calendar" size={14} />{s.status === 'requested' ? 'You asked for' : 'Next session'}</span>
-      <h4 style={{ fontSize: 20, margin: '8px 0 2px' }}>{fmtDate(s.date)}{s.time ? `, ${s.time}` : ''}</h4>
-      {s.topic && <p className="pf-small" style={{ margin: 0 }}>{s.topic}</p>}
-      {s.status === 'requested' && <p className="pf-small pf-muted" style={{ margin: '4px 0 0' }}>Waiting for your mentor to confirm.</p>}
-      <div className="pf-eyebrow" style={{ marginTop: 12 }}>To talk about</div>
-      {(s.agenda || []).length === 0 ? <p className="pf-small pf-muted" style={{ margin: '4px 0' }}>Nothing yet. Add a question or something you are stuck on.</p>
-        : <ul className="pf-agenda">{(s.agenda || []).map((a, k) => <li key={k}><Icon name={a.by === 'mentor' ? 'users' : 'bulb'} size={13} />{a.text}{a.by === 'mentor' && <span className="pf-small pf-muted"> · from your mentor</span>}</li>)}</ul>}
-      <form className="pf-row" style={{ gap: 6, marginTop: 6 }} onSubmit={add}>
-        <label className="pf-sr" htmlFor={`ag-${s.id}`}>Add something to talk about</label>
-        <input id={`ag-${s.id}`} className="pf-input" maxLength={300} value={text} onChange={e => setText(e.target.value)} placeholder="Add a question to bring" />
-        <button type="submit" className="pf-btn sm" disabled={text.trim().length < 2}>Add</button>
-      </form>
-      {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</p>}
-    </Card>
-  );
-}
-
-function RequestSession({ open, onClose, onDone }) {
-  const [f, setF] = useState({ date: inDays(2), time: '', topic: '', note: '' });
-  const [err, setErr] = useState('');
-  const submit = async e => { e.preventDefault(); setErr(''); try { await studentApi.requestSession({ date: f.date, time: f.time || undefined, topic: f.topic.trim(), note: f.note.trim() }); await onDone(); onClose(); } catch (x) { setErr(errMessage(x)); } };
+  useEffect(() => {
+    if (!open) return;
+    setErr(''); setPick('');
+    studentApi.slots().then(r => { setSlots(r); setT(v => ({ ...v, durationMin: r.length || 45 })); }).catch(() => setSlots({ hoursSet: false, days: [] }));
+  }, [open]);
+  const useSlots = slots && slots.hoursSet;
+  const submit = async e => {
+    e.preventDefault(); setBusy(true); setErr('');
+    try {
+      const when = useSlots ? { start: pick, durationMin: slots.length } : t;
+      const r = await studentApi.requestSession({ ...when, topic: f.topic.trim(), note: f.note.trim() });
+      await onDone(r.session && r.session.status === 'scheduled' ? 'Booked. It is in your sessions, and a calendar invite is on its way.' : `Sent. ${firstName(mentorName)} will confirm it or suggest another time.`);
+      setF({ topic: '', note: '' }); onClose();
+    } catch (x) { setErr(errMessage(x)); } finally { setBusy(false); }
+  };
   return (
     <Drawer open={open} title="Ask for a session" onClose={onClose}>
       <form onSubmit={submit}>
-        <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Suggest a day and time that suits you. Your mentor confirms it, or suggests another.</p>
-        <div className="pf-grid g2"><div className="pf-field"><label className="pf-label" htmlFor="rq-date">Day</label><input id="rq-date" type="date" className="pf-input" min={inDays(0)} value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></div>
-          <div className="pf-field"><label className="pf-label" htmlFor="rq-time">Time (optional)</label><input id="rq-time" type="time" className="pf-input" value={f.time} onChange={e => setF({ ...f, time: e.target.value })} /></div></div>
+        {slots === null ? <p className="pf-small pf-muted" role="status">Finding free times…</p> : useSlots ? <>
+          <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Pick one of {firstName(mentorName)}’s free times ({slots.length} minutes, India time).{slots.autoConfirm ? ' It is booked straight away.' : ` ${firstName(mentorName)} confirms it.`}</p>
+          <SlotPicker days={slots.days} value={pick} onPick={setPick} />
+        </> : <>
+          <p className="pf-small pf-muted" style={{ marginTop: 0 }}>Suggest a day and time that suits you. {firstName(mentorName)} confirms it, or suggests another time.</p>
+          <TimeFields idp="rq" value={t} onChange={setT} />
+        </>}
         <div className="pf-field"><label className="pf-label" htmlFor="rq-topic">What about?</label><input id="rq-topic" className="pf-input" maxLength={200} value={f.topic} onChange={e => setF({ ...f, topic: e.target.value })} placeholder="e.g. I am stuck on this week’s maths" /></div>
         <div className="pf-field"><label className="pf-label" htmlFor="rq-note">Anything else (optional)</label><input id="rq-note" className="pf-input" maxLength={300} value={f.note} onChange={e => setF({ ...f, note: e.target.value })} placeholder="e.g. After 5 pm works best on weekdays" /></div>
-        <button type="submit" className="pf-btn" disabled={!f.date}>Send the request</button>
+        <button type="submit" className="pf-btn" disabled={busy || slots === null || (useSlots ? !pick : !t.date || !t.time)}>{useSlots && slots.autoConfirm ? 'Book this time' : 'Send the request'}</button>
+        <p className="pf-small pf-faint">If your mentor does not answer within 2 days (or an hour before the time), the request expires and you can ask again.</p>
         {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</p>}
       </form>
     </Drawer>
+  );
+}
+
+/** A session starting within the hour (or happening now) goes to the top of the page, with the Join button, so it cannot be missed on a phone. */
+function JoinBanner({ list, name }) {
+  const now = useNow();
+  const s = list.find(x => x.status === 'scheduled' && x.start && Date.parse(x.start) - now < 3600000 && now <= Date.parse(x.joinUntil));
+  if (!s) return null;
+  return (
+    <div className="pf-joinbar" role="status">
+      <Icon name="video" size={18} />
+      <span className="pf-grow">{Date.parse(s.start) <= now ? `Your session with ${firstName(name)} is happening now` : `Your session with ${firstName(name)} starts at ${s.when.split(', ').pop()}`}{s.topic ? ` · ${s.topic}` : ''}</span>
+      <Join s={s} role="student" now={now} />
+    </div>
   );
 }
 
@@ -97,20 +110,24 @@ export default function LiveMentor() {
   const send = useCallback(text => studentApi.sendMessage(text), []);
   const m = data.mentor, s = data.sessions;
   if (!m) return <Connect />;
-  const coming = [...(s.requested || []), ...(s.next ? [s.next] : [])];
+  // soonest first, so a session happening now is on top; one waiting for the summary goes last
+  const at = x => (x.phase === 'writeup' ? Infinity : Date.parse(x.start || `${x.date}T23:59:00Z`));
+  const coming = [...(s.requested || []), ...(s.upcoming || (s.next ? [s.next] : [])), ...(s.writeup || [])].sort((a, b) => at(a) - at(b));
+  const closed = (s.closed || s.declined || []).slice(0, 4);
   const summaries = (data.mentorNotes || []);
-  const cancel = async id => { setMsg(''); try { await studentApi.cancelSession(id); await actions.reload(); } catch (x) { setMsg(errMessage(x)); } };
+  const done = async note => { await actions.reload(); if (note) setMsg(note); };
   return (
     <>
       <PageHead eyebrow="Your mentor" title={m.name} actions={<button type="button" className="pf-btn" onClick={() => setAsking(true)}><Icon name="calendar" size={16} />Ask for a session</button>}>
         You meet once a week. In between, message {firstName(m.name)} with questions, add things to talk about, and read their feedback here.
       </PageHead>
-      {msg && <div className="pf-note" role="alert">{msg}</div>}
+      {msg && <div className="pf-note" role="status">{msg}</div>}
+      <JoinBanner list={coming} name={m.name} />
       <div className="pf-grid g-main">
         <div className="pf-grid" style={{ alignContent: 'start' }}>
           <Card flush>
             <div className="pf-card-h" style={{ padding: '16px 18px 0' }}><Icon name="message" size={20} className="pf-faint" /><h3>Messages</h3></div>
-            <Thread load={load} send={send} me="student" names={{ mentor: firstName(m.name), student: 'You' }} onRead={() => data.inbox && data.inbox.unread && actions.reload()}
+            <Thread studentId={data.me.id} load={load} send={send} me="student" names={{ mentor: firstName(m.name), student: 'You' }} onRead={() => data.inbox && data.inbox.unread && actions.reload()}
               empty={`Ask ${firstName(m.name)} anything about your plan, a task or a career. They usually reply within a day or two.`}
               note="Messages stay on iMenteo. Your parent can read them too." />
           </Card>
@@ -126,13 +143,15 @@ export default function LiveMentor() {
         </div>
         <div className="pf-grid" style={{ alignContent: 'start' }}>
           <Card><div className="pf-row"><Avatar name={m.name} size={52} /><div><b>{m.name}</b><div className="pf-small pf-muted">Your mentor</div></div></div></Card>
-          {coming.length ? coming.map(x => <div key={x.id}><NextSession s={x} onChange={actions.reload} />{x.status === 'requested' && <button type="button" className="pf-btn sm ghost" style={{ marginTop: 6 }} onClick={() => cancel(x.id)}>Withdraw this request</button>}</div>)
-            : <Card ai><span className="tag"><Icon name="calendar" size={14} />Next session</span><p className="pf-small" style={{ margin: '8px 0 10px' }}>Nothing booked yet. Your mentor will set one, or you can ask.</p><button type="button" className="pf-btn sm" onClick={() => setAsking(true)}>Ask for a session</button></Card>}
-          {(s.declined || []).map(x => <div key={x.id} className="pf-note" role="note"><b>{fmtDate(x.date)} did not work for your mentor.</b>{x.note ? ` “${x.note}”` : ''} Ask for another day.</div>)}
+          <Card><CardHead title="Your sessions" icon="calendar" />
+            {coming.length ? <div className="pf-sess-list">{coming.map(x => <SessionCard key={x.id} s={x} role="student" name={m.name} onChanged={actions.reload} />)}</div>
+              : <><p className="pf-small" style={{ margin: '0 0 10px' }}>Nothing booked yet. Your mentor will set one, or you can ask.</p><button type="button" className="pf-btn sm" onClick={() => setAsking(true)}>Ask for a session</button></>}
+          </Card>
+          {closed.length > 0 && <Card><CardHead title="Recently closed" icon="clock" /><div className="pf-sess-list">{closed.map(x => <SessionCard key={x.id} s={{ agenda: [], ...x }} role="student" name={m.name} onChanged={actions.reload} />)}</div></Card>}
           <Card><CardHead title="Bring to the session" icon="bulb" /><ul className="pf-list"><li>Your daily learning log: what clicked and what was hard</li><li>Tasks you finished, and ones you are stuck on</li><li>One thing you are proud of</li></ul></Card>
         </div>
       </div>
-      <RequestSession open={asking} onClose={() => setAsking(false)} onDone={actions.reload} />
+      <RequestSession open={asking} onClose={() => setAsking(false)} onDone={done} mentorName={m.name} />
     </>
   );
 }

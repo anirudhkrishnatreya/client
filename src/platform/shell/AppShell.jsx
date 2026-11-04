@@ -6,6 +6,7 @@ import { NAV, ROLE_LABEL } from './nav';
 import { usePlatform } from '../data/store';
 import logo from '../../assets/imenteo_logo.png';
 import { useAuth } from '../../context/AuthContext';
+import { useLiveStatus } from '../live/events';
 
 const stored = () => { try { return localStorage.getItem('imenteo-platform-collapsed') === '1'; } catch { return false; } };
 
@@ -28,27 +29,39 @@ function UserMenu({ name, meta, onSignOut }) {
   );
 }
 
-function Notifications({ items, onRead }) {
+/** The bell: what happened that you should know about. An item with a page opens it; live accounts can turn the emails off here. */
+function Notifications({ items, onRead, onOpen, emails, onEmails }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => { const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h); }, []);
   const unread = items.filter(n => n.unread).length;
+  const row = n => <><span className="pf-pill" style={{ width: 32, height: 32, padding: 0, justifyContent: 'center', borderRadius: 10, flex: 'none' }}><Icon name={n.icon} size={16} /></span>
+    <div className="pf-grow" style={{ minWidth: 0 }}><div style={{ fontSize: 14 }}>{n.text}</div>{n.sub && <div className="pf-small pf-muted pf-ellipsis">{n.sub}</div>}<div className="pf-small pf-faint">{n.time}</div></div></>;
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button type="button" className="pf-iconbtn" aria-label={`Notifications${unread ? `, ${unread} new` : ''}`} aria-expanded={open} onClick={() => setOpen(o => !o)}><Icon name="bell" />{unread > 0 && <span className="dot" />}</button>
       {open && (
-        <div role="menu" className="pf-card" style={{ position: 'absolute', right: 0, top: 50, width: 340, zIndex: 50, padding: 8 }}>
+        <div role="menu" className="pf-card pf-bellmenu">
           <div className="pf-row pf-between" style={{ padding: '8px 10px' }}><b>Notifications</b>{unread > 0 && <button type="button" className="act" style={{ background: 'none', border: 0, color: 'var(--indigo)', fontWeight: 600 }} onClick={onRead}>Mark all read</button>}</div>
-          {items.map(n => (
-            <div key={n.id} className="pf-row" style={{ padding: '10px', borderRadius: 12, alignItems: 'flex-start', background: n.unread ? '#F7F8FD' : 'transparent' }}>
-              <span className="pf-pill" style={{ width: 32, height: 32, padding: 0, justifyContent: 'center', borderRadius: 10 }}><Icon name={n.icon} size={16} /></span>
-              <div className="pf-grow"><div style={{ fontSize: 14 }}>{n.text}</div><div className="pf-small pf-faint">{n.time}</div></div>
-            </div>
-          ))}
+          <div className="pf-bell-list">
+            {items.length === 0 && <p className="pf-small pf-muted" style={{ padding: '6px 10px' }}>Nothing new. Messages, sessions and feedback will show up here.</p>}
+            {items.map(n => (n.link !== undefined && onOpen
+              ? <button key={n.id} type="button" role="menuitem" className={`pf-bell-item${n.unread ? ' unread' : ''}`} onClick={() => { setOpen(false); onOpen(n); }}>{row(n)}</button>
+              : <div key={n.id} className={`pf-bell-item${n.unread ? ' unread' : ''}`}>{row(n)}</div>))}
+          </div>
+          {onEmails && <label className="pf-small pf-row pf-bell-foot"><input type="checkbox" checked={emails} onChange={e => onEmails(e.target.checked)} />Email me about messages and sessions</label>}
         </div>
       )}
     </div>
   );
+}
+
+/** Shown only when live updates have been down for a while, so nobody wonders why a reply has not appeared. */
+function Reconnecting() {
+  const status = useLiveStatus();
+  const [late, setLate] = useState(false);
+  useEffect(() => { if (status !== 'down') { setLate(false); return undefined; } const t = setTimeout(() => setLate(true), 20000); return () => clearTimeout(t); }, [status]);
+  return late ? <div className="pf-reconnect" role="status"><Icon name="repeat" size={14} />Reconnecting… new messages and changes may take a minute to appear.</div> : null;
 }
 
 /** A few plain sentences from the real numbers, for the summary panel. (Written from facts, not by an AI model.) */
@@ -125,8 +138,10 @@ export default function AppShell({ role, preview = false }) {
             {role === 'student'
               ? <button type="button" className="pf-ask" onClick={() => nav(`${base}/coach`)}><Icon name="sparkles" size={18} />Ask AI coach</button>
               : <button type="button" className="pf-ask" onClick={() => setAi(true)}><Icon name="sparkles" size={18} />{live ? 'Summary' : 'AI summary'}</button>}
-            {data && <Notifications items={data.notifications || []} onRead={actions.markRead || (() => {})} />}
+            {data && <Notifications items={data.notifications || []} onRead={actions.markRead || (() => {})} emails={data.emails !== false}
+              onOpen={live ? n => { if (n.unread && actions.readOne) actions.readOne(n.id); nav(n.link ? `${base}/${n.link}` : base); } : null} onEmails={live ? actions.setEmails : null} />}
           </header>
+          {live && <Reconnecting />}
           <main className="pf-content">{data ? <Outlet /> : error ? <div role="alert" className="pf-card"><b>We could not load your dashboard.</b><p className="pf-muted">Please check your connection and try again.</p><button type="button" className="pf-btn sm" onClick={() => actions.reload && actions.reload()}>Try again</button></div> : <div role="status" className="pf-card"><div className="pf-muted">Loading your dashboard…</div></div>}</main>
         </div>
       </div>

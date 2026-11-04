@@ -30,7 +30,7 @@ export default function LiveStudentOverview() {
         <Stat label="Tasks still open" value={open.length} icon="tasks" hint={open[0] ? `Next: ${dueLabel(open[0].due).text.toLowerCase()}` : 'All caught up'} />
         <Stat label="Overdue" value={overdue} icon="alert" up={false} hint={overdue ? 'Worth doing first' : 'Nothing late'} />
         <Stat label="Career assessment" value={a.state === 'submitted' ? 'Done' : a.state === 'in_progress' ? 'Started' : 'Not started'} icon="clipboard" hint={a.hollandCode ? `Interest code ${a.hollandCode}` : 'About 53 to 90 minutes, in sittings'} />
-        <Stat label="Next mentor session" value={next ? fmtDate(next.date) : 'Not set'} icon="calendar" hint={next ? (next.time || next.topic) : 'Your mentor will schedule it'} />
+        <Stat label="Next mentor session" value={next ? fmtDate(next.date) : 'Not set'} icon="calendar" hint={next ? (next.when ? next.when.split(', ').pop() : next.time || next.topic) : 'Your mentor will schedule it'} />
       </div>
       <div className="pf-grid g-main">
         <Card><CardHead title="Up next" action="All tasks" to="tasks" icon="tasks" />
@@ -38,7 +38,7 @@ export default function LiveStudentOverview() {
             <ul className="pf-list">{open.slice(0, 5).map(t => { const d = dueLabel(t.due); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · from {t.by}</span></span><Pill tone={d.tone}>{d.text}</Pill></li>; })}</ul>}</Card>
         <div className="pf-grid" style={{ alignContent: 'start' }}>
           <Card><CardHead title="Your mentor" action="Open" to="mentor" icon="users" />
-            {data.mentor ? <><div className="pf-row"><Avatar name={data.mentor.name} /><div className="pf-grow"><b>{data.mentor.name}</b><div className="pf-small pf-muted">{next ? `Next: ${fmtDate(next.date)}${next.time ? `, ${next.time}` : ''}` : 'No session booked yet'}</div></div>{data.inbox && data.inbox.unread > 0 && <Pill tone="coral" icon="message">{data.inbox.unread} new</Pill>}</div>
+            {data.mentor ? <><div className="pf-row"><Avatar name={data.mentor.name} /><div className="pf-grow"><b>{data.mentor.name}</b><div className="pf-small pf-muted">{next ? `Next: ${next.when || `${fmtDate(next.date)}${next.time ? `, ${next.time}` : ''}`}` : 'No session booked yet'}</div></div>{data.inbox && data.inbox.unread > 0 && <Pill tone="coral" icon="message">{data.inbox.unread} new</Pill>}</div>
               {data.mentorNotes && data.mentorNotes[0] && <p className="pf-small" style={{ margin: '10px 0 0' }}><b>Latest:</b> {data.mentorNotes[0].title || data.mentorNotes[0].text.slice(0, 80)}</p>}
               <div className="pf-row pf-wrap" style={{ gap: 6, marginTop: 10 }}><Link className="pf-btn sm ghost" to="mentor"><Icon name="message" size={14} />Message</Link>{!next && <Link className="pf-btn sm ghost" to="mentor">Ask for a session</Link>}</div></>
               : data.mentorRequest ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Waiting for {data.mentorRequest.mentor ? data.mentorRequest.mentor.name : 'your mentor'} to accept your request.</p>

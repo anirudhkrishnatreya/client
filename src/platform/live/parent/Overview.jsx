@@ -21,7 +21,7 @@ export default function LiveParentOverview() {
               <ul className="pf-list">{open.slice(0, 5).map(t => { const l = dueLabel(t.due); return <li key={t.id}><span className="pf-grow"><b>{t.title}</b><br /><span className="pf-small pf-muted">{t.subject} · from {t.by}</span></span><Pill tone={l.tone}>{l.text}</Pill></li>; })}</ul>}</Card>
           <div className="pf-grid" style={{ alignContent: 'start' }}>
             <Card ai><span className="tag"><Icon name="calendar" size={14} />Next mentor session</span>
-              {next ? <><h4 style={{ fontSize: 20, margin: '8px 0 2px' }}>{fmtDate(next.date)}{next.time ? `, ${next.time}` : ''}</h4><p className="pf-small" style={{ margin: 0 }}>{d.mentor ? d.mentor.name : ''}{next.topic ? ` · ${next.topic}` : ''}</p></> :
+              {next ? <><h4 style={{ fontSize: 20, margin: '8px 0 2px' }}>{next.when || `${fmtDate(next.date)}${next.time ? `, ${next.time}` : ''}`}</h4><p className="pf-small" style={{ margin: 0 }}>{d.mentor ? d.mentor.name : ''}{next.topic ? ` · ${next.topic}` : ''}</p></> :
                 <p className="pf-small" style={{ margin: '8px 0 0' }}>{d.mentor ? `${d.mentor.name} has not booked the next session yet.` : 'A mentor has not been assigned yet.'}</p>}</Card>
             <Card><CardHead title="Reports" action="Open" to="reports" icon="file" />
               <p className="pf-small" style={{ margin: 0 }}>{d.reports.length ? `${d.reports.length} career report${d.reports.length === 1 ? '' : 's'} available.` : `${c.firstName} has not finished the career assessment yet.`}</p></Card>

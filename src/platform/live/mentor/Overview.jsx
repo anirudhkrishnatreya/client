@@ -5,7 +5,7 @@ import { Avatar, Card, CardHead, Empty, Icon, PageHead, Pill, Progress, Stat } f
 import { fmtDate, greeting } from '../../ui/format';
 import { errMessage, gradeLabel, mentorApi } from '../liveApi';
 
-const GO = { reply: id => `messages?student=${id}`, nudge: id => `messages?student=${id}`, goal: id => `messages?student=${id}`, 'session-request': () => 'sessions', book: id => `sessions?student=${id}`, review: () => 'tasks', overdue: () => 'tasks', summary: id => `students?open=${id}&tab=week` };
+const GO = { reply: id => `messages?student=${id}`, nudge: id => `messages?student=${id}`, goal: id => `messages?student=${id}`, 'session-request': () => 'sessions', writeup: () => 'sessions', book: id => `sessions?student=${id}`, review: () => 'tasks', overdue: () => 'tasks', summary: id => `students?open=${id}&tab=week` };
 
 /** This week with each student: where they are and the mentor's next step with them, most urgent first. */
 function WeekBoard({ board }) {
@@ -99,7 +99,7 @@ export default function LiveMentorOverview() {
         <MentorCode code={data.me.mentorCode} />
         <Card><CardHead title="Coming up" action="Sessions" to="sessions" icon="calendar" />
           {data.sessions.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>No sessions scheduled. Book one from the Sessions page.</p> :
-            <ul className="pf-list">{data.sessions.slice(0, 6).map(x => <li key={x.id}><Avatar name={by(x.studentId).name} size={32} /><span className="pf-grow"><b>{by(x.studentId).name}</b><br /><span className="pf-small pf-muted">{fmtDate(x.date)}{x.time ? `, ${x.time}` : ''}{x.agenda && x.agenda.length ? ` · ${x.agenda.length} to talk about` : ''}</span></span></li>)}</ul>}</Card>
+            <ul className="pf-list">{data.sessions.slice(0, 6).map(x => <li key={x.id}><Avatar name={by(x.studentId).name} size={32} /><span className="pf-grow"><b>{by(x.studentId).name}</b><br /><span className="pf-small pf-muted">{x.when || `${fmtDate(x.date)}${x.time ? `, ${x.time}` : ''}`}{x.agenda && x.agenda.length ? ` · ${x.agenda.length} to talk about` : ''}</span></span></li>)}</ul>}</Card>
         </div>
       </div>
     </>
