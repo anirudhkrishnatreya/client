@@ -79,6 +79,17 @@ function CoachTab({ studentId, name }) {
   return (
     <>
       {d.week.flagged && <div className="pf-note" role="alert" style={{ borderColor: 'var(--coral)', marginBottom: 12 }}><b>{name} may need support.</b> Something they wrote to the coach this week worried it; the coach gave them helpline numbers and said you would check in. Please reach out kindly and privately.</div>}
+      {d.progress && <div className="pf-tiles" style={{ marginBottom: 12 }}>
+        <div className="pf-tile"><div><b>{d.progress.streak.current}</b><span>day streak</span><small>best {d.progress.streak.best}</small></div></div>
+        <div className="pf-tile"><div><b>{d.progress.week.minutes}</b><span>minutes this week</span><small>{d.progress.week.focus} in focus</small></div></div>
+        <div className="pf-tile"><div><b>{d.progress.week.daysActive}/7</b><span>days active</span></div></div>
+        {d.progress.trajectory && <div className="pf-tile"><div><b>{{ ahead: 'Ahead', 'on-track': 'On track', behind: 'Behind', unknown: '–' }[d.progress.trajectory.status]}</b><span>level {d.progress.trajectory.level} of {d.progress.trajectory.levels}</span><small>{d.progress.trajectory.pace}% of recent steps</small></div></div>}
+      </div>}
+      {(d.checkins || []).length > 0 && <><h4 style={{ fontSize: 15, margin: '6px 0' }}>Check-ins</h4>
+        <ul className="pf-list" style={{ marginBottom: 10 }}>{d.checkins.slice(0, 7).map(c => <li key={`${c.kind}-${c.date}`} className="pf-small"><span className="pf-grow">{fmtDate(c.date)} · {{ morning: 'Morning', evening: 'Evening', weekly: 'Week review' }[c.kind]}</span>
+          {c.kind === 'morning' && <span>energy {c.energy}/5 · {c.minutes} min</span>}{c.kind === 'evening' && <span>{c.done} step{c.done === 1 ? '' : 's'} ticked{c.confidence ? ` · sure ${c.confidence}/5` : ''}</span>}{c.kind === 'weekly' && c.wish && <span>wants next week: {c.wish}</span>}</li>)}</ul></>}
+      {(d.changes || []).length > 0 && <><h4 style={{ fontSize: 15, margin: '6px 0' }}>Changes the coach made at {name}’s request</h4>
+        <ul className="pf-small" style={{ marginTop: 0, paddingLeft: 18, marginBottom: 12 }}>{d.changes.slice(0, 6).map(c => <li key={c.id} className={c.undone ? 'pf-strike' : ''}>{c.lines.join('; ')}</li>)}</ul></>}
       <p className="pf-small" style={{ marginTop: 0 }}>This week: <b>{d.week.chats}</b> chat{d.week.chats === 1 ? '' : 's'}, <b>{d.week.replies}</b> repl{d.week.replies === 1 ? 'y' : 'ies'}{kinds.length ? ` (mostly ${kinds.slice(0, 3).map(([k, n]) => `${COACH_KIND[k] || k} ${n}`).join(', ')})` : ''}.</p>
       {d.chats.length === 0 ? <Empty icon="sparkles" title="No coach chats yet">When {name} talks to the AI coach, the chats appear here, read-only.</Empty> :
         d.chats.map(c => (

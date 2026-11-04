@@ -100,7 +100,23 @@ export const coachApi = {
   act: (id, body) => coach('post', `/chats/${id}/act`, body),
   quiz: (id, index, answers) => coach('post', `/chats/${id}/quiz`, { index, answers }),
   feedback: (id, index, value) => coach('post', `/chats/${id}/feedback`, { index, value }),
-  share: (id, note) => coach('post', `/chats/${id}/share`, note ? { note } : {})
+  share: (id, note) => coach('post', `/chats/${id}/share`, note ? { note } : {}),
+  apply: (id, index) => coach('post', `/chats/${id}/apply`, { index }),
+  // Coach OS
+  hq: () => coach('get', '/hq'),
+  progress: () => coach('get', '/progress'),
+  ritual: kind => coach('get', `/rituals/${kind}`),
+  checkIn: (kind, body) => coach('post', `/rituals/${kind}`, body),
+  applyCheckIn: id => coach('post', `/checkins/${id}/apply`),
+  changes: changes => coach('post', '/changes', { changes }),
+  undo: id => coach('post', `/changes/${id}/undo`),
+  fixMissed: () => coach('post', '/fix/missed'),
+  profile: () => coach('get', '/profile'),
+  saveProfile: body => coach('put', '/profile', body),
+  remember: text => coach('post', '/memory', { text }),
+  forget: id => coach('delete', `/memory/${id}`),
+  focusStart: body => coach('post', '/focus', body),
+  focusFinish: (id, body) => coach('post', `/focus/${id}/finish`, body)
 };
 export const notificationsApi = {
   list: () => get('notifications'),

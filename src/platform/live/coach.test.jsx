@@ -44,9 +44,8 @@ describe('student: the coach page', () => {
     routes['post /v2/me/coach/chats'] = b => ({ success: true, chat: chat([], { focus: b.focus ? { ...b.focus, title: 'Watch: gravity' } : null }) });
     routes['post /v2/me/coach/chats/c1/messages'] = b => { sent += 1; return { success: true, allowance: { ...ALLOW, used: 2 + sent, left: 18 - sent }, chat: chat([msg(0, 'student', b.text), msg(1, 'coach', 'Gravity is a **pull** between masses.\n- Every mass pulls\n- Farther means weaker', { followups: ['Quiz me on gravity'] })]) }; };
     const user = userEvent.setup();
-    at('/platform/student/coach');
+    at('/platform/student/coach?tab=coach');
     expect(await screen.findByText(/Neha, your mentor, can read your chats with the coach/)).toBeInTheDocument();
-    expect(screen.getByText('Essay on space')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Explain “gravity” simply' }));
     await waitFor(() => expect(calls.find(c => c.url === '/v2/me/coach/chats').body).toEqual({ focus: { kind: 'step', id: 'u1' } }));
     expect(calls.find(c => c.url === '/v2/me/coach/chats/c1/messages').body).toEqual({ text: 'Explain “gravity” simply' });
@@ -105,7 +104,7 @@ describe('student: the coach page', () => {
 
   it('when today\'s messages are used up, the box says so; a refused send keeps what was typed', async () => {
     routes['get /v2/me/coach'] = home({ allowance: { ...ALLOW, used: 20, left: 0 } });
-    at('/platform/student/coach');
+    at('/platform/student/coach?tab=coach');
     expect(await screen.findByPlaceholderText('No coach messages left today')).toBeDisabled();
     expect(screen.getByText('0 of 20 left')).toBeInTheDocument();
   });
@@ -115,7 +114,7 @@ describe('student: the coach page', () => {
     routes['post /v2/me/coach/chats'] = { success: true, chat: chat() };
     routes['post /v2/me/coach/chats/c1/messages'] = () => Object.assign(new Error('x'), { response: { status: 429, data: { code: 'COACH_LIMIT', details: { coach: 'You have used today’s 20 coach messages.' } } } });
     const user = userEvent.setup();
-    at('/platform/student/coach');
+    at('/platform/student/coach?tab=coach');
     await user.type(await screen.findByLabelText('Ask the coach'), 'What is a vector?');
     await user.click(screen.getByRole('button', { name: 'Send to the coach' }));
     expect(await screen.findByText(/You have used today’s 20 coach messages/)).toBeInTheDocument();

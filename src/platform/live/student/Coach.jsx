@@ -69,6 +69,31 @@ function ActionCard({ chatId, index, k, a, mentor, onChat }) {
   return null;
 }
 
+/** The changes the coach made (with Undo) or proposes (with Apply), in plain lines; what it could not do, said plainly. */
+function ProposalCard({ chat, m, onChat }) {
+  const p = m.proposal;
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const run = async fn => { setBusy(true); setErr(''); try { await fn(); } catch (x) { setErr(errMessage(x)); } finally { setBusy(false); } };
+  const apply = () => run(async () => onChat((await coachApi.apply(chat.id, m.i)).chat));
+  const undo = () => run(async () => { await coachApi.undo(p.changeId); onChat((await coachApi.get(chat.id)).chat); });
+  if (!p.lines.length && !p.problems.length) return null;
+  return (
+    <div className={`pf-change${p.changeId && !p.undone ? ' done' : ''}`}>
+      {p.lines.length > 0 && <>
+        <div className="pf-change-h"><Icon name={p.changeId ? 'check' : 'repeat'} size={14} /><b>{p.undone ? 'Undone' : p.changeId ? (p.auto ? 'Done, as you asked' : 'Done') : 'I can make these changes'}</b></div>
+        <ul>{p.lines.map(l => <li key={l} className={p.undone ? 'pf-strike' : ''}>{l}</li>)}</ul>
+        <div className="pf-row" style={{ gap: 6 }}>
+          {!p.changeId && <button type="button" className="pf-btn sm" disabled={busy} onClick={apply}>Apply</button>}
+          {p.changeId && !p.undone && <button type="button" className="pf-btn sm ghost" disabled={busy} onClick={undo}>Undo</button>}
+        </div>
+      </>}
+      {p.problems.length > 0 && <p className="pf-small pf-muted" style={{ margin: '6px 0 0' }}>I couldn’t: {p.problems.join(' ')}</p>}
+      {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)', margin: '6px 0 0' }}>{err}</p>}
+    </div>
+  );
+}
+
 function Bubble({ m, chat, last, mentor, onChat, onAsk }) {
   const [err, setErr] = useState('');
   if (m.role === 'student') return <div className="pf-cmsg me"><div className="pf-cbub">{m.text}</div></div>;
@@ -81,6 +106,7 @@ function Bubble({ m, chat, last, mentor, onChat, onAsk }) {
           {KIND[m.kind] && <span className="pf-ckind">{KIND[m.kind]}</span>}
           <Markdown text={m.text} />
           {m.quiz.length > 0 && <Quiz chatId={chat.id} index={m.i} quiz={m.quiz} result={m.quizResult} onChat={onChat} onAsk={onAsk} />}
+          {m.proposal && <ProposalCard chat={chat} m={m} onChat={onChat} />}
           {m.actions.length > 0 && <div className="pf-cacts">{m.actions.map((a, k) => <ActionCard key={k} chatId={chat.id} index={m.i} k={k} a={a} mentor={mentor} onChat={onChat} />)}</div>}
         </div>
         {!['safety', 'refused'].includes(m.kind) && <div className="pf-crate">
@@ -94,9 +120,11 @@ function Bubble({ m, chat, last, mentor, onChat, onAsk }) {
   );
 }
 
-export default function LiveCoach() {
+export default function LiveCoach({ embedded = false }) {
   const { data } = usePlatform();
-  const [sp, setSp] = useSearchParams();
+  const [sp, setSpRaw] = useSearchParams();
+  // inside Coach HQ the page's tab stays in the address whatever the chat does
+  const setSp = useCallback((p, o) => setSpRaw(sp.get('tab') ? { tab: sp.get('tab'), ...p } : p, o), [sp, setSpRaw]);
   const [home, setHome] = useState(null);
   const [chat, setChat] = useState(null);
   const [text, setText] = useState('');
@@ -127,6 +155,15 @@ export default function LiveCoach() {
     coachApi.get(chatId).then(r => setChat(r.chat)).catch(() => setSp({}, { replace: true }));
   }, [chatId, focusKey]);                                     // not `chat`: opening it must not trigger another fetch
   useEffect(() => { const el = log.current; if (el) el.scrollTop = el.scrollHeight; }, [chat, pending]);   // the newest message in view
+  // a command typed on the Today tab arrives as ?ask=…: sent once, then taken out of the address
+  const asked = useRef('');
+  useEffect(() => {
+    const q = sp.get('ask');
+    if (!q || !home || asked.current === q) return;
+    asked.current = q;
+    setSp({}, { replace: true });
+    ask(q);
+  }, [sp, home]);                                             // `ask` reads the latest state itself
 
   const ask = async (q, focus = null) => {
     const t = String(q || '').trim(); if (!t || busy) return;
@@ -145,7 +182,7 @@ export default function LiveCoach() {
   const remove = async id => { try { await coachApi.remove(id); if (chat && chat.id === id) fresh(); loadHome(); } catch (x) { setErr(errMessage(x)); } };
   const share = async e => { e.preventDefault(); try { setChat((await coachApi.share(chat.id, sharing.trim())).chat); setSharing(null); } catch (x) { setErr(errMessage(x)); } };
 
-  if (!home) return <><PageHead eyebrow="AI coach" title="Your study coach" /><p role={err ? 'alert' : 'status'}>{err || 'Loading…'}</p></>;
+  if (!home) return <>{!embedded && <PageHead eyebrow="AI coach" title="Your study coach" />}<p role={err ? 'alert' : 'status'}>{err || 'Loading…'}</p></>;
   const mentor = home.mentor && home.mentor.firstName;
   const a = home.allowance;
   const msgs = chat ? chat.messages : [];
@@ -154,9 +191,9 @@ export default function LiveCoach() {
   const starters = chat && chat.focus && !msgs.length ? FOCUS_STARTERS[chat.focus.kind].map(t => ({ text: t })) : home.starters;
   return (
     <>
-      <PageHead eyebrow="AI coach" title={`Hi ${name || 'there'}, what shall we work on?`}>
+      {!embedded && <PageHead eyebrow="AI coach" title={`Hi ${name || 'there'}, what shall we work on?`}>
         Your coach knows your goal, this week’s plan and what you found hard. It explains, quizzes you, helps you use the time you have, and helps you prepare for {mentor || 'your mentor'}.
-      </PageHead>
+      </PageHead>}
       <div className="pf-grid g-main">
         <Card flush className="pf-coach">
           <div className="pf-coach-h">
@@ -191,13 +228,13 @@ export default function LiveCoach() {
         </Card>
 
         <div className="pf-grid" style={{ alignContent: 'start' }}>
-          <Card><CardHead title="Today" icon="calendar" />
+          {!embedded && <Card><CardHead title="Today" icon="calendar" />
             {home.today.steps.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>{home.hasPlan ? 'Nothing planned for today. A good day to revise or get ahead.' : 'You have no weekly plan yet. Ask the coach to help you choose what to learn first.'}</p>
               : <ul className="pf-list">{home.today.steps.map(s => <li key={s.id}><span className="pf-grow"><b>{s.title}</b><br /><span className="pf-small pf-muted">{s.minutes} min{s.late ? ' · from earlier this week' : ''}</span></span>
                 {s.status === 'done' ? <Pill tone="leaf">Done</Pill> : <button type="button" className="pf-btn sm ghost" disabled={busy || a.left <= 0} onClick={() => { fresh(); setSp({ step: s.id }); }}>Ask</button>}</li>)}</ul>}
             {home.today.due.length > 0 && <><div className="pf-eyebrow" style={{ marginTop: 12 }}>Due soon</div><ul className="pf-list">{home.today.due.map(t => <li key={t.id}><span className="pf-grow">{t.title}<br /><span className="pf-small" style={{ color: t.overdue ? 'var(--coral)' : 'var(--muted)' }}>{t.overdue ? 'Overdue' : `Due ${fmtDate(t.due)}`}</span></span></li>)}</ul></>}
             {home.today.next && <p className="pf-small" style={{ margin: '12px 0 0' }}><Icon name="users" size={13} /> Next with {mentor}: <b>{home.today.next.when}</b></p>}
-          </Card>
+          </Card>}
           <Card><div className="pf-row pf-between"><b>Coach messages today</b><span className="pf-small">{a.left} of {a.limit} left</span></div>
             <div className="pf-progress" style={{ marginTop: 8 }}><i style={{ width: `${a.limit ? Math.round((a.left / a.limit) * 100) : 0}%` }} /></div>
             <p className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>{a.paused ? 'The coach is resting for today. It is back tomorrow.' : a.reduced ? 'With a plan you get 20 a day. ' : ''}They reset at 5:30 am.</p></Card>

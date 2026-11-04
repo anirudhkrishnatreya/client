@@ -20,7 +20,7 @@ import LiveMentorTasks from './live/mentor/Tasks';
 import LiveInsights from './live/mentor/Insights';
 import LiveStudentTasks from './live/student/Tasks';
 import LiveLibrary from './live/student/Library';
-import LiveCoach from './live/student/Coach';
+import CoachHQ from './live/coach/HQ';
 import LiveParentOverview from './live/parent/Overview';
 import LiveParentProgress from './live/parent/Progress';
 import LiveParentTasks from './live/parent/Tasks';
@@ -144,7 +144,7 @@ export default function PlatformApp() {
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
         <Route path="tasks" element={<LiveStudentTasks />} />
-        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<LiveCoach />} />
+        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<CoachHQ />} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />
           <Route path="shortlist" element={later(<Shortlist />)} /><Route path="situation" element={later(<Situation />)} />

@@ -4,7 +4,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import api, { API_URL } from '../../api';
 
-export const TYPES = ['ready', 'message.new', 'message.read', 'session.changed', 'task.changed', 'link.changed', 'note.shared', 'notification.new', 'notification.read'];
+export const TYPES = ['ready', 'message.new', 'message.read', 'session.changed', 'task.changed', 'link.changed', 'note.shared', 'notification.new', 'notification.read', 'coach.changed'];
 
 function createHub() {
   const subs = new Map();
