@@ -64,7 +64,7 @@ export function AssessmentBanner({ a, next, week }) {
     return (
       <div className="pf-assessbar locked">
         <Icon name="lock" size={18} />
-        <div className="pf-grow"><b>Week assessment</b><div className="pf-small">Opens after {a.need} finished steps ({a.done} so far), or when the week ends on {fmtShort(week.weekEnd)}. Your next week opens after the assessment.</div></div>
+        <div className="pf-grow"><b>Week assessment</b><div className="pf-small">Opens after {a.need} finished steps ({a.done} so far), or when the week ends on {fmtShort(week.weekEnd)}. {next.school ? 'It is optional: your school’s next week comes by itself, and the quiz shows what to revise.' : 'Your next week opens after the assessment.'}</div></div>
         <Link className="pf-btn sm ghost" to="assessment">What is it?</Link>
       </div>
     );
@@ -74,7 +74,7 @@ export function AssessmentBanner({ a, next, week }) {
       <Icon name="clipboard" size={18} />
       <div className="pf-grow">
         <b>{a.stage === 'ready' ? (ended ? 'This week has ended: take your assessment' : 'Your assessment is ready') : 'Finish your assessment'}</b>
-        <div className="pf-small">{ended ? 'Your next week stays locked until you take it. ' : ''}A 5-question quiz and one short piece of work, about 15 minutes. Next week is built from how it goes.</div>
+        <div className="pf-small">{next.school ? 'Optional: a 5-question quiz and one short piece of work, about 15 minutes. It shows your mentor and you what to revise; your school’s next week comes by itself.' : <>{ended ? 'Your next week stays locked until you take it. ' : ''}A 5-question quiz and one short piece of work, about 15 minutes. Next week is built from how it goes.</>}</div>
       </div>
       <Link className="pf-btn sm" to="assessment">{a.stage === 'ready' ? 'Take the assessment' : 'Continue'}</Link>
     </div>

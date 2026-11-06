@@ -3,8 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { usePlatform } from '../../data/store';
 import { Avatar, Card, CardHead, Drawer, Icon, PageHead } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
-import { errMessage, firstName, studentApi } from '../liveApi';
+import { errMessage, firstName, observeApi, studentApi } from '../liveApi';
 import Thread from '../Thread';
+import { SharedReports } from '../observe/parts';
 import { Join, SessionCard, SlotPicker, TimeFields, todayIST, useNow } from '../SessionParts';
 
 /** No mentor yet: enter the code your mentor or school gave you, or wait for iMenteo to assign one. */
@@ -135,6 +136,7 @@ export default function LiveMentor() {
           <Card><CardHead title="Summaries and notes from your mentor" icon="file" />
             {summaries.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>After your sessions, your mentor’s weekly summaries appear here.</p> :
               <div className="pf-timeline">{summaries.map(n => <div key={n.id} className="pf-tl"><b>{n.title || (n.kind === 'summary' ? 'Weekly summary' : 'Note')}</b> <span className="pf-small pf-muted">· {fmtDate(n.at)}</span><p className="pf-small" style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{n.text}</p></div>)}</div>}</Card>
+          <SharedReports load={observeApi.myReports} who="your mentor" />
           <Card><CardHead title="Past sessions" icon="calendar" />
             {s.history.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Your first session has not happened yet. Notes and next steps will appear here afterwards.</p> :
               <div className="pf-timeline">{s.history.map(h => (

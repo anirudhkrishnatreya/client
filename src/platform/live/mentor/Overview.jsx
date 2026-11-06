@@ -68,6 +68,7 @@ export default function LiveMentorOverview() {
   return (
     <>
       <PageHead eyebrow="Mentor overview" title={`${greeting()}, ${data.me.firstName}`}>You mentor {S.length} student{S.length === 1 ? '' : 's'}. Here is who needs you most this week.</PageHead>
+      <Link to="command" className="pf-cc-banner"><Icon name="brain" size={20} /><span className="pf-grow"><b>Command centre</b><br /><span className="pf-small">Who needs you today, every student’s risk and trend, wellbeing alerts, and actions for several students at once.</span></span><Icon name="chevronRight" size={18} /></Link>
       <div className="pf-grid g4" style={{ marginBottom: 18 }}>
         <Stat label="Students" value={S.length} icon="users" hint="assigned to you" />
         <Stat label="Need attention" value={attention} icon="alert" up={false} hint="at risk this week" />

@@ -7,6 +7,7 @@ import { V4_ENABLED } from '../v4/config';
 export function homeRouteFor(user) {
   if (!user) return '/login';
   if (PLATFORM_ENABLED && ['student', 'mentor', 'parent'].includes(user.role || 'student')) return `/platform/${user.role || 'student'}`;
+  if (PLATFORM_ENABLED && user.role === 'counsellor') return '/platform/school';
   if (V4_ENABLED && user.role === 'counsellor') return '/v4/school';
   if (V4_ENABLED && user.track) return '/v4';
   if (user.assessmentCompleted) return '/dashboard';

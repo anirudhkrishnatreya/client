@@ -1,6 +1,9 @@
+import { useCallback } from 'react';
 import { Card, CardHead, Pill, Progress as Bar } from '../../ui/kit';
 import { fmtDate } from '../../ui/format';
 import { WithChild } from './shared';
+import { observeApi } from '../liveApi';
+import { SharedReports } from '../observe/parts';
 
 const BAND = { strong: ['leaf', 'Strong'], 'getting-there': ['gold', 'Getting there'], 'not-yet': ['coral', 'Not yet'] };
 const PACE = { 'speed-up': 'a bit faster', 'slow-down': 'a bit slower', continue: 'at the same pace', start: 'gently' };
@@ -21,6 +24,11 @@ function WeeklyPlan({ loop, name }) {
   );
 }
 
+function ParentReports({ childId }) {
+  const load = useCallback(() => observeApi.parentReports(childId), [childId]);
+  return <SharedReports load={load} who="the mentor" />;
+}
+
 export default function LiveParentProgress() {
   return (
     <WithChild eyebrow="Progress" title={c => `How ${c.firstName} is getting on`} intro="Tasks finished, the career assessment and mentor sessions.">
@@ -32,6 +40,7 @@ export default function LiveParentProgress() {
           <Card><CardHead title="Career assessment" icon="clipboard" />
             <Pill tone={c.assessment.state === 'submitted' ? 'leaf' : c.assessment.state === 'in_progress' ? 'gold' : 'grey'}>{{ submitted: 'Done', in_progress: 'In progress', not_started: 'Not started' }[c.assessment.state]}</Pill>
             <p className="pf-small pf-muted" style={{ marginTop: 10 }}>{c.assessment.completedAt ? `Finished on ${fmtDate(String(c.assessment.completedAt).slice(0, 10))}.` : 'It takes a few sittings and can be paused.'}</p></Card>
+          <ParentReports childId={c.id} />
           <Card><CardHead title="Mentor sessions" icon="calendar" /><p style={{ margin: 0 }}><b>{d.sessions.history.length}</b> held{d.sessions.next ? `, next on ${fmtDate(d.sessions.next.date)}` : ''}.</p></Card>
                     {d.loop ? <WeeklyPlan loop={d.loop} name={c.firstName} /> : <Card ai><span className="tag">Coming soon</span><p style={{ margin: '8px 0 0', fontSize: 14 }}>Study time, weekly scores and trends will appear here as {c.firstName} starts using the weekly plan and check-ins.</p></Card>}
         </div>); }}

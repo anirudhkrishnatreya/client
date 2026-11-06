@@ -13,7 +13,7 @@ import Settings from './Settings';
 // Coach HQ: the student's cockpit. The coach runs the week with them: today's word and game plan, the check-in that is due,
 // one-tap fixes, a command bar that hands requests to the coach, what the coach noticed and changed (with Undo), focus mode,
 // their progress, and how the coach works for them.
-const TYPE = { learn: ['Learn', 'sky'], practice: ['Practise', 'leaf'], revise: ['Revise', 'gold'], assess: ['Check', 'coral'], project: ['Project', 'gold'], task: ['Task', 'grey'] };
+const TYPE = { learn: ['Learn', 'sky'], practise: ['Practise', 'leaf'], practice: ['Practise', 'leaf'], make: ['Make', 'gold'], check: ['Check', 'coral'], revise: ['Revise', 'gold'], task: ['Task', 'grey'] };
 const EXAMPLES = ['I’m busy today, push my steps to later this week', 'Move practice to Saturday', 'Remind me at 6 pm to revise', 'I have a test on Friday', 'Add a task: revise chapter 3 tomorrow'];
 const ago = at => { const m = Math.round((Date.now() - new Date(at).getTime()) / 60000); return m < 60 ? `${Math.max(1, m)} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); };
 const tomorrowOf = d => new Date(Date.parse(`${d}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);

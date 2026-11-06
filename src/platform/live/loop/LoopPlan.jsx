@@ -12,7 +12,7 @@ import { DayCard, AssessmentBanner, daysOf, doneOf } from './DayBits';
 export default function LoopPlanPage() {
   const { loop, loading, closed, error, locked, act } = useLoop();
   const [replan, setReplan] = useState('');
-  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<div className="pf-row pf-wrap" style={{ gap: 10, justifyContent: 'flex-end' }}>{loop && <AiMeter ai={loop.ai} />}<Link className="pf-btn sm ghost" to="roadmap">My progress</Link></div>}>Open a day to see its steps in full. Finish the week with the assessment: your next week is built from it.</PageHead>;
+  const head = <PageHead eyebrow="Weekly plan" title="Your week, planned for you" actions={<div className="pf-row pf-wrap" style={{ gap: 10, justifyContent: 'flex-end' }}>{loop && <AiMeter ai={loop.ai} />}<Link className="pf-btn sm ghost" to="roadmap">My progress</Link></div>}>{loop && loop.next && loop.next.school ? 'Open a day to see its steps in full. Each week follows what your class is taught; the next one comes by itself.' : 'Open a day to see its steps in full. Finish the week with the assessment: your next week is built from it.'}</PageHead>;
   if (loading) return <PageSkeleton label="Loading your week" />;
   if (locked) return <>{head}<Locked {...locked} /></>;
   if (closed) return <>{head}<Card><Empty icon="sparkles" title="Coming soon">Weekly plans are not open yet.</Empty></Card></>;
@@ -53,7 +53,7 @@ export default function LoopPlanPage() {
         </div>
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <Card><CardHead title="Where you are" icon="trend" action="Details" to="roadmap" />
-            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Level {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
+            <div className="pf-row pf-wrap" style={{ gap: 8, marginBottom: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">{g.where || `Level ${g.phase.number} of ${g.phase.total}: ${g.phase.title}`}</span></div>
             {g.phase.levelUp && <p className="pf-small" style={{ margin: '0 0 8px' }}><b>{g.phase.levelUpDue ? 'Level-up proof due this week:' : 'To move up a level:'}</b> {g.phase.levelUp.proof}</p>}
             <p className="pf-small" style={{ margin: '0 0 8px' }}>{g.progress.topicsDone} of {g.progress.topicsTotal} topics studied, {g.progress.mastered} mastered</p>
             <Progress value={g.progress.topicsTotal ? (g.progress.topicsDone / g.progress.topicsTotal) * 100 : 0} label="Topics studied" />

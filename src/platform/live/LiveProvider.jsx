@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Ctx } from '../data/store';
-import { loadStudent, loadMentor, loadParent, studentApi, mentorApi, parentApi, notificationsApi } from './liveApi';
+import { loadStudent, loadMentor, loadParent, loadSchool, studentApi, mentorApi, parentApi, notificationsApi } from './liveApi';
 import { EventsCtx, useStream } from './events';
 
 // what each kind of notification looks like under the bell
@@ -26,7 +26,7 @@ export default function LiveProvider({ role, children }) {
 
   const reload = useCallback(async (child = childId) => {
     try {
-      const d = role === 'student' ? await loadStudent() : role === 'mentor' ? await loadMentor() : await loadParent(child);
+      const d = role === 'student' ? await loadStudent() : role === 'mentor' ? await loadMentor() : role === 'school' ? await loadSchool() : await loadParent(child);
       setData(d); setError(null);
     } catch (e) { setError(e); }
   }, [role, childId]);

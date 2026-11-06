@@ -9,12 +9,12 @@ const STATUS = { ahead: ['Ahead of plan', 'leaf'], 'on-track': ['On track', 'sky
 const MASTERY = { mastered: ['Mastered', 'leaf'], weak: ['Needs work', 'coral'], covered: ['Covered', 'sky'], next: ['Coming up', 'grey'] };
 const fmt = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-IN', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
 
-function Tile({ icon, value, label, sub }) {
+export function Tile({ icon, value, label, sub }) {
   return <div className="pf-tile"><span className="pf-tile-ic"><Icon name={icon} size={18} /></span><div><b>{value}</b><span>{label}</span>{sub && <small>{sub}</small>}</div></div>;
 }
 
 /** Planned (light) and done (solid, with focus on top) minutes for each of the last 14 days. */
-function Minutes({ days }) {
+export function Minutes({ days }) {
   const top = Math.max(30, ...days.map(d => Math.max(d.planned, d.done + d.focus)));
   return (
     <div className="pf-mins" role="img" aria-label={days.map(d => `${d.label}: ${d.done} of ${d.planned} planned minutes done, ${d.focus} focus minutes`).join('; ')}>
@@ -31,7 +31,7 @@ function Minutes({ days }) {
   );
 }
 
-function Trajectory({ t }) {
+export function Trajectory({ t }) {
   if (!t) return <p className="pf-small pf-muted" style={{ margin: 0 }}>Start a goal and a weekly plan to see your path here.</p>;
   const [label, tone] = STATUS[t.status] || STATUS.unknown;
   return (
@@ -54,6 +54,11 @@ export default function Progress() {
   const [err, setErr] = useState('');
   useEffect(() => { coachApi.progress().then(setD).catch(e => setErr(errMessage(e))); }, []);
   if (!d) return <p role={err ? 'alert' : 'status'} className="pf-small pf-muted">{err || 'Working out your numbers…'}</p>;
+  return <ProgressView d={d} />;
+}
+
+/** The dashboard itself, for any data in the same shape (the student's own, or the mentor's observatory). */
+export function ProgressView({ d, readLabel = 'Your coach’s read' }) {
   return (
     <div className="pf-grid" style={{ gap: 18 }}>
       <div className="pf-tiles">
@@ -62,11 +67,11 @@ export default function Progress() {
         <Tile icon="target" value={`${d.week.focus} min`} label="Focus time" sub="this week" />
         <Tile icon="calendar" value={`${d.week.daysActive}/7`} label="Days active" sub="this week" />
       </div>
-      {d.read.length > 0 && <Card ai><span className="tag"><Icon name="sparkles" size={14} />Your coach’s read</span>
+      {d.read.length > 0 && <Card ai><span className="tag"><Icon name="sparkles" size={14} />{readLabel}</span>
         <ul className="pf-read">{d.read.map(r => <li key={r.text}><Icon name={r.icon} size={16} />{r.text}</li>)}</ul></Card>}
       <div className="pf-grid g-main">
         <Card><CardHead title="Your path to the goal" icon="trend" /><Trajectory t={d.trajectory} /></Card>
-        <Card><CardHead title="This level’s topics" icon="layers" />
+        <Card><CardHead title={d.masteryTitle || 'This level’s topics'} icon="layers" />
           {d.mastery.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Your topics appear here once you have a plan.</p>
             : <div className="pf-chip-row">{d.mastery.map(m => <span key={m.title} className={`pf-mastery ${m.state}`} title={MASTERY[m.state][0]}>{m.title}</span>)}</div>}
           <p className="pf-small pf-faint" style={{ margin: '10px 0 0' }}>{Object.entries(MASTERY).map(([k, [l]]) => <span key={k} className={`pf-mastery-key ${k}`}>{l}</span>)}</p></Card>

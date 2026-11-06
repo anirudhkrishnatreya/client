@@ -21,6 +21,13 @@ import LiveInsights from './live/mentor/Insights';
 import LiveStudentTasks from './live/student/Tasks';
 import LiveLibrary from './live/student/Library';
 import CoachHQ from './live/coach/HQ';
+import Observatory from './live/observe/Observatory';
+import CommandCentre from './live/observe/CommandCentre';
+import MyMentorView from './live/observe/MyMentorView';
+import SchoolHome from './live/school/SchoolHome';
+import SchoolStudents from './live/school/SchoolStudents';
+import SchoolCurriculum from './live/school/SchoolCurriculum';
+import { SchoolClasses, SchoolMentors, SchoolSettings } from './live/school/SchoolManage';
 import LiveParentOverview from './live/parent/Overview';
 import LiveParentProgress from './live/parent/Progress';
 import LiveParentTasks from './live/parent/Tasks';
@@ -113,15 +120,15 @@ const PreviewAssistant = () => (
 const Role = ({ role, children }) => <PlatformProvider key={role} role={role}>{children}</PlatformProvider>;
 
 // Where each kind of account belongs after signing in.
-export const HOME_OF = { student: '/platform/student', mentor: '/platform/mentor', parent: '/platform/parent', counsellor: '/v4/school' };
+export const HOME_OF = { student: '/platform/student', mentor: '/platform/mentor', parent: '/platform/parent', counsellor: '/platform/school' };
 
 /** Real dashboards: a signed-in person of the right role, with data from the server. */
 function Gate({ role }) {
   const { user, isLoggedIn, loading } = useAuth();
   if (loading) return null;
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  const mine = (user.role || 'student');
-  if (mine !== role) return <Navigate to={HOME_OF[mine] || '/'} replace />;
+  const mine = user.role === 'counsellor' ? 'school' : (user.role || 'student');
+  if (mine !== role) return <Navigate to={HOME_OF[user.role || 'student'] || '/'} replace />;
   return <LiveProvider key={role} role={role}><AppShell role={role} /></LiveProvider>;
 }
 function SignedIn() { const { isLoggedIn, loading } = useAuth(); if (loading) return null; return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />; }
@@ -144,14 +151,17 @@ export default function PlatformApp() {
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
         <Route path="tasks" element={<LiveStudentTasks />} />
-        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<CoachHQ />} />
+        <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<CoachHQ />} /><Route path="mentor-view" element={<MyMentorView />} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />
           <Route path="shortlist" element={later(<Shortlist />)} /><Route path="situation" element={later(<Situation />)} />
         </>}
       </Route>
       <Route path="mentor" element={<Gate role="mentor" />}>
-        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="messages" element={later(<LiveMessages />)} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="assistant" element={later(<LiveAssistant />)} /><Route path="insights" element={<LiveInsights />} />
+        <Route index element={<LiveMentorOverview />} /><Route path="students" element={<LiveStudents />} /><Route path="sessions" element={<LiveSessions />} /><Route path="messages" element={later(<LiveMessages />)} /><Route path="tasks" element={<LiveMentorTasks />} /><Route path="assistant" element={later(<LiveAssistant />)} /><Route path="insights" element={<LiveInsights />} /><Route path="command" element={<CommandCentre />} /><Route path="observe/:studentId" element={<Observatory />} />
+      </Route>
+      <Route path="school" element={<Gate role="school" />}>
+        <Route index element={<SchoolHome />} /><Route path="students" element={<SchoolStudents />} /><Route path="classes" element={<SchoolClasses />} /><Route path="curriculum" element={<SchoolCurriculum />} /><Route path="mentors" element={<SchoolMentors />} /><Route path="settings" element={<SchoolSettings />} /><Route path="observe/:studentId" element={<Observatory />} />
       </Route>
       <Route path="parent" element={<Gate role="parent" />}>
         <Route index element={<LiveParentOverview />} /><Route path="progress" element={<LiveParentProgress />} /><Route path="tasks" element={<LiveParentTasks />} /><Route path="reports" element={<LiveParentReports />} /><Route path="mentor" element={<LiveParentMentor />} />

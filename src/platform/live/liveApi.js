@@ -32,6 +32,11 @@ export async function loadMentor() {
   };
 }
 
+export async function loadSchool() {
+  const d = await api.get('/v2/school/dashboard').then(r => r.data.dashboard);
+  return { live: true, me: { id: null, name: d.school.name, firstName: d.school.name }, school: d.school, totals: d.totals };
+}
+
 export async function loadParent(childId) {
   const home = await get('parent');
   const base = { live: true, me: { id: home.me.id, name: home.me.fullName, firstName: firstName(home.me.fullName), email: home.me.email }, children: home.children };
@@ -135,6 +140,88 @@ export const reportApi = {
   parent: (childId, aid) => get(`parent/children/${childId}/reports/${aid}/full`),
   pdf: (kind, personId, aid) => api.get(`/v2/platform/${kind === 'mentor' ? 'mentor/students' : 'parent/children'}/${personId}/reports/${aid}/pdf`, { responseType: 'blob' }).then(r => r.data)
 };
+
+/** The observatory (server services/observe): the student 360, the AI analyst, the planning studio, working together, the command
+ * centre, and the student's own "What my mentor sees". */
+const OS = id => `observe/students/${id}`;
+const v2 = (method, url, body) => api[method](`/v2/${url}`, body).then(r => r.data);
+const blob = url => api.get(url, { responseType: 'blob' }).then(r => r.data);
+export const observeApi = {
+  profile: id => get(OS(id)),
+  timeline: (id, { days = 14, kinds = null } = {}) => get(`${OS(id)}/timeline?days=${days}${kinds ? `&kinds=${kinds.join(',')}` : ''}`),
+  views: id => get(`${OS(id)}/views`),
+  brief: id => send('post', `${OS(id)}/brief`, {}),
+  ask: (id, question, history) => send('post', `${OS(id)}/ask`, { question, history }),
+  prep: id => get(`${OS(id)}/prep`),
+  capture: (id, notes) => send('post', `${OS(id)}/capture`, { notes }),
+  reports: id => get(`${OS(id)}/reports`),
+  weeklyNow: id => send('post', `${OS(id)}/reports/weekly`, {}),
+  parentReport: (id, month) => send('post', `${OS(id)}/reports/parent`, month ? { month } : {}),
+  shareReport: (id, reportId, body) => send('put', `${OS(id)}/reports/${reportId}`, body),
+  week: id => get(`${OS(id)}/week`),
+  preview: (id, changes) => send('post', `${OS(id)}/plan/preview`, { changes }),
+  apply: (id, changes, note) => send('post', `${OS(id)}/plan/apply`, { changes, ...(note ? { note } : {}) }),
+  prompt: (id, prompt) => send('post', `${OS(id)}/plan/prompt`, { prompt }),
+  intervention: (id, body) => send('post', `${OS(id)}/plan/intervention`, body),
+  interventions: () => get('observe/interventions'),
+  whatIf: (id, extra = 0, exams = 0) => get(`${OS(id)}/plan/whatif?extra=${Number(extra) || 0}&exams=${Number(exams) || 0}`),
+  roadmap: (id, body) => send('put', `${OS(id)}/plan/roadmap`, body),
+  setTarget: (id, body) => send('post', `${OS(id)}/targets`, body),
+  dropTarget: (id, targetId) => send('delete', `${OS(id)}/targets/${targetId}`),
+  nudge: (id, body) => send('post', `${OS(id)}/nudge`, body),
+  draftNudge: (id, purpose) => send('post', `${OS(id)}/nudge/draft`, { purpose }),
+  comments: id => get(`${OS(id)}/comments`),
+  comment: (id, body) => send('post', `${OS(id)}/comments`, body),
+  handover: (id, text) => send('post', `${OS(id)}/handover`, { text }),
+  caseload: () => get('observe/caseload'),
+  group: body => send('post', 'observe/group', body),
+  groupSession: body => send('post', 'observe/group/session', body),
+  nudgeMany: body => send('post', 'observe/nudge', body),
+  escalations: () => get('observe/escalations'),
+  acknowledge: (id, body = {}) => send('post', `observe/escalations/${id}`, body),
+  mine: () => v2('get', 'me/observe'),
+  myComments: () => v2('get', 'me/plan/comments'),
+  myComment: body => v2('post', 'me/plan/comments', body),
+  myReports: () => v2('get', 'me/reports'),
+  myData: () => blob('/v2/me/export'),
+  parentReports: childId => get(`parent/children/${childId}/reports`)
+};
+
+/** The school console (server services/school): a school's staff. Admin-only actions are checked on the server. */
+const sc = (method, url, body) => v2(method, `school/${url}`, body);
+const qs = o => { const q = new URLSearchParams(Object.entries(o || {}).filter(([, v]) => v !== undefined && v !== null && v !== '')).toString(); return q ? `?${q}` : ''; };
+export const schoolApi = {
+  dashboard: () => sc('get', 'dashboard'),
+  students: (filter = {}) => sc('get', `students${qs(filter)}`),
+  studentsCsv: (filter = {}) => blob(`/v2/school/students.csv${qs(filter)}`),
+  updateStudent: (id, body) => sc('put', `students/${id}`, body),
+  views: id => sc('get', `students/${id}/views`),
+  invite: studentIds => sc('post', 'students/invite', { studentIds }),
+  createCohort: body => sc('post', 'cohorts', body),
+  setCohort: (id, body) => sc('patch', `cohorts/${id}`, body),
+  rosterCheck: (text, createClasses) => sc('post', 'roster/check', { text, createClasses: Boolean(createClasses) }),
+  rosterCommit: (text, createClasses) => sc('post', 'roster/commit', { text, createClasses: Boolean(createClasses) }),
+  rosterTemplate: () => blob('/v2/school/roster/template.csv'),
+  createMentor: body => sc('post', 'mentors', body),
+  allocate: body => sc('post', 'allocate', body),
+  curricula: () => sc('get', 'curricula'),
+  curriculum: id => sc('get', `curricula/${id}`),
+  curriculumTemplate: () => blob('/v2/school/curricula/template.csv'),
+  previewCurriculum: body => sc('post', 'curricula/preview', body),
+  saveCurriculum: body => sc('post', 'curricula', body),
+  updateCurriculum: (id, body) => sc('put', `curricula/${id}`, body),
+  assignCurriculum: (id, body) => sc('post', `curricula/${id}/assign`, body),
+  settings: () => sc('get', 'settings'),
+  saveSettings: patch => sc('put', 'settings', patch)
+};
+
+/** Saves a downloaded file (a Blob) under a name. */
+export function saveFile(data, name) {
+  const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export const errMessage = (e, fallback = 'Something went wrong. Please try again.') => {
   const d = e && e.response && e.response.data;

@@ -119,7 +119,7 @@ function Detail({ id, initialTab = 'overview' }) {
   return (
     <>
       <div className="pf-row" style={{ marginBottom: 12 }}><Avatar name={s.name} size={48} /><div className="pf-grow"><b>{gradeLabel(s.grade)}{s.goal ? ` · ${s.goal}` : ''}</b><div className="pf-small pf-muted">{s.lastLoginAt ? `Last signed in ${fmtShort(String(s.lastLoginAt).slice(0, 10))}` : 'Has not signed in yet'}</div></div>
-        <Link className="pf-btn sm ghost" to={`../messages?student=${s.id}`}><Icon name="message" size={14} />Message</Link><Link className="pf-btn sm ghost" to={`../sessions?student=${s.id}`}><Icon name="calendar" size={14} />Book</Link></div>
+        <Link className="pf-btn sm" to={`../observe/${s.id}`}><Icon name="eye" size={14} />Full observatory</Link><Link className="pf-btn sm ghost" to={`../messages?student=${s.id}`}><Icon name="message" size={14} />Message</Link><Link className="pf-btn sm ghost" to={`../sessions?student=${s.id}`}><Icon name="calendar" size={14} />Book</Link></div>
       {msg && <div className="pf-note" role="alert">{msg}</div>}
       <Tabs label="Student sections" value={tab} onChange={setTab} tabs={[{ id: 'overview', label: 'Overview' }, { id: 'loop', label: 'Weekly plan', count: d.loop ? d.loop.flagged.filter(f => f.status === 'open').length || undefined : undefined }, { id: 'week', label: 'This week' }, { id: 'log', label: 'Daily log', count: (d.logs || []).length || undefined }, { id: 'work', label: 'Tasks', count: d.tasks.length }, { id: 'sessions', label: 'Sessions' }, { id: 'notes', label: 'Notes', count: d.notes.length }, { id: 'situation', label: 'Situation' }, { id: 'coach', label: 'AI coach' }]} />
       {tab === 'overview' && <>
@@ -166,12 +166,13 @@ export default function LiveStudents() {
     <>
       <PageHead eyebrow="Students" title="Everyone you mentor">Open a student to see their tasks, sessions, report and your notes.</PageHead>
       <div style={{ marginBottom: 14 }}><input className="pf-input" style={{ maxWidth: 280 }} placeholder="Search students" aria-label="Search students" value={q} onChange={e => setQ(e.target.value)} /></div>
-      <Card flush><div className="pf-scroll"><table className="pf-table"><thead><tr><th>Student</th><th>Class</th><th>Tasks</th><th>Assessment</th><th>Parent</th><th>Status</th></tr></thead><tbody>
+      <Card flush><div className="pf-scroll"><table className="pf-table"><thead><tr><th>Student</th><th>Class</th><th>Tasks</th><th>Assessment</th><th>Parent</th><th>Status</th><th /></tr></thead><tbody>
         {rows.map(s => <tr key={s.id} className={s.limited ? '' : 'click'} onClick={() => !s.limited && setSp({ open: s.id })}>
           <td><div className="pf-row"><Avatar name={s.name} size={34} /><b>{s.name}</b></div></td><td>{gradeLabel(s.grade)}</td>
           {s.limited ? <td colSpan="3" className="pf-muted pf-small">Visible once a parent confirms</td> : <><td style={{ minWidth: 130 }}><Progress value={s.tasks.total ? (s.tasks.done / s.tasks.total) * 100 : 0} label={`${s.name} tasks`} /><span className="pf-small pf-muted">{s.tasks.done}/{s.tasks.total}</span></td><td><Pill tone={A[s.assessment.state][0]}>{A[s.assessment.state][1]}</Pill></td><td><Pill tone={s.parent === 'linked' ? 'leaf' : 'gold'}>{s.parent === 'linked' ? 'Set up' : 'Invited'}</Pill></td></>}
-          <td>{s.limited ? <Pill tone="gold">Waiting</Pill> : s.tasks.overdue > 0 ? <Pill tone="coral">{s.tasks.overdue} overdue</Pill> : <Pill tone="leaf">On track</Pill>}</td></tr>)}
-        {rows.length === 0 && <tr><td colSpan="6" className="pf-muted" style={{ padding: 24 }}>{data.students.length ? 'No students match.' : 'No students are assigned to you yet.'}</td></tr>}</tbody></table></div></Card>
+          <td>{s.limited ? <Pill tone="gold">Waiting</Pill> : s.tasks.overdue > 0 ? <Pill tone="coral">{s.tasks.overdue} overdue</Pill> : <Pill tone="leaf">On track</Pill>}</td>
+          <td>{!s.limited && <Link className="pf-btn sm ghost" to={`../observe/${s.id}`} onClick={e => e.stopPropagation()}><Icon name="eye" size={13} />Observatory</Link>}</td></tr>)}
+        {rows.length === 0 && <tr><td colSpan="7" className="pf-muted" style={{ padding: 24 }}>{data.students.length ? 'No students match.' : 'No students are assigned to you yet.'}</td></tr>}</tbody></table></div></Card>
       <Drawer open={!!open} title={open ? open.name : ''} onClose={() => setSp({})}>{open && <Detail id={open.id} initialTab={sp.get('tab') || 'overview'} />}</Drawer>
     </>
   );

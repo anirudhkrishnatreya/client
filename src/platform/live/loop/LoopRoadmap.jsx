@@ -24,10 +24,11 @@ export default function LoopProgressPage() {
         <Card><div className="pf-eyebrow">Heading to · by {fmtDay(g.targetDate)}</div><p style={{ margin: '6px 0 0' }}>{g.endPoint.summary}</p>{g.endPoint.outcomes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{g.endPoint.outcomes.map(o => <li key={o}>{o}</li>)}</ul>}</Card>
       </div>
       <Card style={{ marginBottom: 14 }}>
-        <div className="pf-row pf-wrap" style={{ gap: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><b>Week {g.weekNumber}</b><span className="pf-small pf-muted">· Level {g.phase.number} of {g.phase.total}: {g.phase.title}</span></div>
+        <div className="pf-row pf-wrap" style={{ gap: 8 }}><Pill tone={pace[1]}>{pace[0]}</Pill><b>Week {g.weekNumber}</b><span className="pf-small pf-muted">· {g.where || `Level ${g.phase.number} of ${g.phase.total}: ${g.phase.title}`}</span></div>
         <p className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>{g.phase.outcome}</p>
         {g.phase.levelUp && <p className="pf-small" style={{ margin: '8px 0 0' }}><b>{g.phase.levelUpDue ? 'Your level-up proof is due:' : 'To move up a level:'}</b> {g.phase.levelUp.proof}{g.phase.levelUp.criteria.length > 0 && <span className="pf-muted"> (checked for: {g.phase.levelUp.criteria.join('; ')})</span>}</p>}
         <p className="pf-small" style={{ margin: '8px 0 0' }}>{g.progress.topicsDone} of {g.progress.topicsTotal} topics studied · {g.progress.mastered} mastered</p>
+        {g.school && <p className="pf-small" style={{ margin: '6px 0 0' }}>Your class has been taught {g.school.taught} topic{g.school.taught === 1 ? '' : 's'} so far; you have studied {g.school.doneTaught} of them.{g.school.nextExam ? ` Next exam: ${g.school.nextExam.title}, ${fmtDay(g.school.nextExam.date)}.` : ''}</p>}
       </Card>
       {g.adaptations.length > 0 && (
         <Card style={{ marginBottom: 14 }}><div className="pf-eyebrow">How your plan has adapted</div>
@@ -41,7 +42,7 @@ export default function LoopProgressPage() {
       )}
       {g.longPath && <Card style={{ marginBottom: 14 }}><div className="pf-eyebrow">The longer road</div><p style={{ margin: '6px 0 0' }}>{g.longPath}</p></Card>}
       {g.notes && g.notes.length > 0 && <Card style={{ marginBottom: 14 }}><div className="pf-eyebrow">Good to know</div><ul className="pf-small" style={{ margin: '6px 0 0', paddingLeft: 18 }}>{g.notes.map(n => <li key={n}>{n}</li>)}</ul></Card>}
-      <p className="pf-small pf-faint">Your plan was drafted by AI from what you told your guide and real occupation data, and it adapts every week. A mentor can help you adjust it.</p>
+      <p className="pf-small pf-faint">{g.school ? `This plan follows ${g.school.name}, your school’s study plan: each week brings what your class is taught that week, and the next week comes by itself. Your mentor can add or move steps.` : 'Your plan was drafted by AI from what you told your guide and real occupation data, and it adapts every week. A mentor can help you adjust it.'}</p>
     </>
   );
 }

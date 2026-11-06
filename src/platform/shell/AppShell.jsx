@@ -73,6 +73,7 @@ function factsFor(role, data) {
     return [`You mentor ${data.students.length} student${data.students.length === 1 ? '' : 's'}; ${act.length} can be followed in detail.`, late ? `${late} task${late === 1 ? ' is' : 's are'} overdue across your students.` : 'No tasks are overdue.',
       high.length ? `${high.length} need attention: ${high.slice(0, 3).map(a => a.text).join(' ')}` : 'Nobody is flagged as at risk right now.', `${data.sessions.length} session${data.sessions.length === 1 ? ' is' : 's are'} scheduled.`];
   }
+  if (role === 'school') return [`${data.totals.students} students, ${data.totals.active7} active this week.`, `${data.totals.red} need attention and ${data.totals.amber} are worth watching.`, `${data.totals.escalations} wellbeing alert${data.totals.escalations === 1 ? '' : 's'} open; ${data.totals.mentors} mentors.`];
   const c = data.child;
   if (!c) return ['No child is linked to your account yet.'];
   const a = c.assessment.state;
@@ -96,7 +97,7 @@ export default function AppShell({ role, preview = false }) {
   const toggle = () => setCollapsed(c => { const n = !c; try { localStorage.setItem('imenteo-platform-collapsed', n ? '1' : '0'); } catch { /* ignore */ } return n; });
 
   const items = useMemo(() => NAV[role].flatMap(s => s.items), [role]);
-  const current = items.find(i => (i.end ? loc.pathname === base || loc.pathname === `${base}/` : loc.pathname.startsWith(`${base}/${i.to}`))) || items[0];
+  const current = items.find(i => (i.end ? loc.pathname === base || loc.pathname === `${base}/` : (loc.pathname === `${base}/${i.to}` || loc.pathname.startsWith(`${base}/${i.to}/`)))) || items[0];
   const me = data && data.me;
   const counts = data ? {
     tasks: role === 'student' ? data.tasks.filter(t => t.status !== 'done').length : 0,
@@ -133,7 +134,7 @@ export default function AppShell({ role, preview = false }) {
         <div className="pf-main">
           <header className="pf-top">
             <button type="button" className="pf-iconbtn pf-menu-btn" onClick={() => setOpen(o => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}><Icon name={open ? 'x' : 'menu'} /></button>
-            <div><div className="crumb">{ROLE_LABEL[role]}{me && role !== 'student' ? '' : ''}</div><h1>{current.label}</h1></div>
+            <div><div className="crumb">{ROLE_LABEL[role]}{me && role !== 'student' ? '' : ''}</div><h1>{/\/observe\//.test(loc.pathname) ? 'Observatory' : current.label}</h1></div>
             <form className="pf-search" onSubmit={onSearch} role="search"><Icon name="search" size={18} /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Jump to a page" aria-label="Jump to a page" /></form>
             {role === 'student'
               ? <button type="button" className="pf-ask" onClick={() => nav(`${base}/coach`)}><Icon name="sparkles" size={18} />Ask AI coach</button>

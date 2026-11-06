@@ -1,0 +1,2607 @@
+{
+ "caseload": {
+  "success": true,
+  "cards": [
+   {
+    "id": "6aed7d442e3a1b973a2ef183",
+    "name": "Aman Rao",
+    "grade": "10",
+    "goal": "Class 10 · 2026–27",
+    "risk": {
+     "level": "amber",
+     "score": 64,
+     "reasons": [
+      "No activity yet",
+      "0 of 60 planned minutes done by today",
+      "1 overdue task"
+     ]
+    },
+    "streak": {
+     "current": 0,
+     "best": 0
+    },
+    "lastActive": null,
+    "week": {
+     "weekNumber": 1,
+     "planned": 330,
+     "done": 0,
+     "steps": 12,
+     "stepsDone": 0,
+     "projected": 0,
+     "capacity": 450
+    },
+    "energy": null,
+    "trend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "trajectory": {
+     "status": "behind",
+     "forecast": "2027-05-31"
+    },
+    "next": [
+     {
+      "kind": "reply",
+      "urgent": true,
+      "text": "Reply to 1 message"
+     },
+     {
+      "kind": "session-request",
+      "urgent": true,
+      "text": "Answer a session request"
+     },
+     {
+      "kind": "writeup",
+      "urgent": true,
+      "text": "Write up the last session"
+     },
+     {
+      "kind": "nudge",
+      "urgent": false,
+      "text": "No learning logged this week: check in"
+     },
+     {
+      "kind": "overdue",
+      "urgent": false,
+      "text": "1 task overdue"
+     }
+    ],
+    "unread": 1,
+    "escalation": false,
+    "targets": 0
+   },
+   {
+    "id": "6aed7d442e3a1b973a2ef16e",
+    "name": "Asha Verma",
+    "grade": "10",
+    "goal": "Astronaut",
+    "risk": {
+     "level": "green",
+     "score": 4,
+     "reasons": [
+      "1 overdue task"
+     ]
+    },
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "lastActive": {
+     "date": "2026-11-06",
+     "daysAgo": 0
+    },
+    "week": {
+     "weekNumber": 1,
+     "planned": 165,
+     "done": 25,
+     "steps": 6,
+     "stepsDone": 1,
+     "projected": 100,
+     "capacity": 270
+    },
+    "energy": 3.8,
+    "trend": [
+     0,
+     0,
+     40,
+     30,
+     20,
+     0,
+     30,
+     20,
+     40,
+     0,
+     20,
+     40,
+     30,
+     25
+    ],
+    "trajectory": {
+     "status": "behind",
+     "forecast": "2027-05-05"
+    },
+    "next": [
+     {
+      "kind": "reply",
+      "urgent": true,
+      "text": "Reply to 1 message"
+     },
+     {
+      "kind": "review",
+      "urgent": true,
+      "text": "Review 1 handed-in task"
+     },
+     {
+      "kind": "overdue",
+      "urgent": false,
+      "text": "1 task overdue"
+     }
+    ],
+    "unread": 1,
+    "escalation": false,
+    "targets": 0
+   }
+  ],
+  "today": [
+   {
+    "studentId": "6aed7d442e3a1b973a2ef183",
+    "name": "Aman Rao",
+    "urgency": 70,
+    "reason": "Reply to 1 message",
+    "go": "messages?student=6aed7d442e3a1b973a2ef183",
+    "kind": "reply"
+   },
+   {
+    "studentId": "6aed7d442e3a1b973a2ef16e",
+    "name": "Asha Verma",
+    "urgency": 70,
+    "reason": "Reply to 1 message",
+    "go": "messages?student=6aed7d442e3a1b973a2ef16e",
+    "kind": "reply"
+   },
+   {
+    "studentId": "6aed7d442e3a1b973a2ef183",
+    "name": "Aman Rao",
+    "urgency": 65,
+    "reason": "Answer a session request",
+    "go": "sessions",
+    "kind": "session-request"
+   },
+   {
+    "studentId": "6aed7d442e3a1b973a2ef183",
+    "name": "Aman Rao",
+    "urgency": 55,
+    "reason": "Write up the last session",
+    "go": "sessions",
+    "kind": "writeup"
+   },
+   {
+    "studentId": "6aed7d442e3a1b973a2ef16e",
+    "name": "Asha Verma",
+    "urgency": 55,
+    "reason": "Review 1 handed-in task",
+    "go": "tasks",
+    "kind": "review"
+   },
+   {
+    "studentId": "6aed7d442e3a1b973a2ef183",
+    "name": "Aman Rao",
+    "urgency": 40,
+    "reason": "No activity yet",
+    "go": "observe/6aed7d442e3a1b973a2ef183",
+    "kind": "risk"
+   }
+  ],
+  "cohort": {
+   "rows": [
+    {
+     "id": "6aed7d442e3a1b973a2ef183",
+     "name": "Aman Rao",
+     "risk": "amber",
+     "completion": 0,
+     "minutes7": 0,
+     "streak": 0,
+     "energy": null,
+     "status": "behind"
+    },
+    {
+     "id": "6aed7d442e3a1b973a2ef16e",
+     "name": "Asha Verma",
+     "risk": "green",
+     "completion": 15,
+     "minutes7": 175,
+     "streak": 4,
+     "energy": 3.8,
+     "status": "behind"
+    }
+   ],
+   "averages": {
+    "completion": 8,
+    "minutes7": 88,
+    "streak": 2
+   },
+   "risk": {
+    "red": 0,
+    "amber": 1,
+    "green": 1
+   },
+   "commonWeak": [],
+   "commonHard": []
+  },
+  "impact": {
+   "sessions30": 0,
+   "replyHours": 0,
+   "replies30": 1,
+   "improving": 1,
+   "measured": 1
+  },
+  "limited": []
+ },
+ "escalations": {
+  "success": true,
+  "escalations": []
+ },
+ "profile": {
+  "success": true,
+  "profile": {
+   "as": "mentor",
+   "header": {
+    "id": "6aed7d442e3a1b973a2ef16e",
+    "name": "Asha Verma",
+    "grade": "10",
+    "goal": "Astronaut",
+    "goalKind": "career",
+    "level": "1 of 4",
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "risk": {
+     "level": "green",
+     "score": 4,
+     "reasons": [
+      "1 overdue task"
+     ]
+    },
+    "energy": 3.8,
+    "lastActive": {
+     "date": "2026-11-06",
+     "daysAgo": 0
+    },
+    "lastLoginAt": "2026-11-06T07:11:59.362Z",
+    "nextSession": {
+     "when": "Fri, 6 Nov, 12:44 pm",
+     "topic": "Quick check-in"
+    },
+    "parent": "linked",
+    "school": {
+     "name": "Demo Public School",
+     "logoUrl": ""
+    },
+    "cohort": "10-A",
+    "mentor": "Dr. Neha Kapoor"
+   },
+   "now": {
+    "focus": null,
+    "last": {
+     "at": "2026-11-06T07:09:58.559Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    "lastLoginAt": "2026-11-06T07:11:59.362Z"
+   },
+   "signals": {
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "lastActive": {
+     "date": "2026-11-06",
+     "daysAgo": 0
+    },
+    "habits": {
+     "bestTime": {
+      "slot": "evening",
+      "count": 9
+     },
+     "lateNight": 0,
+     "weekday": null,
+     "weekend": null,
+     "skips": [],
+     "tasks": {
+      "finished": 0,
+      "late": 0,
+      "open": 4,
+      "overdue": 1
+     },
+     "consistency": 36
+    },
+    "wellbeing": {
+     "energy": [
+      {
+       "date": "2026-10-26",
+       "energy": 5
+      },
+      {
+       "date": "2026-10-27",
+       "energy": 4
+      },
+      {
+       "date": "2026-10-28",
+       "energy": 3
+      },
+      {
+       "date": "2026-10-30",
+       "energy": 5
+      },
+      {
+       "date": "2026-10-31",
+       "energy": 4
+      },
+      {
+       "date": "2026-11-01",
+       "energy": 3
+      },
+      {
+       "date": "2026-11-03",
+       "energy": 5
+      },
+      {
+       "date": "2026-11-04",
+       "energy": 4
+      },
+      {
+       "date": "2026-11-05",
+       "energy": 3
+      }
+     ],
+     "energyNow": 3.8,
+     "energyBefore": 4.3,
+     "lowStreak": 0,
+     "safetyFlags": 0,
+     "overload": 61,
+     "escalations": []
+    },
+    "risk": {
+     "level": "green",
+     "score": 4,
+     "reasons": [
+      "1 overdue task"
+     ]
+    },
+    "warnings": [],
+    "why": [
+     {
+      "label": "Steps finished",
+      "now": 1,
+      "before": 0,
+      "delta": 1,
+      "good": true,
+      "unit": ""
+     },
+     {
+      "label": "Active days",
+      "now": 6,
+      "before": 4,
+      "delta": 2,
+      "good": true,
+      "unit": " days"
+     },
+     {
+      "label": "Study minutes",
+      "now": 175,
+      "before": 120,
+      "delta": 55,
+      "good": true,
+      "unit": " min"
+     },
+     {
+      "label": "Focus minutes",
+      "now": 150,
+      "before": 120,
+      "delta": 30,
+      "good": true,
+      "unit": " min"
+     },
+     {
+      "label": "Morning energy",
+      "now": 3.8,
+      "before": 4.3,
+      "delta": -0.5,
+      "good": false,
+      "unit": "/5"
+     }
+    ],
+    "strengths": [
+     "Best work happens in the evening"
+    ],
+    "growth": [
+     "Active on 36% of days in the last 4 weeks"
+    ],
+    "targets": [],
+    "week": {
+     "weekNumber": 1,
+     "planned": 165,
+     "done": 25,
+     "steps": 6,
+     "stepsDone": 1,
+     "projected": 100,
+     "capacity": 270
+    },
+    "trajectory": {
+     "goal": "Astronaut",
+     "phases": [
+      {
+       "title": "Fundamentals",
+       "weeks": 2,
+       "state": "current"
+      },
+      {
+       "title": "Physics base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Maths base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Projects",
+       "weeks": 2,
+       "state": "next"
+      }
+     ],
+     "level": 1,
+     "levels": 4,
+     "weeksDone": 1,
+     "weeksTotal": 10,
+     "pace": 17,
+     "forecast": "2027-05-05",
+     "target": "2027-01-15",
+     "status": "behind",
+     "gapDays": 110
+    },
+    "quizzes": []
+   },
+   "progress": {
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "week": {
+     "minutes": 25,
+     "focus": 150,
+     "steps": 1,
+     "daysActive": 6
+    },
+    "heat": [
+     {
+      "date": "2026-09-12",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-13",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-14",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-15",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-16",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-17",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-18",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-19",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-20",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-21",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-22",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-23",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-24",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-25",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-26",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-27",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-28",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-29",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-30",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-01",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-02",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-03",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-04",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-05",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-06",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-07",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-08",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-09",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-10",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-11",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-12",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-13",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-14",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-15",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-16",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-17",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-18",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-19",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-20",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-21",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-22",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-23",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-24",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-25",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-26",
+      "minutes": 40
+     },
+     {
+      "date": "2026-10-27",
+      "minutes": 30
+     },
+     {
+      "date": "2026-10-28",
+      "minutes": 20
+     },
+     {
+      "date": "2026-10-29",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-30",
+      "minutes": 30
+     },
+     {
+      "date": "2026-10-31",
+      "minutes": 20
+     },
+     {
+      "date": "2026-11-01",
+      "minutes": 40
+     },
+     {
+      "date": "2026-11-02",
+      "minutes": 0
+     },
+     {
+      "date": "2026-11-03",
+      "minutes": 20
+     },
+     {
+      "date": "2026-11-04",
+      "minutes": 40
+     },
+     {
+      "date": "2026-11-05",
+      "minutes": 30
+     },
+     {
+      "date": "2026-11-06",
+      "minutes": 25
+     }
+    ],
+    "minutes": [
+     {
+      "date": "2026-10-24",
+      "label": "Sat 24",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-25",
+      "label": "Sun 25",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-26",
+      "label": "Mon 26",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-10-27",
+      "label": "Tue 27",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-10-28",
+      "label": "Wed 28",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-10-29",
+      "label": "Thu 29",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-30",
+      "label": "Fri 30",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-10-31",
+      "label": "Sat 31",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-11-01",
+      "label": "Sun 1",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-11-02",
+      "label": "Mon 2",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-11-03",
+      "label": "Tue 3",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-11-04",
+      "label": "Wed 4",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-11-05",
+      "label": "Thu 5",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-11-06",
+      "label": "Fri 6",
+      "planned": 25,
+      "done": 25,
+      "focus": 0
+     }
+    ],
+    "trajectory": {
+     "goal": "Astronaut",
+     "phases": [
+      {
+       "title": "Fundamentals",
+       "weeks": 2,
+       "state": "current"
+      },
+      {
+       "title": "Physics base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Maths base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Projects",
+       "weeks": 2,
+       "state": "next"
+      }
+     ],
+     "level": 1,
+     "levels": 4,
+     "weeksDone": 1,
+     "weeksTotal": 10,
+     "pace": 17,
+     "forecast": "2027-05-05",
+     "target": "2027-01-15",
+     "status": "behind",
+     "gapDays": 110
+    },
+    "mastery": [
+     {
+      "title": "What astronauts do",
+      "state": "next"
+     },
+     {
+      "title": "Gravity and orbits",
+      "state": "next"
+     },
+     {
+      "title": "Sketch an orbit diagram",
+      "state": "next"
+     }
+    ],
+    "masteryTitle": "This level’s topics",
+    "quiz": [],
+    "energy": [
+     {
+      "date": "2026-10-26",
+      "energy": 5
+     },
+     {
+      "date": "2026-10-27",
+      "energy": 4
+     },
+     {
+      "date": "2026-10-28",
+      "energy": 3
+     },
+     {
+      "date": "2026-10-30",
+      "energy": 5
+     },
+     {
+      "date": "2026-10-31",
+      "energy": 4
+     },
+     {
+      "date": "2026-11-01",
+      "energy": 3
+     },
+     {
+      "date": "2026-11-03",
+      "energy": 5
+     },
+     {
+      "date": "2026-11-04",
+      "energy": 4
+     },
+     {
+      "date": "2026-11-05",
+      "energy": 3
+     }
+    ],
+    "read": [
+     {
+      "icon": "clock",
+      "text": "Your best focus time is the evening (270 minutes of focus there in the last weeks). Put the hardest step there."
+     },
+     {
+      "icon": "tasks",
+      "text": "1 task is overdue. Tell me “move my overdue tasks to the weekend” and I'll sort it."
+     },
+     {
+      "icon": "trend",
+      "text": "At this pace you would finish around Wed 5 May, about 16 weeks after your target. Small daily steps close the gap fastest."
+     },
+     {
+      "icon": "award",
+      "text": "4 days in a row. Keep the chain going: even 15 minutes counts."
+     }
+    ]
+   },
+   "mastery": [
+    {
+     "id": "p1",
+     "title": "Fundamentals",
+     "state": "current",
+     "topics": [
+      {
+       "id": "p1t1",
+       "title": "What astronauts do",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p1t2",
+       "title": "Gravity and orbits",
+       "state": "next",
+       "missed": [],
+       "hard": [
+        {
+         "date": "2026-11-06",
+         "text": "Why gravity gets weaker with distance squared"
+        }
+       ]
+      },
+      {
+       "id": "p1t3",
+       "title": "Sketch an orbit diagram",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p2",
+     "title": "Physics base",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p2t1",
+       "title": "Newton’s laws",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p2t2",
+       "title": "Motion in a plane",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p2t3",
+       "title": "Solve mechanics problems",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p3",
+     "title": "Maths base",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p3t1",
+       "title": "Vectors",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p3t2",
+       "title": "Calculus basics",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p3t3",
+       "title": "Use vectors in problems",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "title": "Projects",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p4t1",
+       "title": "Model rocket report",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p4t2",
+       "title": "Launch data",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p4t3",
+       "title": "Present your findings",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    }
+   ],
+   "assessments": [],
+   "coach": {
+    "chats": 0,
+    "asks": 0,
+    "kinds": {},
+    "about": [],
+    "words": [],
+    "flagged": 0
+   },
+   "career": {
+    "assessment": null,
+    "shortlist": [
+     {
+      "id": "occ.15-1252.00",
+      "title": "Software Developers",
+      "status": "exploring"
+     }
+    ],
+    "situation": null
+   },
+   "evidence": {
+    "portfolio": [],
+    "work": []
+   },
+   "sessions": {
+    "next": {
+     "id": "6aed7d462e3a1b973a2ef2ce",
+     "studentId": "6aed7d442e3a1b973a2ef16e",
+     "mentorId": "6aed7d432e3a1b973a2ef115",
+     "start": "2026-11-06T07:14:58.113Z",
+     "end": "2026-11-06T07:44:58.113Z",
+     "durationMin": 30,
+     "date": "2026-11-06",
+     "time": "12:44",
+     "timeTbd": false,
+     "when": "Fri, 6 Nov, 12:44 pm",
+     "status": "scheduled",
+     "phase": "live",
+     "topic": "Quick check-in",
+     "note": "",
+     "requestedBy": "mentor",
+     "answerBy": null,
+     "askedStart": null,
+     "change": null,
+     "closed": null,
+     "missedBy": null,
+     "meetingUrl": "https://meet.google.com/abc-defg-hij",
+     "hasLink": true,
+     "joinFrom": "2026-11-06T07:04:58.113Z",
+     "joinUntil": "2026-11-06T07:59:58.113Z",
+     "agenda": [],
+     "timeline": [],
+     "summary": "",
+     "actions": [],
+     "tasksCreated": false,
+     "confirmedAt": "2026-11-06T07:09:58.113Z"
+    },
+    "history": [],
+    "closed": []
+   },
+   "notes": [
+    {
+     "id": "6aed7d462e3a1b973a2ef2b3",
+     "kind": "summary",
+     "title": "Week 1: a strong start",
+     "text": "You finished your first lessons and explained orbits clearly in your log. Next week, practise the distance part.",
+     "at": "2026-11-06T07:09:58.082Z",
+     "mine": true,
+     "sharedWithStudent": true,
+     "sharedWithParent": true
+    }
+   ],
+   "timeline": [
+    {
+     "at": "2026-11-06T07:09:58.559Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.558Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy good, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.557Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy okay, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.556Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.555Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy good, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.554Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy okay, 60 min available",
+     "link": null
+    }
+   ]
+  }
+ },
+ "week": {
+  "success": true,
+  "week": {
+   "weekStart": "2026-11-06",
+   "weekEnd": "2026-11-12",
+   "today": "2026-11-06",
+   "focus": "This week: What astronauts do, Gravity and orbits, Sketch an orbit diagram",
+   "days": [
+    {
+     "date": "2026-11-06",
+     "label": "Fri 6 Nov",
+     "capacity": 30,
+     "planned": 0,
+     "steps": [
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u1",
+       "title": "Watch: What astronauts do",
+       "type": "learn",
+       "minutes": 25,
+       "status": "done",
+       "by": null,
+       "locked": false,
+       "subject": null
+      }
+     ]
+    },
+    {
+     "date": "2026-11-07",
+     "label": "Sat 7 Nov",
+     "capacity": 60,
+     "planned": 55,
+     "steps": [
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u2",
+       "title": "Try: What astronauts do",
+       "type": "practise",
+       "minutes": 30,
+       "status": "todo",
+       "by": null,
+       "locked": false,
+       "subject": null
+      },
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u3",
+       "title": "Watch: Gravity and orbits",
+       "type": "learn",
+       "minutes": 25,
+       "status": "todo",
+       "by": null,
+       "locked": false,
+       "subject": null
+      }
+     ]
+    },
+    {
+     "date": "2026-11-08",
+     "label": "Sun 8 Nov",
+     "capacity": 60,
+     "planned": 55,
+     "steps": [
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u4",
+       "title": "Try: Gravity and orbits",
+       "type": "practise",
+       "minutes": 30,
+       "status": "todo",
+       "by": null,
+       "locked": false,
+       "subject": null
+      },
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u5",
+       "title": "Watch: Sketch an orbit diagram",
+       "type": "learn",
+       "minutes": 25,
+       "status": "todo",
+       "by": null,
+       "locked": false,
+       "subject": null
+      }
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "label": "Mon 9 Nov",
+     "capacity": 30,
+     "planned": 30,
+     "steps": [
+      {
+       "id": "6aed7d452e3a1b973a2ef1f4-w1-u6",
+       "title": "Try: Sketch an orbit diagram",
+       "type": "practise",
+       "minutes": 30,
+       "status": "todo",
+       "by": null,
+       "locked": false,
+       "subject": null
+      }
+     ]
+    },
+    {
+     "date": "2026-11-10",
+     "label": "Tue 10 Nov",
+     "capacity": 30,
+     "planned": 0,
+     "steps": []
+    },
+    {
+     "date": "2026-11-11",
+     "label": "Wed 11 Nov",
+     "capacity": 30,
+     "planned": 0,
+     "steps": []
+    },
+    {
+     "date": "2026-11-12",
+     "label": "Thu 12 Nov",
+     "capacity": 30,
+     "planned": 0,
+     "steps": []
+    }
+   ]
+  }
+ },
+ "interventions": {
+  "success": true,
+  "interventions": [
+   {
+    "key": "catch-up",
+    "title": "Catch-up week",
+    "text": "Fits everything missed into the days with room, so nothing is lost."
+   },
+   {
+    "key": "exam-crunch",
+    "title": "Exam crunch",
+    "text": "Adds the exam and daily revision of what they have covered, up to the exam day."
+   },
+   {
+    "key": "practice-heavy",
+    "title": "Practice-heavy",
+    "text": "A practice step after each learning step this week, so it sticks."
+   },
+   {
+    "key": "confidence",
+    "title": "Confidence builder",
+    "text": "Two short, winnable steps on topics they already know, at the start of the coming days."
+   },
+   {
+    "key": "restart",
+    "title": "Gentle restart",
+    "text": "Moves today’s steps on and adds one 15-minute review, to get going again without pressure."
+   }
+  ]
+ },
+ "dashboard": {
+  "success": true,
+  "dashboard": {
+   "school": {
+    "id": "6aed7d462e3a1b973a2ef31b",
+    "name": "Demo Public School",
+    "board": null,
+    "city": null,
+    "logoUrl": "",
+    "admin": true
+   },
+   "totals": {
+    "students": 3,
+    "active7": 2,
+    "consented": 3,
+    "withMentor": 2,
+    "red": 1,
+    "amber": 0,
+    "escalations": 0,
+    "mentors": 1
+   },
+   "cohorts": [
+    {
+     "id": "6aed7d472e3a1b973a2ef324",
+     "name": "10-A",
+     "grade": "10",
+     "code": "VKQLUGTR",
+     "status": "open",
+     "students": 2,
+     "active7": 2,
+     "red": 0,
+     "steps7": 1,
+     "curriculum": "Class 10 · 2026–27"
+    },
+    {
+     "id": "6aed7d472e3a1b973a2ef327",
+     "name": "10-B",
+     "grade": "10",
+     "code": "DYZZX4VV",
+     "status": "open",
+     "students": 0,
+     "active7": 0,
+     "red": 0,
+     "steps7": 0,
+     "curriculum": null
+    }
+   ],
+   "mentors": [
+    {
+     "id": "6aed7d432e3a1b973a2ef115",
+     "name": "Dr. Neha Kapoor",
+     "email": "mentor@example.com",
+     "students": 2
+    }
+   ],
+   "curricula": [
+    {
+     "id": "6aed7d472e3a1b973a2ef32b",
+     "name": "Class 10 · 2026–27",
+     "status": "active",
+     "classes": 1
+    }
+   ],
+   "ai": {
+    "todayUsd": 0.0002,
+    "calls": 1,
+    "dailyUsd": null
+   }
+  }
+ },
+ "curricula": {
+  "success": true,
+  "curricula": [
+   {
+    "id": "6aed7d472e3a1b973a2ef32b",
+    "name": "Class 10 · 2026–27",
+    "board": "CBSE",
+    "grade": "10",
+    "academicYear": "2026–27",
+    "starts": "2026-10-26",
+    "ends": "2027-05-31",
+    "status": "active",
+    "source": "csv",
+    "weeklyMinutes": 420,
+    "cohortIds": [
+     "6aed7d472e3a1b973a2ef324"
+    ],
+    "subjects": [
+     {
+      "id": "s1",
+      "name": "Physics",
+      "units": [
+       {
+        "id": "s1u1",
+        "title": "Motion",
+        "topics": [
+         {
+          "id": "s1u1t1",
+          "title": "Distance and displacement",
+          "starts": "2026-10-26",
+          "ends": "2026-11-01",
+          "periods": null,
+          "objectives": "Tell distance from displacement"
+         },
+         {
+          "id": "s1u1t2",
+          "title": "Speed and velocity",
+          "starts": "2026-11-02",
+          "ends": "2026-11-08",
+          "periods": null,
+          "objectives": "Calculate average speed and velocity"
+         },
+         {
+          "id": "s1u1t3",
+          "title": "Acceleration",
+          "starts": "2026-11-09",
+          "ends": "2026-11-15",
+          "periods": null,
+          "objectives": ""
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "s2",
+      "name": "Mathematics",
+      "units": [
+       {
+        "id": "s2u1",
+        "title": "Real numbers",
+        "topics": [
+         {
+          "id": "s2u1t1",
+          "title": "Euclid's division lemma",
+          "starts": "2026-11-02",
+          "ends": "2026-11-08",
+          "periods": null,
+          "objectives": ""
+         }
+        ]
+       },
+       {
+        "id": "s2u2",
+        "title": "Polynomials",
+        "topics": [
+         {
+          "id": "s2u2t1",
+          "title": "Zeroes of a polynomial",
+          "starts": "2026-10-26",
+          "ends": "2027-02-07",
+          "periods": null,
+          "objectives": ""
+         },
+         {
+          "id": "s2u2t2",
+          "title": "Division algorithm",
+          "starts": "2027-02-22",
+          "ends": "2027-06-06",
+          "periods": null,
+          "objectives": ""
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "s3",
+      "name": "Chemistry",
+      "units": [
+       {
+        "id": "s3u1",
+        "title": "Chemical reactions",
+        "topics": [
+         {
+          "id": "s3u1t1",
+          "title": "Balancing equations",
+          "starts": "2026-11-02",
+          "ends": "2026-11-08",
+          "periods": null,
+          "objectives": ""
+         }
+        ]
+       },
+       {
+        "id": "s3u2",
+        "title": "Acids and bases",
+        "topics": [
+         {
+          "id": "s3u2t1",
+          "title": "Indicators",
+          "starts": "2026-10-26",
+          "ends": "2027-05-23",
+          "periods": null,
+          "objectives": ""
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "exams": [
+     {
+      "title": "Unit test 1",
+      "date": "2026-11-19",
+      "subjects": [
+       "Physics"
+      ]
+     }
+    ],
+    "holidays": [
+     {
+      "title": "Autumn break",
+      "from": "2026-11-30",
+      "to": "2026-12-06"
+     }
+    ],
+    "counts": {
+     "subjects": 3,
+     "topics": 8
+    },
+    "updatedAt": "2026-11-06T07:09:59.419Z"
+   }
+  ]
+ },
+ "preview": {
+  "success": true,
+  "curriculum": {
+   "name": "Science extra",
+   "board": "",
+   "grade": "",
+   "academicYear": "",
+   "starts": "2026-11-09",
+   "ends": "2027-03-29",
+   "subjects": [
+    {
+     "id": "s1",
+     "name": "Biology",
+     "units": [
+      {
+       "id": "s1u1",
+       "title": "Life processes",
+       "topics": [
+        {
+         "id": "s1u1t1",
+         "title": "Nutrition",
+         "starts": "2026-11-09",
+         "ends": "2027-01-17",
+         "periods": null,
+         "objectives": ""
+        },
+        {
+         "id": "s1u1t2",
+         "title": "Respiration",
+         "starts": "2027-01-18",
+         "ends": "2027-03-28",
+         "periods": null,
+         "objectives": ""
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "s2",
+     "name": "English",
+     "units": [
+      {
+       "id": "s2u1",
+       "title": "Prose",
+       "topics": [
+        {
+         "id": "s2u1t1",
+         "title": "A letter to God",
+         "starts": "2026-11-09",
+         "ends": "2027-04-04",
+         "periods": null,
+         "objectives": ""
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "exams": [],
+   "holidays": []
+  },
+  "problems": []
+ },
+ "roster": {
+  "success": true,
+  "rows": [
+   {
+    "line": 2,
+    "name": "Nisha Patel",
+    "email": "nisha@example.com",
+    "cls": "10-A",
+    "parentEmail": "rekha@example.com",
+    "parentName": "",
+    "mentorEmail": "mentor@example.com",
+    "problems": [],
+    "notes": [],
+    "cohort": {
+     "id": "6aed7d472e3a1b973a2ef324",
+     "name": "10-A",
+     "grade": "10",
+     "track": "senior"
+    },
+    "action": "create"
+   },
+   {
+    "line": 3,
+    "name": "Bad",
+    "email": "nope",
+    "cls": "10-A",
+    "parentEmail": "",
+    "parentName": "",
+    "mentorEmail": "",
+    "problems": [
+     "the email is not valid"
+    ],
+    "notes": [
+     "no parent email: the parent must be added later before the mentor can see the student’s work"
+    ],
+    "cohort": {
+     "id": "6aed7d472e3a1b973a2ef324",
+     "name": "10-A",
+     "grade": "10",
+     "track": "senior"
+    },
+    "action": "skip"
+   }
+  ],
+  "counts": {
+   "create": 1,
+   "update": 0,
+   "skip": 1
+  }
+ },
+ "mine": {
+  "success": true,
+  "profile": {
+   "as": "self",
+   "header": {
+    "id": "6aed7d442e3a1b973a2ef16e",
+    "name": "Asha Verma",
+    "grade": "10",
+    "goal": "Astronaut",
+    "goalKind": "career",
+    "level": "1 of 4",
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "risk": {
+     "level": "green",
+     "score": 4,
+     "reasons": [
+      "1 overdue task"
+     ]
+    },
+    "energy": 3.8,
+    "lastActive": {
+     "date": "2026-11-06",
+     "daysAgo": 0
+    },
+    "lastLoginAt": "2026-11-06T07:11:59.362Z",
+    "nextSession": {
+     "when": "Fri, 6 Nov, 12:44 pm",
+     "topic": "Quick check-in"
+    },
+    "parent": "linked",
+    "school": {
+     "name": "Demo Public School",
+     "logoUrl": ""
+    },
+    "cohort": "10-A",
+    "mentor": "Dr. Neha Kapoor"
+   },
+   "now": {
+    "focus": null,
+    "last": {
+     "at": "2026-11-06T07:09:58.559Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    "lastLoginAt": "2026-11-06T07:11:59.362Z"
+   },
+   "signals": {
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "lastActive": {
+     "date": "2026-11-06",
+     "daysAgo": 0
+    },
+    "habits": {
+     "bestTime": {
+      "slot": "evening",
+      "count": 9
+     },
+     "lateNight": 0,
+     "weekday": null,
+     "weekend": null,
+     "skips": [],
+     "tasks": {
+      "finished": 0,
+      "late": 0,
+      "open": 4,
+      "overdue": 1
+     },
+     "consistency": 36
+    },
+    "wellbeing": {
+     "energy": [
+      {
+       "date": "2026-10-26",
+       "energy": 5
+      },
+      {
+       "date": "2026-10-27",
+       "energy": 4
+      },
+      {
+       "date": "2026-10-28",
+       "energy": 3
+      },
+      {
+       "date": "2026-10-30",
+       "energy": 5
+      },
+      {
+       "date": "2026-10-31",
+       "energy": 4
+      },
+      {
+       "date": "2026-11-01",
+       "energy": 3
+      },
+      {
+       "date": "2026-11-03",
+       "energy": 5
+      },
+      {
+       "date": "2026-11-04",
+       "energy": 4
+      },
+      {
+       "date": "2026-11-05",
+       "energy": 3
+      }
+     ],
+     "energyNow": 3.8,
+     "energyBefore": 4.3,
+     "lowStreak": 0,
+     "safetyFlags": 0,
+     "overload": 61,
+     "escalations": []
+    },
+    "risk": {
+     "level": "green",
+     "score": 4,
+     "reasons": [
+      "1 overdue task"
+     ]
+    },
+    "warnings": [],
+    "why": [
+     {
+      "label": "Steps finished",
+      "now": 1,
+      "before": 0,
+      "delta": 1,
+      "good": true,
+      "unit": ""
+     },
+     {
+      "label": "Active days",
+      "now": 6,
+      "before": 4,
+      "delta": 2,
+      "good": true,
+      "unit": " days"
+     },
+     {
+      "label": "Study minutes",
+      "now": 175,
+      "before": 120,
+      "delta": 55,
+      "good": true,
+      "unit": " min"
+     },
+     {
+      "label": "Focus minutes",
+      "now": 150,
+      "before": 120,
+      "delta": 30,
+      "good": true,
+      "unit": " min"
+     },
+     {
+      "label": "Morning energy",
+      "now": 3.8,
+      "before": 4.3,
+      "delta": -0.5,
+      "good": false,
+      "unit": "/5"
+     }
+    ],
+    "strengths": [
+     "Best work happens in the evening"
+    ],
+    "growth": [
+     "Active on 36% of days in the last 4 weeks"
+    ],
+    "targets": [],
+    "week": {
+     "weekNumber": 1,
+     "planned": 165,
+     "done": 25,
+     "steps": 6,
+     "stepsDone": 1,
+     "projected": 100,
+     "capacity": 270
+    },
+    "trajectory": {
+     "goal": "Astronaut",
+     "phases": [
+      {
+       "title": "Fundamentals",
+       "weeks": 2,
+       "state": "current"
+      },
+      {
+       "title": "Physics base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Maths base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Projects",
+       "weeks": 2,
+       "state": "next"
+      }
+     ],
+     "level": 1,
+     "levels": 4,
+     "weeksDone": 1,
+     "weeksTotal": 10,
+     "pace": 17,
+     "forecast": "2027-05-05",
+     "target": "2027-01-15",
+     "status": "behind",
+     "gapDays": 110
+    },
+    "quizzes": []
+   },
+   "progress": {
+    "streak": {
+     "current": 4,
+     "best": 4
+    },
+    "week": {
+     "minutes": 25,
+     "focus": 150,
+     "steps": 1,
+     "daysActive": 6
+    },
+    "heat": [
+     {
+      "date": "2026-09-12",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-13",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-14",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-15",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-16",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-17",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-18",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-19",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-20",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-21",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-22",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-23",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-24",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-25",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-26",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-27",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-28",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-29",
+      "minutes": 0
+     },
+     {
+      "date": "2026-09-30",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-01",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-02",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-03",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-04",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-05",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-06",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-07",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-08",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-09",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-10",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-11",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-12",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-13",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-14",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-15",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-16",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-17",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-18",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-19",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-20",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-21",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-22",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-23",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-24",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-25",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-26",
+      "minutes": 40
+     },
+     {
+      "date": "2026-10-27",
+      "minutes": 30
+     },
+     {
+      "date": "2026-10-28",
+      "minutes": 20
+     },
+     {
+      "date": "2026-10-29",
+      "minutes": 0
+     },
+     {
+      "date": "2026-10-30",
+      "minutes": 30
+     },
+     {
+      "date": "2026-10-31",
+      "minutes": 20
+     },
+     {
+      "date": "2026-11-01",
+      "minutes": 40
+     },
+     {
+      "date": "2026-11-02",
+      "minutes": 0
+     },
+     {
+      "date": "2026-11-03",
+      "minutes": 20
+     },
+     {
+      "date": "2026-11-04",
+      "minutes": 40
+     },
+     {
+      "date": "2026-11-05",
+      "minutes": 30
+     },
+     {
+      "date": "2026-11-06",
+      "minutes": 25
+     }
+    ],
+    "minutes": [
+     {
+      "date": "2026-10-24",
+      "label": "Sat 24",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-25",
+      "label": "Sun 25",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-26",
+      "label": "Mon 26",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-10-27",
+      "label": "Tue 27",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-10-28",
+      "label": "Wed 28",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-10-29",
+      "label": "Thu 29",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-10-30",
+      "label": "Fri 30",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-10-31",
+      "label": "Sat 31",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-11-01",
+      "label": "Sun 1",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-11-02",
+      "label": "Mon 2",
+      "planned": 0,
+      "done": 0,
+      "focus": 0
+     },
+     {
+      "date": "2026-11-03",
+      "label": "Tue 3",
+      "planned": 0,
+      "done": 0,
+      "focus": 20
+     },
+     {
+      "date": "2026-11-04",
+      "label": "Wed 4",
+      "planned": 0,
+      "done": 0,
+      "focus": 40
+     },
+     {
+      "date": "2026-11-05",
+      "label": "Thu 5",
+      "planned": 0,
+      "done": 0,
+      "focus": 30
+     },
+     {
+      "date": "2026-11-06",
+      "label": "Fri 6",
+      "planned": 25,
+      "done": 25,
+      "focus": 0
+     }
+    ],
+    "trajectory": {
+     "goal": "Astronaut",
+     "phases": [
+      {
+       "title": "Fundamentals",
+       "weeks": 2,
+       "state": "current"
+      },
+      {
+       "title": "Physics base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Maths base",
+       "weeks": 3,
+       "state": "next"
+      },
+      {
+       "title": "Projects",
+       "weeks": 2,
+       "state": "next"
+      }
+     ],
+     "level": 1,
+     "levels": 4,
+     "weeksDone": 1,
+     "weeksTotal": 10,
+     "pace": 17,
+     "forecast": "2027-05-05",
+     "target": "2027-01-15",
+     "status": "behind",
+     "gapDays": 110
+    },
+    "mastery": [
+     {
+      "title": "What astronauts do",
+      "state": "next"
+     },
+     {
+      "title": "Gravity and orbits",
+      "state": "next"
+     },
+     {
+      "title": "Sketch an orbit diagram",
+      "state": "next"
+     }
+    ],
+    "masteryTitle": "This level’s topics",
+    "quiz": [],
+    "energy": [
+     {
+      "date": "2026-10-26",
+      "energy": 5
+     },
+     {
+      "date": "2026-10-27",
+      "energy": 4
+     },
+     {
+      "date": "2026-10-28",
+      "energy": 3
+     },
+     {
+      "date": "2026-10-30",
+      "energy": 5
+     },
+     {
+      "date": "2026-10-31",
+      "energy": 4
+     },
+     {
+      "date": "2026-11-01",
+      "energy": 3
+     },
+     {
+      "date": "2026-11-03",
+      "energy": 5
+     },
+     {
+      "date": "2026-11-04",
+      "energy": 4
+     },
+     {
+      "date": "2026-11-05",
+      "energy": 3
+     }
+    ],
+    "read": [
+     {
+      "icon": "clock",
+      "text": "Your best focus time is the evening (270 minutes of focus there in the last weeks). Put the hardest step there."
+     },
+     {
+      "icon": "tasks",
+      "text": "1 task is overdue. Tell me “move my overdue tasks to the weekend” and I'll sort it."
+     },
+     {
+      "icon": "trend",
+      "text": "At this pace you would finish around Wed 5 May, about 16 weeks after your target. Small daily steps close the gap fastest."
+     },
+     {
+      "icon": "award",
+      "text": "4 days in a row. Keep the chain going: even 15 minutes counts."
+     }
+    ]
+   },
+   "mastery": [
+    {
+     "id": "p1",
+     "title": "Fundamentals",
+     "state": "current",
+     "topics": [
+      {
+       "id": "p1t1",
+       "title": "What astronauts do",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p1t2",
+       "title": "Gravity and orbits",
+       "state": "next",
+       "missed": [],
+       "hard": [
+        {
+         "date": "2026-11-06",
+         "text": "Why gravity gets weaker with distance squared"
+        }
+       ]
+      },
+      {
+       "id": "p1t3",
+       "title": "Sketch an orbit diagram",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p2",
+     "title": "Physics base",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p2t1",
+       "title": "Newton’s laws",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p2t2",
+       "title": "Motion in a plane",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p2t3",
+       "title": "Solve mechanics problems",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p3",
+     "title": "Maths base",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p3t1",
+       "title": "Vectors",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p3t2",
+       "title": "Calculus basics",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p3t3",
+       "title": "Use vectors in problems",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "title": "Projects",
+     "state": "next",
+     "topics": [
+      {
+       "id": "p4t1",
+       "title": "Model rocket report",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p4t2",
+       "title": "Launch data",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      },
+      {
+       "id": "p4t3",
+       "title": "Present your findings",
+       "state": "next",
+       "missed": [],
+       "hard": []
+      }
+     ]
+    }
+   ],
+   "assessments": [],
+   "coach": {
+    "chats": 0,
+    "asks": 0,
+    "kinds": {},
+    "about": [],
+    "words": [],
+    "flagged": 0
+   },
+   "career": {
+    "assessment": null,
+    "shortlist": [
+     {
+      "id": "occ.15-1252.00",
+      "title": "Software Developers",
+      "status": "exploring"
+     }
+    ],
+    "situation": null
+   },
+   "evidence": {
+    "portfolio": [],
+    "work": []
+   },
+   "sessions": {
+    "next": {
+     "id": "6aed7d462e3a1b973a2ef2ce",
+     "studentId": "6aed7d442e3a1b973a2ef16e",
+     "mentorId": "6aed7d432e3a1b973a2ef115",
+     "start": "2026-11-06T07:14:58.113Z",
+     "end": "2026-11-06T07:44:58.113Z",
+     "durationMin": 30,
+     "date": "2026-11-06",
+     "time": "12:44",
+     "timeTbd": false,
+     "when": "Fri, 6 Nov, 12:44 pm",
+     "status": "scheduled",
+     "phase": "live",
+     "topic": "Quick check-in",
+     "note": "",
+     "requestedBy": "mentor",
+     "answerBy": null,
+     "askedStart": null,
+     "change": null,
+     "closed": null,
+     "missedBy": null,
+     "meetingUrl": "https://meet.google.com/abc-defg-hij",
+     "hasLink": true,
+     "joinFrom": "2026-11-06T07:04:58.113Z",
+     "joinUntil": "2026-11-06T07:59:58.113Z",
+     "agenda": [],
+     "timeline": [],
+     "summary": "",
+     "actions": [],
+     "tasksCreated": false,
+     "confirmedAt": "2026-11-06T07:09:58.113Z"
+    },
+    "history": [],
+    "closed": []
+   },
+   "notes": [
+    {
+     "id": "6aed7d462e3a1b973a2ef2b3",
+     "kind": "summary",
+     "title": "Week 1: a strong start",
+     "text": "You finished your first lessons and explained orbits clearly in your log. Next week, practise the distance part.",
+     "at": "2026-11-06T07:09:58.082Z",
+     "mine": false,
+     "sharedWithStudent": true,
+     "sharedWithParent": true
+    }
+   ],
+   "timeline": [
+    {
+     "at": "2026-11-06T07:09:58.559Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.558Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy good, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.557Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy okay, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.556Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy charged, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.555Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy good, 60 min available",
+     "link": null
+    },
+    {
+     "at": "2026-11-06T07:09:58.554Z",
+     "kind": "checkin",
+     "icon": "sun",
+     "title": "Morning check-in",
+     "detail": "energy okay, 60 min available",
+     "link": null
+    }
+   ]
+  },
+  "views": [
+   {
+    "at": "2026-11-06T07:11:59.397Z",
+    "what": "observatory",
+    "role": "mentor",
+    "name": "Dr. Neha Kapoor"
+   },
+   {
+    "at": "2026-11-06T07:10:52.429Z",
+    "what": "observatory",
+    "role": "mentor",
+    "name": "Dr. Neha Kapoor"
+   },
+   {
+    "at": "2026-11-06T07:10:52.409Z",
+    "what": "observatory",
+    "role": "mentor",
+    "name": "Dr. Neha Kapoor"
+   },
+   {
+    "at": "2026-11-06T07:10:04.999Z",
+    "what": "observatory",
+    "role": "mentor",
+    "name": "Dr. Neha Kapoor"
+   },
+   {
+    "at": "2026-11-06T07:10:04.971Z",
+    "what": "observatory",
+    "role": "mentor",
+    "name": "Dr. Neha Kapoor"
+   }
+  ]
+ }
+}

@@ -43,8 +43,9 @@ describe('real dashboards: who may enter', () => {
   });
   it('/platform takes each person home', async () => {
     signIn({ id: 'c1', fullName: 'Ms Rao', role: 'counsellor' });
+    routes['get /v2/school/dashboard'] = { dashboard: { school: { id: 'o1', name: 'Futurense School', admin: true }, totals: { students: 0, consented: 0, withMentor: 0, active7: 0, red: 0, amber: 0, escalations: 0, mentors: 0 }, cohorts: [], mentors: [], curricula: [], ai: { todayUsd: 0, calls: 0, dailyUsd: null } } };
     at('/platform');
-    expect(await screen.findByText('SCHOOL')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Futurense School' })).toBeInTheDocument();
   });
 });
 

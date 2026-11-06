@@ -180,7 +180,7 @@ export default function LoopGoalPage() {
       <div className="pf-grid g-main-r">
         <Card><CardHead title="Your goal" icon="target" />
           <h3 style={{ margin: '4px 0' }}>{g.title}</h3>
-          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · Level {g.phase.number} of {g.phase.total}: {g.phase.title} · target {fmtDay(g.targetDate)}</span></div>
+          <div className="pf-row pf-wrap" style={{ gap: 8, margin: '6px 0 12px' }}><Pill tone={pace[1]}>{pace[0]}</Pill><span className="pf-small pf-muted">Week {g.weekNumber} · {g.where || `Level ${g.phase.number} of ${g.phase.total}: ${g.phase.title}`} · target {fmtDay(g.targetDate)}</span></div>
           <div className="pf-grid g2">
             <div className="pf-point"><div className="pf-eyebrow">Started from</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.startPoint.summary}</p></div>
             <div className="pf-point end"><div className="pf-eyebrow">Heading to</div><p style={{ margin: '4px 0 0' }} className="pf-small">{g.endPoint.summary}</p></div>

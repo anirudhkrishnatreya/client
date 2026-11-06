@@ -162,6 +162,16 @@ describe('the week', () => {
     expect(await within(card).findByText('A different lesson')).toBeInTheDocument();
     expect(card.querySelector('iframe')).toBeNull();
   });
+  it('a step the mentor set says so (locked against the coach) and shows its subject from the school plan', async () => {
+    const s = planState();
+    s.loop.week.items[0] = unit('u1', 3, { title: 'Practise: orbit problems', by: 'mentor', locked: true, subject: 'Physics' });
+    routes['get /v2/me/loop'] = s;
+    at('/platform/student/plan/day/2026-10-22');
+    const card = await screen.findByRole('article', { name: 'Practise: orbit problems' });
+    expect(within(card).getByText('From your mentor')).toBeInTheDocument();
+    expect(within(card).getByText('Physics')).toBeInTheDocument();
+    expect(within(screen.getByRole('article', { name: 'Unit u2' })).queryByText('From your mentor')).toBeNull();
+  });
   it('a practise step has how-to help, a follow-along video, and links back to the lessons; a check step links back too', async () => {
     const s = planState();
     s.loop.week.items = [
