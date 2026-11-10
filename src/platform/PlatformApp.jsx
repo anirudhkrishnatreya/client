@@ -19,6 +19,7 @@ import LiveSessions from './live/mentor/Sessions';
 import LiveMentorTasks from './live/mentor/Tasks';
 import LiveInsights from './live/mentor/Insights';
 import LiveStudentTasks from './live/student/Tasks';
+import AboutMe from './live/student/AboutMe';
 import LiveLibrary from './live/student/Library';
 import CoachHQ from './live/coach/HQ';
 import Observatory from './live/observe/Observatory';
@@ -150,7 +151,7 @@ export default function PlatformApp() {
           ? <><Route path="goal" element={later(<LoopGoal />)} /><Route path="plan" element={later(<LoopPlan />)} /><Route path="plan/roadmap" element={later(<LoopRoadmap />)} /><Route path="plan/day/:date" element={later(<LoopDay />)} /><Route path="plan/assessment" element={later(<LoopAssessment />)} /><Route path="portfolio" element={later(<LoopPortfolio />)} /></>
           : <><Route path="goal" element={<LiveGoal />} /><Route path="plan" element={soon.plan} /></>}
         {PAY_ENABLED && <><Route path="billing" element={later(<Billing />)} /><Route path="billing/receipt/:id" element={later(<Receipt />)} /></>}
-        <Route path="tasks" element={<LiveStudentTasks />} />
+        <Route path="tasks" element={<LiveStudentTasks />} /><Route path="about" element={<AboutMe />} />
         <Route path="assessments" element={<LiveAssessments />} /><Route path="library" element={LOOP_ENABLED ? <LiveLibrary /> : <StudentLibrary live />} /><Route path="reports" element={<LiveReports />} /><Route path="mentor" element={<LiveMentor />} /><Route path="coach" element={<CoachHQ />} /><Route path="mentor-view" element={<MyMentorView />} />
         {REC_ENABLED && <>
           <Route path="careers" element={later(<Matches />)} /><Route path="explore" element={later(<Explore />)} /><Route path="explore/:slug" element={later(<Occupation />)} />

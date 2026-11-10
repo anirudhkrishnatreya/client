@@ -13,7 +13,7 @@ export async function loadStudent() {
   const d = await get('student');
   return {
     live: true,
-    me: { id: d.me.id, name: d.me.fullName, firstName: firstName(d.me.fullName), klass: gradeLabel(d.me.grade).replace('Class ', ''), gradeLabel: gradeLabel(d.me.grade), grade: d.me.grade, track: d.me.track, joined: d.me.joined,
+    me: { id: d.me.id, name: d.me.fullName, firstName: firstName(d.me.fullName), klass: (d.me.education && d.me.education.label ? d.me.education.label : gradeLabel(d.me.grade)).replace('Class ', ''), gradeLabel: (d.me.education && d.me.education.label) || gradeLabel(d.me.grade), grade: d.me.grade, track: d.me.track, joined: d.me.joined,
       consent: d.me.consent, parent: d.me.parent, parentEmail: d.me.parentEmailMasked },
     goal: { title: d.me.goal },
     mentor: d.mentor, sessions: d.sessions, tasks: d.tasks, reports: d.reports, assessment: d.assessment, mentorNotes: d.mentorNotes || [],
@@ -185,6 +185,15 @@ export const observeApi = {
   myReports: () => v2('get', 'me/reports'),
   myData: () => blob('/v2/me/export'),
   parentReports: childId => get(`parent/children/${childId}/reports`)
+};
+
+/** Where a student is in their education (server services/student): their own view and edits, and a mentor's or the school's correction. */
+export const educationApi = {
+  me: () => v2('get', 'me/education'),
+  save: body => v2('put', 'me/education', body),
+  confirm: () => v2('post', 'me/education/confirm'),
+  of: id => get(`observe/students/${id}/education`),
+  correct: (id, body) => send('put', `observe/students/${id}/education`, body)
 };
 
 /** The school console (server services/school): a school's staff. Admin-only actions are checked on the server. */

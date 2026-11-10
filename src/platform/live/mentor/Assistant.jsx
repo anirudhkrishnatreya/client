@@ -74,7 +74,7 @@ export default function LiveAssistant() {
       <PageHead eyebrow="Assistant" title="Tell it what you want done" actions={msgs.length ? <button type="button" className="pf-btn sm ghost" onClick={() => setMsgs([])}>New conversation</button> : null}>
         Give tasks, book sessions, write notes and draft weekly summaries in plain words. The assistant only proposes: nothing happens until you confirm each one.
       </PageHead>
-      <Card className="pf-chat">
+      <Card className="pf-chatcard">
         <div className="pf-chat-log" aria-live="polite">
           {msgs.length === 0 && (
             <div className="pf-chat-empty">

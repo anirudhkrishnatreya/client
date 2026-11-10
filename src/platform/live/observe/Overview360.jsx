@@ -3,6 +3,7 @@ import { Card, CardHead, Icon, Pill, Spark } from '../../ui/kit';
 import { ProgressView } from '../coach/Progress';
 import { observeApi, errMessage } from '../liveApi';
 import { KIND_ICON, ago } from './parts';
+import EducationCard from '../education/EducationCard';
 
 // The 360 overview: right now, warnings and what changed, targets, strengths and growth areas, habits, wellbeing, the full
 // progress dashboard, mastery across every level (with its evidence), assessments question by question, what they ask the
@@ -67,6 +68,7 @@ export default function Overview360({ p, onChanged }) {
           </div>
         </div>
         <div className="pf-grid" style={{ alignContent: 'start' }}>
+          <EducationCard h={p.header} as={p.as} onChanged={onChanged} />
           <Card><CardHead title="Risk radar" icon="shield" /><div className={`pf-o-radar ${s.risk.level}`}><b>{s.risk.score}</b><span>/100</span></div><ul className="pf-small pf-o-list">{s.risk.reasons.map(r => <li key={r}>{r}</li>)}</ul></Card>
           <Card><CardHead title="Targets" icon="flag" />{s.targets.length ? <ul className="pf-list">{s.targets.map(t => <li key={t.id}><span className="pf-grow pf-small">{TARGET[t.kind]}: at least {t.value}{t.unit}</span><Pill tone={t.met ? 'leaf' : 'gold'}>{t.current === null ? '–' : `${t.current}${t.unit}`}</Pill></li>)}</ul> : <p className="pf-small pf-muted" style={{ margin: 0 }}>{p.as === 'mentor' ? 'Set targets on the Planning tab; they track themselves.' : 'No targets set.'}</p>}</Card>
           <Card><CardHead title="Habits" icon="clock" /><ul className="pf-small pf-o-list">

@@ -7,6 +7,7 @@ import Locked from '../../../pay/Locked';
 import { AiMeter, AiOutNote, aiOut } from './AiMeter';
 import { NextWeek } from './NextWeek';
 import { DayCard, AssessmentBanner, daysOf, doneOf } from './DayBits';
+import PlanReview from './PlanReview';
 
 /** The week at a glance: how far along, the assessment that opens next week, and one card per day. Each day opens its own page. */
 export default function LoopPlanPage() {
@@ -28,6 +29,7 @@ export default function LoopPlanPage() {
   return (
     <>
       {head}
+      <PlanReview review={g.review} act={act} />
       {w.weekNumber > 1 && note && <Card ai style={{ marginBottom: 12 }}><span className="tag"><Icon name="sparkles" size={14} />What changed for this week</span><p style={{ margin: '8px 0 0' }}>{note}</p>{changes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{changes.map(c => <li key={c}>{c}</li>)}</ul>}</Card>}
       <AiOutNote ai={loop.ai} />
       {w.notices.map(n => <div key={n.key} className="pf-note" role="note" style={{ marginBottom: 10 }}>{n.text}</div>)}

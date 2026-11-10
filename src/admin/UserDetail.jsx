@@ -3,6 +3,7 @@ import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom
 import { Card, CardHead, Pill, Tabs, Avatar, Icon } from '../platform/ui/kit';
 import { PageSkeleton } from '../platform/live/loop/Loader';
 import { adminApi, errOf, money, num, when, day, ago, can } from './adminApi';
+import { gradeLabel } from '../platform/live/liveApi';
 import { Kpi, CapBar, DayBars, AuditRows, StatusPill, Section } from './common';
 
 const BAND = { strong: ['leaf', 'Strong'], 'getting-there': ['gold', 'Getting there'], 'not-yet': ['coral', 'Not yet'] };
@@ -162,7 +163,7 @@ export default function UserDetail() {
         <div className="pf-grid g2" style={{ marginTop: 14 }}>
           <Section title="Account" icon="user">
             <ul className="pf-list">
-              <Row k="Role">{p.role}{p.grade ? ` · ${/^\d+$/.test(p.grade) ? `Class ${p.grade}` : p.grade}` : ''}{p.track ? ` · ${p.track}` : ''}</Row>
+              <Row k="Role">{p.role}{p.grade ? ` · ${gradeLabel(p.grade)}` : ''}{p.track ? ` · ${p.track}` : ''}</Row>
               <Row k="Email confirmed">{p.isVerified ? 'Yes' : <Pill tone="gold">No</Pill>}</Row>
               <Row k="Signed out everywhere">{p.sessionsValidFrom ? when(p.sessionsValidFrom) : 'Never'}</Row>
               <MentorPick p={p} reload={load} me={me} />

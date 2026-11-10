@@ -6,7 +6,7 @@ import { PAY_ENABLED } from '../../pay/payApi';
 export const NAV = {
   student: [
     { section: 'Learn', items: [
-      { to: '', label: 'Overview', icon: 'home', end: true }, { to: 'goal', label: 'My goal', icon: 'target' }, { to: 'plan', label: 'Weekly plan', icon: 'calendar' },
+      { to: '', label: 'Overview', icon: 'home', end: true }, { to: 'about', label: 'About me', icon: 'user' }, { to: 'goal', label: 'My goal', icon: 'target' }, { to: 'plan', label: 'Weekly plan', icon: 'calendar' },
       { to: 'tasks', label: 'Tasks', icon: 'tasks', badge: 'tasks' }, { to: 'assessments', label: 'Assessments', icon: 'clipboard' }, { to: 'library', label: 'Learning library', icon: 'book' }] },
     { section: 'Grow', items: [
       ...(LOOP_ENABLED ? [{ to: 'portfolio', label: 'My portfolio', icon: 'award' }] : []),

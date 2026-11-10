@@ -3,11 +3,12 @@ import { Card, Empty, PageHead, Pill } from '../../ui/kit';
 import { useLoop, messageFor, PACE, BAND, fmtDay, fmtShort, pct } from './loopApi';
 import { PageSkeleton } from './Loader';
 import Locked from '../../../pay/Locked';
+import PlanReview from './PlanReview';
 
 /** Progress: where the student started, where they are heading, what has happened, and how the plan has adapted. The road in
  *  between is not shown: it changes after every week, so only the current week is ever shown in full. */
 export default function LoopProgressPage() {
-  const { loop, loading, closed, error, locked } = useLoop();
+  const { loop, loading, closed, error, locked, act } = useLoop();
   const head = <PageHead eyebrow="My progress" title={loop && loop.goal ? loop.goal.title : 'Your progress'} actions={<Link className="pf-btn sm ghost" to="..">This week</Link>}>From where you started to where you are heading, at your own pace.</PageHead>;
   if (loading) return <PageSkeleton label="Loading your progress" cards={2} />;
   if (locked) return <>{head}<Locked {...locked} /></>;
@@ -19,6 +20,7 @@ export default function LoopProgressPage() {
   return (
     <>
       {head}
+      <PlanReview review={g.review} act={act} />
       <div className="pf-grid g2" style={{ marginBottom: 14 }}>
         <Card><div className="pf-eyebrow">Started from</div><p style={{ margin: '6px 0 0' }}>{g.startPoint.summary}</p></Card>
         <Card><div className="pf-eyebrow">Heading to · by {fmtDay(g.targetDate)}</div><p style={{ margin: '6px 0 0' }}>{g.endPoint.summary}</p>{g.endPoint.outcomes.length > 0 && <ul className="pf-small" style={{ margin: '8px 0 0', paddingLeft: 18 }}>{g.endPoint.outcomes.map(o => <li key={o}>{o}</li>)}</ul>}</Card>

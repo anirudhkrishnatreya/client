@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardHead, Empty, Icon, PageHead, Pill } from '../../ui/kit';
 import { usePlatform } from '../../data/store';
 import { loopApi, useLoop, messageFor, DAYS, SHORT_DAYS, PACE, fmtMinutes, fmtDay } from './loopApi';
+import EducationCheck from '../education/EducationCheck';
+import PlanReview from './PlanReview';
 import { Working, PageSkeleton } from './Loader';
 import { AiMeter, aiOut } from './AiMeter';
 import Locked from '../../../pay/Locked';
@@ -24,11 +26,13 @@ function Chat({ intake, act, ai }) {
   const [err, setErr] = useState('');
   const [pending, setPending] = useState(null);       // what the student just sent, shown while the guide thinks
   const log = useRef(null);
-  useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [intake.messages.length, pending]);
+  const stick = useRef(true);                      // follow the newest message, unless the student scrolled up to read
+  const onScroll = () => { const el = log.current; if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80; };
+  useEffect(() => { const el = log.current; if (el && stick.current) el.scrollTop = el.scrollHeight; }, [intake.messages.length, pending, busy]);
   const send = async value => {
     const t = (value || '').trim();
     if (!t || busy) return;
-    setBusy(true); setErr(''); setPending(t); setText('');
+    stick.current = true; setBusy(true); setErr(''); setPending(t); setText('');
     try { await act(() => loopApi.chat(t)); }
     catch (e) { setErr(messageFor(e)); setText(t); }               // keep what they typed, so they can send it again
     finally { setBusy(false); setPending(null); }
@@ -37,7 +41,7 @@ function Chat({ intake, act, ai }) {
   return (
     <Card>
       <CardHead title="Your iMenteo guide" icon="sparkles" />
-      <div className="pf-chat pf-loopchat" ref={log} role="log" aria-label="Conversation with your guide" aria-live="polite">
+      <div className="pf-chat pf-loopchat" ref={log} onScroll={onScroll} tabIndex={0} role="log" aria-label="Conversation with your guide" aria-live="polite">
         {intake.messages.map((m, i) => <div key={i} className={`pf-msg ${m.role === 'user' ? 'me' : 'ai'}`}>{m.text}</div>)}
         {pending && <div className="pf-msg me">{pending}</div>}
         {busy && <Thinking />}
@@ -164,6 +168,7 @@ export default function LoopGoalPage() {
     return (
       <>
         {head}
+        {!(loop.intake.messages.length === 1 && (loop.intake.messages[0].quickReplies || []).includes('Yes, that is right')) && <EducationCheck />}
         {loop.currentGoal && <div className="pf-note" role="note" style={{ marginBottom: 14 }}>You are planning a new goal. Your current goal, <b>{loop.currentGoal.title}</b>, stays until you start the new plan. <button type="button" className="pf-link" onClick={() => act(() => loopApi.cancelNewGoal())}>Keep my current goal</button></div>}
         <Chat intake={loop.intake} act={act} ai={loop.ai} />
         {loop.intake.proposal && <Proposal plan={loop.intake.proposal} act={act} onStarted={() => { setJustStarted(true); refreshDashboard(); }} />}
@@ -176,6 +181,7 @@ export default function LoopGoalPage() {
   return (
     <>
       {head}
+      <PlanReview review={g.review} act={act} />
       {justStarted && <div className="pf-note" role="status" style={{ marginBottom: 14 }}><b>Your plan has started.</b> Check your week below, so it fits your real free time; then open your <Link to="../plan">weekly plan</Link>.</div>}
       <div className="pf-grid g-main-r">
         <Card><CardHead title="Your goal" icon="target" />

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Empty, Pill } from '../platform/ui/kit';
 import { adminApi, errOf, money, num, ago, day } from './adminApi';
+import { gradeLabel } from '../platform/live/liveApi';
 import { StatusPill } from './common';
 
 /** Every account: search, filter by role and status, sort (including by AI spend), and open one. */
@@ -34,7 +35,7 @@ export default function Users() {
             <tbody>{d.users.map(u => (
               <tr key={u.id} className="click" onClick={() => nav(`/admin/users/${u.id}`)} tabIndex={0} onKeyDown={e => { if (e.key === 'Enter') nav(`/admin/users/${u.id}`); }}>
                 <td><b>{u.name}</b><div className="pf-small pf-muted">{u.email}</div></td>
-                <td>{u.role}{u.grade ? <div className="pf-small pf-muted">{/^\d+$/.test(u.grade) ? `Class ${u.grade}` : u.grade}</div> : null}</td>
+                <td>{u.role}{u.grade ? <div className="pf-small pf-muted">{gradeLabel(u.grade)}</div> : null}</td>
                 <td><StatusPill status={u.status} /></td>
                 <td className="pf-small">{u.goal ? `${u.goal.title} · L${u.goal.level}/${u.goal.levels}` : '—'}</td>
                 <td className="r">{num(u.ai.callsToday)}{u.ai.ownLimit !== null ? <div className="pf-small pf-muted">{u.ai.ownLimit < 0 ? 'no limit' : `limit ${u.ai.ownLimit}`}</div> : null}</td>

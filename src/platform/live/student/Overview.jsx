@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import EducationCheck from '../education/EducationCheck';
 import { usePlatform } from '../../data/store';
 import { Avatar, Card, CardHead, Icon, PageHead, Pill, Stat } from '../../ui/kit';
 import { dueLabel, fmtDate, greeting } from '../../ui/format';
@@ -14,6 +15,7 @@ export default function LiveStudentOverview() {
   const report = data.reports[0];
   return (
     <>
+      <EducationCheck />
       <Card className="pf-hero" style={{ marginBottom: 18 }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div className="pf-eyebrow">{greeting()}, {data.me.firstName}</div>

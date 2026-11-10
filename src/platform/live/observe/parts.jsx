@@ -64,7 +64,7 @@ export function Head360({ h, actions }) {
       <Avatar name={h.name} size={64} />
       <div className="pf-grow" style={{ minWidth: 0 }}>
         <div className="pf-row pf-wrap" style={{ gap: 8 }}><h2 style={{ margin: 0, fontSize: 26 }}>{h.name}</h2><RiskBadge risk={h.risk} />{h.goalKind === 'curriculum' && <Pill tone="sky">School plan</Pill>}</div>
-        <div className="pf-small pf-muted" style={{ marginTop: 4 }}>{[h.school && h.school.name, h.cohort, h.grade && `Class ${h.grade}`, h.mentor && `Mentor: ${h.mentor}`].filter(Boolean).join(' · ')}</div>
+        <div className="pf-small pf-muted" style={{ marginTop: 4 }}>{[h.school && h.school.name, h.cohort, (h.education && h.education.label) || (h.grade && `Class ${h.grade}`), h.mentor && `Mentor: ${h.mentor}`].filter(Boolean).join(' · ')}</div>
         <div className="pf-o-facts">
           <span><Icon name="target" size={14} />{h.goal || 'No goal yet'}{h.level ? ` · ${h.level}` : ''}</span>
           <span><Icon name="flame" size={14} />{h.streak.current}-day streak</span>

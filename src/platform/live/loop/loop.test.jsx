@@ -55,6 +55,31 @@ describe('the career chat', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }));
     await waitFor(() => expect(calls.filter(c => c.url === '/v2/me/loop/chat').pop().body).toEqual({ text: 'Class 10 science' }));
   });
+  it('keeps the newest message in view, but does not pull the student down while they read back', async () => {
+    // jsdom has no layout: give the log a height so its scroll position means something
+    const proto = HTMLElement.prototype;
+    const sh = Object.getOwnPropertyDescriptor(proto, 'scrollHeight'), ch = Object.getOwnPropertyDescriptor(proto, 'clientHeight');
+    Object.defineProperty(proto, 'scrollHeight', { configurable: true, get() { return this.getAttribute('role') === 'log' ? 1000 : 0; } });
+    Object.defineProperty(proto, 'clientHeight', { configurable: true, get() { return this.getAttribute('role') === 'log' ? 400 : 0; } });
+    try {
+      const long = [greeting, ...Array.from({ length: 10 }, (_, i) => [{ role: 'user', text: `Answer ${i}` }, { role: 'assistant', text: `Question ${i}`, quickReplies: [] }]).flat()];
+      routes['get /v2/me/loop'] = chatState(long);
+      routes['post /v2/me/loop/chat'] = ({ text }) => chatState([...long, { role: 'user', text }, { role: 'assistant', text: 'Noted.', quickReplies: [] }]);
+      const user = userEvent.setup();
+      at('/platform/student/goal');
+      const log = await screen.findByRole('log', { name: 'Conversation with your guide' });
+      await waitFor(() => expect(log.scrollTop).toBe(1000));              // opens at the newest message
+      expect(log.tabIndex).toBe(0);                                      // reachable and scrollable from the keyboard
+      log.scrollTop = 100; log.dispatchEvent(new Event('scroll'));       // the student scrolls up to read
+      await user.type(screen.getByLabelText('Your message'), 'More hours');
+      await user.click(screen.getByRole('button', { name: 'Send' }));    // sending brings them back to the conversation
+      await screen.findByText('Noted.');
+      expect(log.scrollTop).toBe(1000);
+    } finally {
+      if (sh) Object.defineProperty(proto, 'scrollHeight', sh); else delete proto.scrollHeight;
+      if (ch) Object.defineProperty(proto, 'clientHeight', ch); else delete proto.clientHeight;
+    }
+  });
   it('if the guide cannot answer, the message stays in the box to send again', async () => {
     routes['get /v2/me/loop'] = chatState([greeting]);
     routes['post /v2/me/loop/chat'] = fail(503, 'AI_UNAVAILABLE');
@@ -161,6 +186,27 @@ describe('the week', () => {
     await user.click(within(card).getByRole('button', { name: 'Show me a different video' }));
     expect(await within(card).findByText('A different lesson')).toBeInTheDocument();
     expect(card.querySelector('iframe')).toBeNull();
+  });
+  it('a plan made for an earlier stage says why, and one tap builds it again as a proposal on the goal page', async () => {
+    let now = planState();
+    now.loop.goal.review = { needsRebuild: true, reasons: ['It names JEE Main, CUET UG, which no longer apply to you.', 'It was made for Class 12; you are in College, year 2.'], stage: 'College, year 2' };
+    routes['get /v2/me/loop'] = () => now;
+    routes['post /v2/me/loop/rebuild'] = () => { now = chatState([greeting], { intake: { status: 'proposed', proposal: PLAN } }); return now; };
+    const user = userEvent.setup();
+    at('/platform/student/plan');
+    const box = await screen.findByRole('region', { name: 'Your plan needs a look' });
+    expect(within(box).getByText('It names JEE Main, CUET UG, which no longer apply to you.')).toBeInTheDocument();
+    expect(within(box).getByText('It was made for Class 12; you are in College, year 2.')).toBeInTheDocument();
+    expect(within(box).getByText(/Your current plan stays until you accept the new one/)).toBeInTheDocument();
+    await user.click(within(box).getByRole('button', { name: 'Rebuild my plan' }));
+    expect(await screen.findByRole('button', { name: 'Start this plan' })).toBeInTheDocument();      // the proposal, on the goal page
+    expect(calls.filter(c => c.url === '/v2/me/loop/rebuild')).toHaveLength(1);
+  });
+  it('a plan that still fits shows nothing', async () => {
+    routes['get /v2/me/loop'] = planState();
+    at('/platform/student/plan');
+    await screen.findByText(/Your week, planned for you/);
+    expect(screen.queryByRole('region', { name: 'Your plan needs a look' })).toBeNull();
   });
   it('a step the mentor set says so (locked against the coach) and shows its subject from the school plan', async () => {
     const s = planState();

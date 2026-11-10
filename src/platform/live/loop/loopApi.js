@@ -8,6 +8,7 @@ export const loopApi = {
   state: () => api.get('/v2/me/loop'),
   chat: text => api.post('/v2/me/loop/chat', { text }),
   confirm: () => api.post('/v2/me/loop/chat/confirm'),
+  rebuild: () => api.post('/v2/me/loop/rebuild'),
   newGoal: () => api.post('/v2/me/loop/new-goal'),
   cancelNewGoal: () => api.post('/v2/me/loop/new-goal/cancel'),
   setSchedule: body => api.put('/v2/me/loop/schedule', body),

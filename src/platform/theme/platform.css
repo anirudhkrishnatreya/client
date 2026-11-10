@@ -175,7 +175,7 @@ button.pf-user:hover, button.pf-user[aria-expanded="true"] { background: var(--l
 @media (max-width: 600px) { .pf-unit > .pf-row:first-child > b.pf-grow { flex-basis: 100%; order: -1; } }
 
 /* ---- learning loop: chat, plan points, phases, check ---- */
-.pf-loopchat { min-height: 260px; max-height: 460px; overflow-y: auto; padding: 4px 2px; }
+.pf-chat.pf-loopchat { min-height: 220px; max-height: min(460px, 58vh); overflow-y: auto; overscroll-behavior: contain; padding: 4px 2px; }
 .pf-msg.ai { white-space: pre-wrap; }
 .pf-typing { display: inline-flex; gap: 4px; align-items: center; }
 .pf-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: pf-blink 1.2s infinite; }
@@ -374,7 +374,8 @@ a.pf-daycard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); 
 @media (max-width: 900px) { .pf-quick { grid-template-columns: 1fr; } }
 .pf-quick-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--r); border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none; box-shadow: var(--shadow); transition: border-color .15s, transform .15s; }
 .pf-quick-item:hover { border-color: var(--indigo); transform: translateY(-1px); } .pf-quick-item > svg { color: var(--indigo); flex: none; margin-top: 2px; }
-.pf-chat { display: flex; flex-direction: column; min-height: 520px; padding: 0 !important; overflow: hidden; }
+/* the mentor assistant's card (its own class: .pf-chat is the plain message list used by the goal chat, the coach and the mentor thread) */
+.pf-chatcard { display: flex; flex-direction: column; min-height: 520px; padding: 0 !important; overflow: hidden; }
 .pf-chat-log { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 12px; max-height: 64vh; overflow-y: auto; background: #FBFCFF; }
 .pf-chat-empty { margin: auto; text-align: center; max-width: 640px; color: var(--ink2); } .pf-chat-empty > svg { color: var(--indigo); }
 .pf-bubble { max-width: min(720px, 92%); padding: 11px 14px; border-radius: 16px; line-height: 1.5; }
@@ -667,3 +668,9 @@ button.pf-bell-item { cursor: pointer; } button.pf-bell-item:hover { background:
 .pf-cur-topic .pf-input { padding: 6px 8px; font-size: 13px; min-width: 0; }
 @media (max-width: 640px) { .pf-cur-topic { grid-template-columns: 1fr 1fr auto; } .pf-cur-topic > :first-child { grid-column: 1 / -1; } }
 @media (max-width: 640px) { .pf-o-head { flex-direction: column; align-items: flex-start; padding: 16px; } .pf-o-head > .pf-grow { width: 100%; } .pf-o-head h2 { font-size: 22px !important; } }
+
+/* where the student is in their studies: the check banner, the plan review and the details page */
+.pf-edu-check { margin-bottom: 14px; background: linear-gradient(180deg, #F7F9FF, #fff 70%); border-color: #D7DEFB; }
+.pf-edu-check > .pf-row > .pf-icon { color: var(--indigo); flex: none; }
+.pf-edu-check.warn { border-color: #F1D6A6; background: linear-gradient(180deg, #FFFAF0, #fff 70%); }
+@media (max-width: 640px) { .pf-edu-check .pf-row { align-items: flex-start; } }
