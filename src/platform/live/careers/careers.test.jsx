@@ -105,6 +105,28 @@ describe('a career page', () => {
     expect(screen.getByText(/O\*NET/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/%|percent/i);
   });
+  it('for a student past school, leads with the routes that still apply and what fits their stage, and says what was left out', async () => {
+    routes['get /v2/catalog/occupations/software-developers'] = page();
+    routes['get /v2/me/careers/software-developers/route'] = { forYou: { stage: 'College, year 2', status: 'stated', needsConfirmation: false, mode: 'from-here', dropped: 2,
+      pathway: { title: 'College, second year', now: ['Build projects and a first portfolio', 'Look for a first internship'], ahead: ['Campus placements in the final year'] },
+      routes: [{ stream: 'commerce', degrees: ['BCA, then MCA'], exams: [{ text: 'NIMCET (for MCA)', status: 'ahead' }], droppedExams: ['CUET UG'] }] } };
+    at('/platform/student/explore/software-developers');
+    expect(await screen.findByRole('heading', { name: 'How to get there from where you are' })).toBeInTheDocument();
+    expect(screen.getByText(/For College, year 2\./)).toBeInTheDocument();
+    expect(screen.getByText('Look for a first internship')).toBeInTheDocument();
+    expect(screen.getByText('Campus placements in the final year')).toBeInTheDocument();
+    expect(screen.getByText(/exams: NIMCET \(for MCA\)/)).toBeInTheDocument();
+    expect(screen.getByText(/2 routes into this career start from school entrance exams, which are behind you, so they are left out/)).toBeInTheDocument();
+    expect(screen.queryByText(/JEE Main/)).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'How to get there in India' })).toBeNull();
+  });
+  it('for a school student, or when the personal route is not available, the general routes are shown as before', async () => {
+    routes['get /v2/catalog/occupations/software-developers'] = page();
+    routes['get /v2/me/careers/software-developers/route'] = { forYou: { stage: 'Class 12', status: 'stated', needsConfirmation: false, mode: 'entry', dropped: 0, pathway: null, routes: [] } };
+    at('/platform/student/explore/software-developers');
+    expect(await screen.findByRole('heading', { name: 'How to get there in India' })).toBeInTheDocument();
+    expect(screen.getByText(/Science \(PCM\):/)).toBeInTheDocument();
+  });
   it('still shows the career for a student who has no finished assessment (no fit section)', async () => {
     routes['get /v2/platform/student'] = student([]);
     routes['get /v2/catalog/occupations/software-developers'] = page();

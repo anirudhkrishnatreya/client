@@ -8,7 +8,23 @@ const STREAM = { science_pcm: 'Science (PCM)', science_pcb: 'Science (PCB)', com
 const COST = { low: 'Lower cost', medium: 'Medium cost', high: 'Higher cost' };
 
 /** How you get into this career in India. Draft wording is flagged by the server and shown as a notice, never hidden. */
-function HowToEnter({ entry }) {
+function HowToEnter({ entry, forYou }) {
+  // past school: the routes that start after Class 12 are mostly behind them, so lead with what still applies and what fits their stage
+  if (forYou && forYou.mode === 'from-here') {
+    return (
+      <Card>
+        <h3 style={{ marginBottom: 4 }}>How to get there from where you are</h3>
+        <p className="pf-small pf-muted" style={{ margin: '0 0 8px' }}>For {forYou.stage}{forYou.needsConfirmation ? ' (not confirmed: you can check it in About me)' : ''}.</p>
+        {entry.summary && <p>{entry.summary}</p>}
+        {forYou.pathway && <><h4 style={{ margin: '10px 0 4px' }}>Fits you now</h4><ul style={{ margin: '0 0 0 18px' }}>{forYou.pathway.now.map(x => <li key={x}>{x}</li>)}</ul>
+          {forYou.pathway.ahead.length > 0 && <><h4 style={{ margin: '10px 0 4px' }}>Comes next</h4><ul style={{ margin: '0 0 0 18px' }}>{forYou.pathway.ahead.map(x => <li key={x}>{x}</li>)}</ul></>}</>}
+        {forYou.routes.length > 0 && <><h4 style={{ margin: '12px 0 4px' }}>Routes that still apply</h4><ul style={{ margin: '0 0 0 18px' }}>{forYou.routes.map((r, i) => <li key={i}><b>{STREAM[r.stream] || r.stream}:</b> {r.degrees.join(', ')}{r.exams && r.exams.length ? ` · exams: ${r.exams.map(e => e.text).join(', ')}` : ''}</li>)}</ul></>}
+        {forYou.dropped > 0 && <p className="pf-small pf-muted" style={{ marginTop: 8 }}>{forYou.dropped} route{forYou.dropped === 1 ? '' : 's'} into this career start from school entrance exams, which are behind you, so they are left out.</p>}
+        {entry.registration && <p className="pf-small" style={{ marginTop: 8 }}>Registration: {entry.registration}</p>}
+        {entry.costBand && <p className="pf-small pf-muted" style={{ marginTop: 6 }}>{COST[entry.costBand]}</p>}
+      </Card>
+    );
+  }
   return (
     <Card>
       <h3 style={{ marginBottom: 8 }}>How to get there in India</h3>
@@ -47,6 +63,7 @@ export default function Occupation() {
   const page = useLoad(() => rec.occupation(slug), [slug]);
   const list = useShortlist();
   const latest = useLatestAssessment();
+  const mine = useLoad(() => rec.routeForMe(slug), [slug]);                              // quietly absent when not available: the page then shows the general routes
   if (page.closed) return <Closed />;
   if (page.loading) return <p role="status">Loading…</p>;
   if (page.error) return <><PageHead eyebrow="Careers" title="Career not found" /><Card><p>We could not find that career.</p><Link className="pf-btn sm" to="/platform/student/explore">Back to explore</Link></Card></>;
@@ -59,7 +76,7 @@ export default function Occupation() {
       <div className="pf-grid">
         {latest && <HowItFits assessmentId={latest.assessmentId} slug={o.slug} />}
         <Card><h3 style={{ marginBottom: 6 }}>Preparation</h3><p>{o.jobZoneText}</p>{o.alsoInLabels.length > 0 && <p className="pf-small pf-muted" style={{ marginTop: 6 }}>Also relevant to: {o.alsoInLabels.map(a => a.label).join(', ')}</p>}</Card>
-        <HowToEnter entry={o.entry} />
+        <HowToEnter entry={o.entry} forYou={mine.data ? mine.data.forYou : null} />
       </div>
       {o.attribution && <p className="pf-small pf-faint" style={{ marginTop: 16 }}>{o.attribution}</p>}
     </>

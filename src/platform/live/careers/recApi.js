@@ -5,6 +5,7 @@ export const rec = {
   meta: () => api.get('/v2/catalog/meta'),
   browse: params => api.get('/v2/catalog/occupations', { params }),
   occupation: idOrSlug => api.get(`/v2/catalog/occupations/${encodeURIComponent(idOrSlug)}`),
+  routeForMe: idOrSlug => api.get(`/v2/me/careers/${encodeURIComponent(idOrSlug)}/route`),
   recommendation: assessmentId => api.get(`/v2/recommendations/${assessmentId}`),
   check: (assessmentId, idOrSlug) => api.get(`/v2/recommendations/${assessmentId}/occupations/${encodeURIComponent(idOrSlug)}`),
   context: () => api.get('/v2/me/context'),

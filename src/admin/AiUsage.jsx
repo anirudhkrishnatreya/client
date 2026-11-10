@@ -35,6 +35,13 @@ export default function AiUsage() {
         <Section title="By model" icon="brain"><UsageTable rows={d.byModel} first={r => r.key} firstLabel="Model" /></Section>
       </div>
       <Section title="By account" icon="users" style={{ marginBottom: 18 }}><UsageTable rows={d.byStudent} first={r => (r.email ? `${r.name} · ${r.email}` : r.name)} firstLabel="Account" link /></Section>
+      <Section title="Answers that did not fit the student" icon="shield" style={{ marginBottom: 18 }}>
+        {(d.guard || []).length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>Nothing in this period: no answer named an exam or stage the student is past.</p> : (
+          <div className="pf-tablewrap"><table className="pf-atable"><thead><tr><th>Task</th><th className="r">Caught</th><th className="r">Asked again</th><th className="r">Cleaned afterwards</th></tr></thead>
+            <tbody>{d.guard.map(g => <tr key={g.task}><td>{g.task}</td><td className="r">{num(g.caught)}</td><td className="r">{num(g.retried)}</td><td className="r">{num(g.cleaned)}</td></tr>)}</tbody></table>
+            <p className="pf-small pf-muted" style={{ margin: '8px 0 0' }}>A rise for one task means its instructions need work.</p></div>
+        )}
+      </Section>
       <Section title="Recent errors" icon="alert">
         {d.errors.length === 0 ? <p className="pf-small pf-muted" style={{ margin: 0 }}>No errors in this period.</p> : (
           <div className="pf-tablewrap"><table className="pf-atable"><thead><tr><th>When</th><th>Task</th><th>Model</th><th>Error</th><th>Account</th></tr></thead>

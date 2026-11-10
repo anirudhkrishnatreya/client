@@ -71,16 +71,16 @@ export default function SchoolStudents() {
         <button type="button" className="pf-btn sm" disabled={!mentor} onClick={assign}>Give them this mentor</button><button type="button" className="pf-btn sm ghost" onClick={invite}>Resend welcome emails</button></div></Card>}
       {msg && <p className="pf-small" role="status">{msg}</p>}
       {err && <p className="pf-small" role="alert" style={{ color: 'var(--coral)' }}>{err}</p>}
-      <Card flush><div className="pf-scroll"><table className="pf-table"><thead><tr>{admin && <th><input type="checkbox" aria-label="Select all" checked={shown.length > 0 && pick.length === shown.length} onChange={e => setPick(e.target.checked ? shown.map(r => r.id) : [])} /></th>}<th>Student</th><th>Class</th><th>Mentor</th><th>Risk</th><th>Steps (7d)</th><th>Last active</th><th>Consent</th><th /></tr></thead><tbody>
-        {!rows ? <tr><td colSpan="9" className="pf-muted">Loading…</td></tr> : shown.map(r => <tr key={r.id}>
+      <Card flush><div className="pf-scroll"><table className="pf-table"><thead><tr>{admin && <th><input type="checkbox" aria-label="Select all" checked={shown.length > 0 && pick.length === shown.length} onChange={e => setPick(e.target.checked ? shown.map(r => r.id) : [])} /></th>}<th>Student</th><th>Class</th><th>Class or year</th><th>Mentor</th><th>Risk</th><th>Steps (7d)</th><th>Last active</th><th>Consent</th><th /></tr></thead><tbody>
+        {!rows ? <tr><td colSpan="10" className="pf-muted">Loading…</td></tr> : shown.map(r => <tr key={r.id}>
           {admin && <td><input type="checkbox" aria-label={`Select ${r.name}`} checked={pick.includes(r.id)} onChange={e => setPick(p => (e.target.checked ? [...p, r.id] : p.filter(x => x !== r.id)))} /></td>}
           <td><div className="pf-row"><Avatar name={r.name} size={30} /><span><b>{r.name}</b><br /><span className="pf-small pf-muted">{r.goal ? r.goal.title : 'No plan yet'}</span></span></div></td>
-          <td className="pf-small">{r.cohort || '–'}</td><td className="pf-small">{r.mentor || <span className="pf-muted">none</span>}</td>
+          <td className="pf-small">{r.cohort || '–'}</td><td className="pf-small">{r.education && r.education.label ? r.education.label : <span className="pf-muted">not set</span>}{r.education && r.education.needs.length > 0 && <> <Pill tone="gold">Check</Pill></>}</td><td className="pf-small">{r.mentor || <span className="pf-muted">none</span>}</td>
           <td><Pill tone={RISK[r.risk][1]}>{RISK[r.risk][0]}</Pill>{r.escalation && <> <Pill tone="coral">Alert</Pill></>}</td><td>{r.steps7}</td>
           <td className="pf-small">{r.quietDays === null ? 'never' : r.quietDays === 0 ? 'today' : `${r.quietDays}d ago`}</td>
           <td className="pf-small">{r.consent === 'granted' || r.consent === 'not_required' ? 'Yes' : <span style={{ color: '#8A5A07' }}>Waiting</span>}</td>
           <td>{(r.consent === 'granted' || r.consent === 'not_required') && <Link className="pf-btn sm ghost" to={`../observe/${r.id}`}>Open</Link>}</td></tr>)}
-        {rows && shown.length === 0 && <tr><td colSpan="9" className="pf-muted" style={{ padding: 20 }}>No students{q || cohortId || risk ? ' match' : ' yet: import them from a spreadsheet'}.</td></tr>}
+        {rows && shown.length === 0 && <tr><td colSpan="10" className="pf-muted" style={{ padding: 20 }}>No students{q || cohortId || risk ? ' match' : ' yet: import them from a spreadsheet'}.</td></tr>}
       </tbody></table></div></Card>
       <Drawer open={sp.get('import') === '1'} title="Import students" onClose={() => { const n = Object.fromEntries(sp); delete n.import; setSp(n); }}>{sp.get('import') === '1' && <RosterImport onDone={load} />}</Drawer>
     </>
